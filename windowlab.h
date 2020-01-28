@@ -218,11 +218,16 @@ typedef struct Client
 #endif
 } Client;
 
-typedef struct Rect
-{
-	int x, y;
-	int width, height;
-} Rect;
+struct Rect final {
+    public:
+        constexpr Rect() noexcept = default;
+        constexpr Rect(int __x, int __y, int w, int h) noexcept : x(__x), y(__y), width(w), height(h) { }
+        ~Rect() = default;
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+};
 
 typedef struct MenuItem
 {
