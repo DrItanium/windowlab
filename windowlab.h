@@ -46,35 +46,6 @@
 #include <X11/Xft/Xft.h>
 #endif
 
-#ifdef MWM_HINTS
-// These definitions are taken from LessTif 0.95.0's MwmUtil.h.
-
-#define MWM_HINTS_FUNCTIONS (1L << 0)
-#define MWM_HINTS_DECORATIONS (1L << 1)
-#define MWM_HINTS_INPUT_MODE (1L << 2)
-#define MWM_HINTS_STATUS (1L << 3)
-
-#define MWM_DECOR_ALL (1L << 0)
-#define MWM_DECOR_BORDER (1L << 1)
-#define MWM_DECOR_RESIZEH (1L << 2)
-#define MWM_DECOR_TITLE (1L << 3)
-#define MWM_DECOR_MENU (1L << 4)
-#define MWM_DECOR_MINIMIZE (1L << 5)
-#define MWM_DECOR_MAXIMIZE (1L << 6)
-
-#define _XA_MWM_HINTS "_MOTIF_WM_HINTS"
-
-#define PROP_MWM_HINTS_ELEMENTS	5
-
-typedef struct PropMwmHints
-{
-	CARD32 flags;
-	CARD32 functions;
-	CARD32 decorations;
-	INT32 inputMode;
-	CARD32 status;
-} PropMwmHints;
-#endif
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -140,23 +111,24 @@ typedef struct PropMwmHints
 #define lower_win(c) ((void) XLowerWindow(dsply, (c)->frame))
 #define raise_win(c) ((void) XRaiseWindow(dsply, (c)->frame))
 
-// border width accessor to handle hints/no hints
-#ifdef MWM_HINTS
-#define BORDERWIDTH(c) ((c)->has_border ? DEF_BORDERWIDTH : 0)
-#else
-#define BORDERWIDTH(c) (DEF_BORDERWIDTH)
-#endif
 
 // bar height
+inline auto BARHEIGHT() noexcept {
 #ifdef XFT
-#define BARHEIGHT() (xftfont->ascent + xftfont->descent + 2*SPACE + 2)
+    return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
 #else
-#define BARHEIGHT() (font->ascent + font->descent + 2*SPACE + 2)
+    return (font->ascent + font->descent + 2*SPACE + 2);
 #endif
+}
 
 // minimum window width and height, enough for 3 buttons and a bit of titlebar
-#define MINWINWIDTH (BARHEIGHT() * 4)
-#define MINWINHEIGHT (BARHEIGHT() * 4)
+inline auto MINWINWIDTH() noexcept {
+    return BARHEIGHT() * 4;
+}
+
+inline auto MINWINHEIGHT() noexcept {
+    return BARHEIGHT() * 4;
+}
 
 // multipliers for calling gravitate
 #define APPLY_GRAVITY 1
@@ -213,9 +185,6 @@ typedef struct Client
 #ifdef SHAPE
 	Bool has_been_shaped;
 #endif
-#ifdef MWM_HINTS
-	Bool has_title, has_border;
-#endif
 #ifdef XFT
 	XftDraw *xftdraw;
 #endif
@@ -261,9 +230,6 @@ extern GC border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc, sel
 extern XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, selected_col, empty_col;
 extern Cursor resize_curs;
 extern Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
-#ifdef MWM_HINTS
-extern Atom mwm_hints;
-#endif
 extern char *opt_font, *opt_border, *opt_text, *opt_active, *opt_inactive, *opt_menu, *opt_selected, *opt_empty;
 #ifdef SHAPE
 extern int shape, shape_event;

@@ -155,10 +155,6 @@ static void setup_display(void)
 	wm_protos = XInternAtom(dsply, "WM_PROTOCOLS", False);
 	wm_delete = XInternAtom(dsply, "WM_DELETE_WINDOW", False);
 	wm_cmapwins = XInternAtom(dsply, "WM_COLORMAP_WINDOWS", False);
-#ifdef MWM_HINTS
-	mwm_hints = XInternAtom(dsply, _XA_MWM_HINTS, False);
-#endif
-
 	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_border, &border_col, &dummyc);
 	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_text, &text_col, &dummyc);
 	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_active, &active_col, &dummyc);

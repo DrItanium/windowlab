@@ -136,14 +136,7 @@ void remove_client(Client *c, int mode)
 	}
 	gravitate(c, REMOVE_GRAVITY);
 	XReparentWindow(dsply, c->window, root, c->x, c->y);
-#ifdef MWM_HINTS
-	if (c->has_border)
-	{
-		XSetWindowBorderWidth(dsply, c->window, 1);
-	}
-#else
 	XSetWindowBorderWidth(dsply, c->window, 1);
-#endif
 #ifdef XFT
 	XftDrawDestroy(c->xftdraw);
 #endif
@@ -196,12 +189,6 @@ void redraw(Client *c)
 	{
 		return;
 	}
-#ifdef MWM_HINTS
-	if (!c->has_title)
-	{
-		return;
-	}
-#endif
 	XDrawLine(dsply, c->frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, c->width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (c == focused_client)
@@ -353,9 +340,8 @@ Client *get_prev_focused(void)
 
 void draw_hide_button(Client *c, GC *detail_gc, GC *background_gc)
 {
-	int x, topleft_offset;
-	x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
-	topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
+	int x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
+	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
 	XFillRectangle(dsply, c->frame, *background_gc, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);

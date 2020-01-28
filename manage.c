@@ -576,12 +576,6 @@ static int get_incsize(Client *c, unsigned int *x_ret, unsigned int *y_ret, Rect
 
 void write_titletext(Client *c, Window bar_win)
 {
-#ifdef MWM_HINTS
-	if (!c->has_title)
-	{
-		return;
-	}
-#endif
 	if (!c->trans && c->name )
 	{
 #ifdef XFT

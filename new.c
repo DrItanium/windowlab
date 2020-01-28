@@ -22,9 +22,6 @@
 
 static void init_position(Client *);
 static void reparent(Client *);
-#ifdef MWM_HINTS
-static PropMwmHints *get_mwm_hints(Window);
-#endif
 
 /* Set up a client structure for the new (not-yet-mapped) window. The
  * confusing bit is that we have to ignore 2 unmap events if the
@@ -38,9 +35,6 @@ void make_new_client(Window w)
 	Client *c, *p;
 	XWindowAttributes attr;
 	XWMHints *hints;
-#ifdef MWM_HINTS
-	PropMwmHints *mhints;
-#endif
 	long dummy;
 
 	c = (Client *)malloc(sizeof *c);
@@ -79,20 +73,6 @@ void make_new_client(Window w)
 	c->cmap = attr.colormap;
 	c->size = XAllocSizeHints();
 	XGetWMNormalHints(dsply, c->window, c->size, &dummy);
-#ifdef MWM_HINTS
-	c->has_title = 1;
-	c->has_border = 1;
-
-	if ((mhints = get_mwm_hints(c->window)))
-	{
-		if (mhints->flags & MWM_HINTS_DECORATIONS && !(mhints->decorations & MWM_DECOR_ALL))
-		{
-			c->has_title = mhints->decorations & MWM_DECOR_TITLE;
-			c->has_border = mhints->decorations & MWM_DECOR_BORDER;
-		}
-		XFree(mhints);
-	}
-#endif
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	c->ignore_unmap++;
@@ -152,24 +132,6 @@ void make_new_client(Window w)
 /* This one does *not* free the data coming back from Xlib; it just
  * sends back the pointer to what was allocated. */
 
-#ifdef MWM_HINTS
-static PropMwmHints *get_mwm_hints(Window w)
-{
-	Atom real_type;
-	int real_format;
-	unsigned long items_read, items_left;
-	unsigned char *data;
-
-	if (XGetWindowProperty(dsply, w, mwm_hints, 0L, 20L, False, mwm_hints, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read >= PROP_MWM_HINTS_ELEMENTS)
-	{
-		return (PropMwmHints *)data;
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-#endif
 
 /* Figure out where to map the window. c->x, c->y, c->width, and
  * c->height actually start out with values in them (whatever the
