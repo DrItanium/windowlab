@@ -25,7 +25,7 @@ Client *find_client(Window w, int mode)
 	Client *c = head_client;
 	if (mode == FRAME)
 	{
-		while (c != NULL)
+		while (c)
 		{
 			if (c->frame == w)
 			{
@@ -36,7 +36,7 @@ Client *find_client(Window w, int mode)
 	}
 	else // WINDOW
 	{
-		while (c != NULL)
+		while (c)
 		{
 			if (c->window == w)
 			{
@@ -45,7 +45,7 @@ Client *find_client(Window w, int mode)
 			c = c->next;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /* Attempt to follow the ICCCM by explicitly specifying 32 bits for
@@ -164,7 +164,7 @@ void remove_client(Client *c, int mode)
 			}
 		}
 	}
-	if (c->name != NULL)
+	if (c->name)
 	{
 		XFree(c->name);
 	}
@@ -174,11 +174,11 @@ void remove_client(Client *c, int mode)
 	}
 	if (c == fullscreen_client)
 	{
-		fullscreen_client = NULL;
+		fullscreen_client = nullptr;
 	}
 	if (c == focused_client)
 	{
-		focused_client = NULL;
+		focused_client = nullptr;
 		check_focus(get_prev_focused());
 	}
 	free(c);
@@ -212,7 +212,7 @@ void redraw(Client *c)
 	{
 		XFillRectangle(dsply, c->frame, inactive_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-	if (!c->trans && c->name != NULL)
+	if (!c->trans && c->name)
 	{
 #ifdef XFT
 		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
@@ -310,7 +310,7 @@ void set_shape(Client *c)
 
 void check_focus(Client *c)
 {
-	if (c != NULL)
+	if (c)
 	{
 		XSetInputFocus(dsply, c->window, RevertToNone, CurrentTime);
 		XInstallColormap(dsply, c->cmap);
@@ -320,12 +320,12 @@ void check_focus(Client *c)
 		Client *old_focused = focused_client;
 		focused_client = c;
 		focus_count++;
-		if (c != NULL)
+		if (c)
 		{
 			c->focus_order = focus_count;
 			redraw(c);
 		}
-		if (old_focused != NULL)
+		if (old_focused)
 		{
 			redraw(old_focused);
 		}
@@ -336,10 +336,10 @@ void check_focus(Client *c)
 Client *get_prev_focused(void)
 {
 	Client *c = head_client;
-	Client *prev_focused = NULL;
+	Client *prev_focused = nullptr;
 	unsigned int highest = 0;
 
-	while (c != NULL)
+	while (c)
 	{
 		if (!c->hidden && c->focus_order > highest)
 		{
