@@ -34,25 +34,29 @@ DEFINES += -DDEF_MENURC="\"$(MENURC)\""
 
 # Uncomment to add freetype support (requires XFree86 4.0.2 or later)
 # This needs -lXext above, even if you have disabled shape support
-#DEFINES += -DXFT
-#EXTRA_INC += `pkg-config --cflags xft`
-#EXTRA_LIBS += `pkg-config --libs xft`
+DEFINES += -DXFT
+EXTRA_INC += `pkg-config --cflags xft`
+EXTRA_LIBS += `pkg-config --libs xft`
 
 # Uncomment for debugging info (abandon all hope, ye who enter here)
 #DEFINES += -DDEBUG
 
 # --------------------------------------------------------------------
 
+#CC = asminst -a x86_32_gcc -- gcc
 CC = gcc
+CXX = g++
 ifndef CFLAGS
+#CFLAGS = -m32 -g -O2 -Wall -W
 CFLAGS = -g -O2 -Wall -W
 endif
-
+DESTDIR = /home/jscoggins/sys/windowlab
 BINDIR = $(DESTDIR)$(PREFIX)/bin
 MANDIR = $(DESTDIR)$(PREFIX)$(MANBASE)/man1
 CFGDIR = $(DESTDIR)$(SYSCONFDIR)
 INCLUDES = -I$(XROOT)/include $(EXTRA_INC)
 LDPATH = -L$(XROOT)/lib
+#LDFLAGS = -m32
 LIBS = -lX11 $(EXTRA_LIBS)
 
 PROG = windowlab
@@ -63,10 +67,12 @@ HEADERS = windowlab.h
 all: $(PROG)
 
 $(PROG): $(OBJS)
-	$(CC) $(OBJS) $(LDPATH) $(LIBS) -o $@
+#	$(CC) $(OBJS) $(LDPATH) $(LIBS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJS) $(LDPATH) $(LIBS) $(LDFLAGS) -o $@
 
 $(OBJS): %.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+#	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 install: all
 	mkdir -p $(BINDIR) && install -m 755 -s $(PROG) $(BINDIR)
