@@ -48,7 +48,7 @@ CC = gcc
 CXX = g++
 ifndef CFLAGS
 #CFLAGS = -m32 -g -O2 -Wall -W
-CFLAGS = -g -O2 -Wall -W
+CXXFLAGS = -g -O2 -Wall -W -std=c++17
 endif
 DESTDIR = /home/jscoggins/sys/windowlab
 BINDIR = $(DESTDIR)$(PREFIX)/bin
@@ -56,6 +56,7 @@ MANDIR = $(DESTDIR)$(PREFIX)$(MANBASE)/man1
 CFGDIR = $(DESTDIR)$(SYSCONFDIR)
 INCLUDES = -I$(XROOT)/include $(EXTRA_INC)
 LDPATH = -L$(XROOT)/lib
+LDFLAGS = -std=c++17
 #LDFLAGS = -m32
 LIBS = -lX11 $(EXTRA_LIBS)
 
@@ -72,7 +73,7 @@ $(PROG): $(OBJS)
 
 $(OBJS): %.o: %.c $(HEADERS)
 #	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
-	$(CXX) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 install: all
 	mkdir -p $(BINDIR) && install -m 755 -s $(PROG) $(BINDIR)

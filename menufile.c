@@ -19,6 +19,7 @@
  */
 
 #include "windowlab.h"
+#include <cerrno>
 
 // semaphor activated by SIGHUP
 int do_menuitems;
@@ -36,7 +37,6 @@ void get_menuitems(void)
 	unsigned int i, button_startx = 0;
 	FILE *menufile = NULL;
 	char menurcpath[PATH_MAX], *c;
-	extern int errno;
 
 	menuitems = (MenuItem *)malloc(MAX_MENUITEMS_SIZE);
 	if (menuitems == NULL)
