@@ -48,12 +48,12 @@ void fork_exec(char *cmd)
   		case 0:
 			setsid();
 			envshell = getenv("SHELL");
-			if (envshell == NULL)
+			if (!envshell)
 			{
 				envshell = "/bin/sh";
 			}
 			envshellname = strrchr(envshell, '/');
-			if (envshellname == NULL)
+			if (!envshellname)
 			{
 				envshellname = envshell;
 			}
@@ -62,7 +62,7 @@ void fork_exec(char *cmd)
 				/* move to the character after the slash */
 				envshellname++;
 			}
-			execlp(envshell, envshellname, "-c", cmd, NULL);
+			execlp(envshell, envshellname, "-c", cmd, nullptr);
 			err("exec failed, cleaning up child");
 			exit(1);
 			break;
@@ -118,7 +118,7 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 		err("X error (%#lx): %s", e->resourceid, msg);
 	}
 
-	if (c != NULL)
+	if (c )
 	{
 		remove_client(c, WITHDRAW);
 	}
@@ -306,7 +306,7 @@ void show_event(XEvent e)
 	}
 
 	c = find_client(w, WINDOW);
-	snprintf(buf, sizeof buf, c != NULL ? c->name : "(none)");
+	snprintf(buf, sizeof buf, c  ? c->name : "(none)");
 	err("%#-10lx: %-20s: %s", w, buf, s);
 }
 
@@ -323,7 +323,7 @@ static const char *show_state(Client *c)
 
 static const char *show_grav(Client *c)
 {
-	if (c->size == NULL || !(c->size->flags & PWinGravity))
+	if (!c->size || !(c->size->flags & PWinGravity))
 	{
 		return "no grav (NW)";
 	}
@@ -347,7 +347,7 @@ static const char *show_grav(Client *c)
 
 void dump(Client *c)
 {
-	if (c != NULL)
+	if (c )
 	{
 		err("%s\n\t%s, %s, ignore %d, was_hidden %d\n\tframe %#lx, win %#lx, geom %dx%d+%d+%d", c->name, show_state(c), show_grav(c), c->ignore_unmap, c->was_hidden, c->frame, c->window, c->width, c->height, c->x, c->y);
 	}
@@ -356,7 +356,7 @@ void dump(Client *c)
 void dump_clients(void)
 {
 	Client *c = head_client;
-	while (c != NULL)
+	while (c )
 	{
 		dump(c);
 		c = c->next;
@@ -379,7 +379,7 @@ static void quit_nicely(void)
 	for (i = 0; i < nwins; i++)
 	{
 		c = find_client(wins[i], FRAME);
-		if (c != NULL)
+		if (c )
 		{
 			remove_client(c, REMAP);
 		}
