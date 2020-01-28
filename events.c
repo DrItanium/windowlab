@@ -138,7 +138,7 @@ static void handle_button_press(XButtonEvent *e)
 
 	if (e->state & MODIFIER)
 	{
-		if (focused_client != NULL && focused_client != fullscreen_client)
+		if (focused_client  && focused_client != fullscreen_client)
 		{
 			resize(focused_client, e->x_root, e->y_root);
 		}
@@ -183,7 +183,7 @@ static void handle_button_press(XButtonEvent *e)
 		if (e->button == Button1)
 		{
 			c = find_client(e->window, FRAME);
-			if (c != NULL)
+			if (c )
 			{
 				// click-to-focus
 				check_focus(c);
@@ -267,7 +267,7 @@ static void handle_windowbar_click(XButtonEvent *e, Client *c)
 		if (first_click_c == c && (e->time - first_click_time) < DEF_DBLCLKTIME)
 		{
 			raise_lower(c);
-			first_click_c = NULL; // prevent 3rd clicks counting as double clicks
+			first_click_c = nullptr; // prevent 3rd clicks counting as double clicks
 		}
 		else
 		{
@@ -334,7 +334,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 	Client *c = find_client(e->window, WINDOW);
 	XWindowChanges wc;
 
-	if (fullscreen_client != NULL && c == fullscreen_client)
+	if (fullscreen_client  && c == fullscreen_client)
 	{
 		if (e->value_mask & CWX)
 		{
@@ -355,7 +355,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 		return;
 	}
 
-	if (c != NULL)
+	if (c )
 	{
 		gravitate(c, REMOVE_GRAVITY);
 		if (e->value_mask & CWX)
@@ -417,7 +417,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 static void handle_map_request(XMapRequestEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
-	if (c != NULL)
+	if (c )
 	{
 		unhide(c);
 	}
@@ -445,7 +445,7 @@ static void handle_unmap_event(XUnmapEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
 
-	if (c != NULL)
+	if (c )
 	{
 		if (c->ignore_unmap)
 		{
@@ -465,7 +465,7 @@ static void handle_unmap_event(XUnmapEvent *e)
 static void handle_destroy_event(XDestroyWindowEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
-	if (c != NULL)
+	if (c )
 	{
 		remove_client(c, WITHDRAW);
 	}
@@ -478,7 +478,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e)
 static void handle_client_message(XClientMessageEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
-	if (c != NULL && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState)
+	if (c  && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState)
 	{
 		hide(c);
 	}
@@ -494,7 +494,7 @@ static void handle_property_change(XPropertyEvent *e)
 	Client *c = find_client(e->window, WINDOW);
 	long dummy;
 
-	if (c != NULL)
+	if (c )
 	{
 		switch (e->atom)
 		{
@@ -502,7 +502,7 @@ static void handle_property_change(XPropertyEvent *e)
 				if (c->name)
 				{
 					XFree(c->name);
-					c->name = NULL;
+					c->name = nullptr;
 				}
 				XFetchName(dsply, c->window, &c->name);
 				redraw(c);
@@ -527,7 +527,7 @@ static void handle_property_change(XPropertyEvent *e)
 
 static void handle_enter_event(XCrossingEvent *e)
 {
-	Client *c = NULL;
+	Client *c = nullptr;
 	if (e->window == taskbar)
 	{
 		in_taskbar = 1;
@@ -540,7 +540,7 @@ static void handle_enter_event(XCrossingEvent *e)
 	else
 	{
 		in_taskbar = 0;
-		if (fullscreen_client != NULL)
+		if (fullscreen_client )
 		{
 			if (showing_taskbar == 1)
 			{
@@ -558,7 +558,7 @@ static void handle_enter_event(XCrossingEvent *e)
 		}
 
 		c = find_client(e->window, FRAME);
-		if (c != NULL)
+		if (c )
 		{
 			XGrabButton(dsply, AnyButton, AnyModifier, c->frame, False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
@@ -577,8 +577,7 @@ static void handle_enter_event(XCrossingEvent *e)
 static void handle_colormap_change(XColormapEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
-	if (c != NULL && e->c_new) // use c_new for c++
-	//if (c != NULL && e->new)
+	if (c  && e->c_new) // use c_new for c++
 	{
 		c->cmap = e->colormap;
 		XInstallColormap(dsply, c->cmap);
@@ -601,7 +600,7 @@ static void handle_expose_event(XExposeEvent *e)
 	else
 	{
 		Client *c = find_client(e->window, FRAME);
-		if (c != NULL && e->count == 0)
+		if (c  && e->count == 0)
 		{
 			redraw(c);
 		}
@@ -612,7 +611,7 @@ static void handle_expose_event(XExposeEvent *e)
 static void handle_shape_change(XShapeEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
-	if (c != NULL)
+	if (c )
 	{
 		set_shape(c);
 	}
@@ -645,7 +644,7 @@ static int interruptible_XNextEvent(XEvent *event)
 		}
 		FD_ZERO(&fds);
 		FD_SET(dsply_fd, &fds);
-		rc = select(dsply_fd + 1, &fds, NULL, NULL, NULL);
+		rc = select(dsply_fd + 1, &fds, nullptr, nullptr, nullptr);
 		if (rc < 0)
 		{
 			if (errno == EINTR)
