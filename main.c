@@ -23,12 +23,12 @@
 #include <X11/cursorfont.h>
 #include "windowlab.h"
 
-Display *dsply = NULL;
+Display *dsply = nullptr;
 Window root;
 int screen;
-XFontStruct *font = NULL;
+XFontStruct *font = nullptr;
 #ifdef XFT
-XftFont *xftfont = NULL;
+XftFont *xftfont = nullptr;
 XftColor xft_detail;
 #endif
 GC string_gc, border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc, selected_gc, empty_gc;
@@ -38,7 +38,7 @@ Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
 #ifdef MWM_HINTS
 Atom mwm_hints;
 #endif
-Client *head_client = NULL, *focused_client = NULL, *topmost_client = NULL, *fullscreen_client = NULL;
+Client *head_client = nullptr, *focused_client = nullptr, *topmost_client = nullptr, *fullscreen_client = nullptr;
 unsigned int in_taskbar = 0; // actually, we don't know yet
 unsigned int showing_taskbar = 1;
 unsigned int focus_count = 0;
@@ -51,7 +51,7 @@ char *opt_inactive = DEF_INACTIVE;
 char *opt_menu = DEF_MENU;
 char *opt_selected = DEF_SELECTED;
 char *opt_empty = DEF_EMPTY;
-char *opt_display = NULL;
+char *opt_display = nullptr;
 #ifdef SHAPE
 Bool shape;
 int shape_event;
@@ -96,10 +96,10 @@ int main(int argc, char **argv)
 
 	act.sa_handler = sig_handler;
 	act.sa_flags = 0;
-	sigaction(SIGTERM, &act, NULL);
-	sigaction(SIGINT, &act, NULL);
-	sigaction(SIGHUP, &act, NULL);
-	sigaction(SIGCHLD, &act, NULL);
+	sigaction(SIGTERM, &act, nullptr);
+	sigaction(SIGINT, &act, nullptr);
+	sigaction(SIGHUP, &act, nullptr);
+	sigaction(SIGCHLD, &act, nullptr);
 
 	setup_display();
 	get_menuitems();
@@ -140,7 +140,7 @@ static void setup_display(void)
 
 	dsply = XOpenDisplay(opt_display);
 
-	if (dsply == NULL)
+	if (!dsply)
 	{
 		err("can't open display! check your DISPLAY variable.");
 		exit(1);
@@ -184,14 +184,14 @@ static void setup_display(void)
 	xft_detail.pixel = text_col.pixel;
 
 	xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font);
-	if (xftfont == NULL)
+	if (!xftfont)
 	{
 		err("font '%s' not found", opt_font);
 		exit(1);
 	}
 #else
 	font = XLoadQueryFont(dsply, opt_font);
-	if (font == NULL)
+	if (!font)
 	{
 		err("XLoadQueryFont(): font '%s' not found", opt_font);
 		exit(1);
