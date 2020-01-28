@@ -25,12 +25,12 @@ static int get_incsize(Client *, unsigned int *, unsigned int *, Rect *, int);
 
 void raise_lower(Client *c)
 {
-	if (c != NULL)
+	if (c )
 	{
 		if (c == topmost_client)
 		{
 			lower_win(c);
-			topmost_client = NULL; // lazy but amiwm does similar
+			topmost_client = nullptr; // lazy but amiwm does similar
 		}
 		else
 		{
@@ -44,7 +44,7 @@ void raise_lower(Client *c)
 
 void hide(Client *c)
 {
-	if (c != NULL)
+	if (c )
 	{
 		if (!c->hidden)
 		{
@@ -52,7 +52,7 @@ void hide(Client *c)
 			c->hidden = 1;
 			if (c == topmost_client)
 			{
-				topmost_client = NULL;
+				topmost_client = nullptr;
 			}
 			XUnmapWindow(dsply, c->frame);
 			XUnmapWindow(dsply, c->window);
@@ -64,7 +64,7 @@ void hide(Client *c)
 
 void unhide(Client *c)
 {
-	if (c != NULL)
+	if (c )
 	{
 		if (c->hidden)
 		{
@@ -80,7 +80,7 @@ void unhide(Client *c)
 void toggle_fullscreen(Client *c)
 {
 	int xoffset, yoffset, maxwinwidth, maxwinheight;
-	if (c != NULL && !c->trans)
+	if (c  && !c->trans)
 	{
 		if (c == fullscreen_client) // reset to original size
 		{
@@ -91,7 +91,7 @@ void toggle_fullscreen(Client *c)
 			XMoveResizeWindow(dsply, c->frame, c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT());
 			XMoveResizeWindow(dsply, c->window, 0, BARHEIGHT(), c->width, c->height);
 			send_config(c);
-			fullscreen_client = NULL;
+			fullscreen_client = nullptr;
 			showing_taskbar = 1;
 		}
 		else // make fullscreen
@@ -99,7 +99,7 @@ void toggle_fullscreen(Client *c)
 			xoffset = yoffset = 0;
 			maxwinwidth = DisplayWidth(dsply, screen);
 			maxwinheight = DisplayHeight(dsply, screen) - BARHEIGHT();
-			if (fullscreen_client != NULL) // reset existing fullscreen window to original size
+			if (fullscreen_client ) // reset existing fullscreen window to original size
 			{
 				fullscreen_client->x = fs_prevdims.x;
 				fullscreen_client->y = fs_prevdims.y;
@@ -220,7 +220,7 @@ void move(Client *c)
 		{
 			case Expose:
 				exposed_c = find_client(ev.xexpose.window, FRAME);
-				if (exposed_c != NULL)
+				if (exposed_c )
 				{
 					redraw(exposed_c);
 				}
@@ -582,7 +582,7 @@ void write_titletext(Client *c, Window bar_win)
 		return;
 	}
 #endif
-	if (!c->trans && c->name != NULL)
+	if (!c->trans && c->name )
 	{
 #ifdef XFT
 		(void) bar_win; // fixes a warning
