@@ -55,12 +55,11 @@ void do_event_loop(void)
 		show_event(ev);
 #endif
 		/* check to see if menu rebuild has been requested */
-		if (do_menuitems)
-		{
-			free_menuitems();
-			get_menuitems();
-		}
-
+        if (shouldDoMenuItems()) 
+        {
+            clearMenuItems();
+            acquireMenuItems();
+        }
 		switch (ev.type)
 		{
 			case KeyPress:

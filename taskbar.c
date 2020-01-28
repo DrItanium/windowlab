@@ -218,7 +218,7 @@ void rclick_taskbar(int x)
 			case ButtonRelease:
 				if (current_item != UINT_MAX)
 				{
-					fork_exec(menuitems[current_item].command);
+					fork_exec(menuitems[current_item].command.data());
 				}
 				break;
 			case KeyPress:
@@ -316,12 +316,12 @@ void draw_menubar(void)
 
 	for (i = 0; i < num_menuitems; i++)
 	{
-		if (menuitems[i].label && menuitems[i].command)
+		if (auto& menuItem = menuitems[i];!menuItem.label.empty() && !menuItem.command.empty())
 		{
 #ifdef XFT
-			XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuitems[i].x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuitems[i].label, strlen(menuitems[i].label));
+			XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
 #else
-			XDrawString(dsply, taskbar, text_gc, menuitems[i].x + (SPACE * 2), font->ascent + SPACE, menuitems[i].label, strlen(menuitems[i].label));
+			XDrawString(dsply, taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label, menuItem.label.size());
 #endif
 		}
 	}
@@ -378,9 +378,9 @@ void draw_menuitem(unsigned int index, unsigned int active)
 		XFillRectangle(dsply, taskbar, menu_gc, menuitems[index].x, 0, menuitems[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 #ifdef XFT
-	XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuitems[index].x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuitems[index].label, strlen(menuitems[index].label));
+	XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuitems[index].x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuitems[index].label.data(), menuitems[index].label.size());
 #else
-	XDrawString(dsply, taskbar, text_gc, menuitems[index].x + (SPACE * 2), font->ascent + SPACE, menuitems[index].label, strlen(menuitems[index].label));
+	XDrawString(dsply, taskbar, text_gc, menuitems[index].x + (SPACE * 2), font->ascent + SPACE, menuitems[index].label.data(), menuitems[index].label.size());
 #endif
 }
 

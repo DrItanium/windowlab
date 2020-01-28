@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 	sigaction(SIGCHLD, &act, nullptr);
 
 	setup_display();
-	get_menuitems();
+    acquireMenuItems();
 	make_taskbar();
 	scan_wins();
 	do_event_loop();

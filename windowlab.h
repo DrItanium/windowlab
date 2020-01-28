@@ -24,18 +24,21 @@
 #define VERSION "1.40"
 #define RELEASEDATE "2010-04-04"
 
-#include <errno.h>
-#include <limits.h>
+#include <cerrno>
+#include <climits>
 #include <pwd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sys/types.h>
 #include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/Xmd.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <string>
+#include <list>
+#include <filesystem>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -229,12 +232,16 @@ struct Rect final {
         int height = 0;
 };
 
-typedef struct MenuItem
+struct MenuItem final
 {
-	char *command, *label;
-	int x;
-	int width;
-} MenuItem;
+    public:
+        MenuItem() = default;
+        MenuItem(const std::string& cmd, const std::string& lbl, int __x = 0, int w = 0) noexcept : command(cmd), label(lbl), x(__x), width(w) { }
+
+        std::string command, label;
+        int x = 0;
+        int width = 0;
+};
 
 // Below here are (mainly generated with cproto) declarations and prototypes for each file.
 
@@ -328,9 +335,15 @@ extern void redraw_taskbar(void);
 extern float get_button_width(void);
 
 // menufile.c
-extern int do_menuitems;
-extern MenuItem* menuitems;
-extern unsigned int num_menuitems;
-extern void get_menuitems(void);
-extern void free_menuitems(void);
+const std::filesystem::path& getDefMenuRc() noexcept;
+using MenuItemList = std::list<MenuItem>;
+MenuItemList& getMenuItems() noexcept;
+auto getMenuItemCount() noexcept { return getMenuItems().size(); }
+void clearMenuItems() noexcept;
+void acquireMenuItems() noexcept;
+bool shouldDoMenuItems() noexcept;
+void requestMenuItems() noexcept;
+//extern int do_menuitems;
+//extern void get_menuitems(void);
+//extern void free_menuitems(void);
 #endif /* WINDOWLAB_H */
