@@ -49,7 +49,7 @@ void make_taskbar(void)
 void remember_hidden(void)
 {
 	Client *c;
-	for (c = head_client; c != NULL; c = c->next)
+	for (c = head_client; c; c = c->next)
 	{
 		c->was_hidden = c->hidden;
 	}
@@ -58,7 +58,7 @@ void remember_hidden(void)
 void forget_hidden(void)
 {
 	Client *c;
-	for (c = head_client; c != NULL; c = c->next)
+	for (c = head_client; c; c = c->next)
 	{
 		if (c == focused_client)
 		{
@@ -73,7 +73,7 @@ void forget_hidden(void)
 
 void lclick_taskbutton(Client *old_c, Client *c)
 {
-	if (old_c != NULL)
+	if (old_c != nullptr)
 	{
 		if (old_c->was_hidden)
 		{
@@ -110,7 +110,7 @@ void lclick_taskbar(int x)
 	float button_width;
 	unsigned int button_clicked, old_button_clicked, i;
 	Client *c, *exposed_c, *old_c;
-	if (head_client != NULL)
+	if (head_client != nullptr)
 	{
 		remember_hidden();
 
@@ -138,7 +138,7 @@ void lclick_taskbar(int x)
 			c = c->next;
 		}
 
-		lclick_taskbutton(NULL, c);
+		lclick_taskbutton(nullptr, c);
 
 		do
 		{
@@ -281,7 +281,7 @@ void redraw_taskbar(void)
 		return;
 	}
 
-	for (c = head_client, i = 0; c != NULL; c = c->next, i++)
+	for (c = head_client, i = 0; c ; c = c->next, i++)
 	{
 		button_startx = (int)(i * button_width);
 		button_iwidth = (unsigned int)(((i + 1) * button_width) - button_startx);
@@ -297,7 +297,7 @@ void redraw_taskbar(void)
 		{
 			XFillRectangle(dsply, taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
-		if (!c->trans && c->name != NULL)
+		if (!c->trans && c->name)
 		{
 #ifdef XFT
 			XftDrawString8(tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
@@ -388,7 +388,7 @@ float get_button_width(void)
 {
 	unsigned int nwins = 0;
 	Client *c = head_client;
-	while (c != NULL)
+	while (c)
 	{
 		nwins++;
 		c = c->next;
@@ -400,19 +400,19 @@ void cycle_previous(void)
 {
 	Client *c = focused_client;
 	Client *original_c = c;
-	if (head_client != NULL && head_client->next != NULL) // at least 2 windows exist
+	if (head_client && head_client->next) // at least 2 windows exist
 	{
-		if (c == NULL)
+		if (!c)
 		{
 			c = head_client;
 		}
 		if (c == head_client)
 		{
-			original_c = NULL;
+			original_c = nullptr;
 		}
 		do
 		{
-			if (c->next == NULL)
+			if (!c->next)
 			{
 				c = head_client;
 			}
@@ -422,20 +422,20 @@ void cycle_previous(void)
 			}
 		}
 		while (c->next != original_c);
-		lclick_taskbutton(NULL, c);
+		lclick_taskbutton(nullptr, c);
 	}
 }
 
 void cycle_next(void)
 {
 	Client *c = focused_client;
-	if (head_client != NULL && head_client->next != NULL) // at least 2 windows exist
+	if (head_client && head_client->next) // at least 2 windows exist
 	{
-		if (c == NULL || c->next == NULL)
+		if (!c || !c->next)
 		{
 			c = head_client;
 		}
 		else c = c->next;
-		lclick_taskbutton(NULL, c);
+		lclick_taskbutton(nullptr, c);
 	}
 }
