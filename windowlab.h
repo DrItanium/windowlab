@@ -236,7 +236,7 @@ struct MenuItem final
 {
     public:
         MenuItem() = default;
-        MenuItem(const std::string& cmd, const std::string& lbl, int __x = 0, int w = 0) noexcept : command(cmd), label(lbl), x(__x), width(w) { }
+        MenuItem(const std::string& lbl, const std::string& cmd, int __x = 0, int w = 0) noexcept : command(cmd), label(lbl), x(__x), width(w) { }
 
         std::string command, label;
         int x = 0;

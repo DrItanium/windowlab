@@ -20,6 +20,7 @@
 
 #include "windowlab.h"
 #include <cerrno>
+#include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <tuple>
@@ -60,10 +61,13 @@ std::optional<std::tuple<std::string, std::string>> parseLine(const std::string&
     std::istringstream iss(line);
     std::string label;
     if (std::getline(iss, label, ':')) {
+        //std::cout << "got label: " << label << std::endl;
         std::string cmd;
         if (std::getline(iss, cmd)) {
+            //std::cout << "got cmd: " << cmd << std::endl;
             trimLeadingWs(cmd);
             if (!cmd.empty() && cmd.front() != '\r' && cmd.front() != '\n') {
+                //std::cout << "tuple of " << label << " and " << cmd << std::endl;
                 return { std::make_tuple(label, cmd) };
             }
         }
@@ -72,7 +76,8 @@ std::optional<std::tuple<std::string, std::string>> parseLine(const std::string&
 }
 
 void acquireMenuItems() noexcept {
-    getMenuItems().clear();
+    clearMenuItems();
+    //std::cout << "Entering acquireMenuItems" << std::endl;
     std::filesystem::path menurcpath = getHomeDirectory() / ".windowlab/windowlab.menurc";
     std::ifstream menufile(menurcpath);
     if (!menufile.is_open()) {
@@ -100,7 +105,7 @@ void acquireMenuItems() noexcept {
                 trimLeadingWs(line);
                 if (!line.empty() && (line.front() != '#')) {
                     if (auto parsed = parseLine(line); parsed) {
-                        getMenuItems().emplace_back(std::get<0>(*parsed), std::get<1>(*parsed), 0, 0);
+                        getMenuItems().emplace_back(std::get<0>(*parsed), std::get<1>(*parsed));
                     }
                 }
             }
@@ -108,15 +113,6 @@ void acquireMenuItems() noexcept {
     } else {
 		err("can't find ~/.windowlab/windowlab.menurc, %s or %s\n", menurcpath.c_str(), getDefMenuRc().c_str());
         getMenuItems().emplace_back(NO_MENU_LABEL, NO_MENU_COMMAND);
-#if 0
-		// one menu item - xterm
-		err("can't find ~/.windowlab/windowlab.menurc, %s or %s\n", menurcpath, DEF_MENURC);
-		menuitems[0].command = (char *)malloc(strlen(NO_MENU_COMMAND) + 1);
-		strcpy(menuitems[0].command, NO_MENU_COMMAND);
-		menuitems[0].label = (char *)malloc(strlen(NO_MENU_LABEL) + 1);
-		strcpy(menuitems[0].label, NO_MENU_LABEL);
-		num_menuitems = 1;
-#endif
     }
     menufile.close();
     unsigned int buttonStartX = 0;
@@ -132,6 +128,7 @@ void acquireMenuItems() noexcept {
 	}
 	// menu items have been built
     doMenuItems = false;
+    //std::cout << "Leaving acquireMenuItems" << std::endl;
 }
 
 void clearMenuItems() noexcept

@@ -19,6 +19,7 @@
  */
 
 #include "windowlab.h"
+#include <iostream>
 
 static void draw_menubar(void);
 static unsigned int update_menuitem(int);
@@ -310,13 +311,12 @@ void redraw_taskbar(void)
 
 void draw_menubar(void)
 {
-	unsigned int i, dw;
-	dw = DisplayWidth(dsply, screen);
-	XFillRectangle(dsply, taskbar, menu_gc, 0, 0, dw, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dsply, taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : getMenuItems()) {
 		if (!menuItem.label.empty() && !menuItem.command.empty())
 		{
+            //std::cout << "displaying " << menuItem.label << std::endl;
 #ifdef XFT
 			XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
 #else
@@ -328,8 +328,9 @@ void draw_menubar(void)
 
 unsigned int update_menuitem(int mousex)
 {
+    //std::cout << "enter update_menuitem" << std::endl;
 	static unsigned int last_item; // retain value from last call
-	unsigned int i;
+	unsigned int i = 0;
 	if (mousex == INT_MAX) // entered function to set last_item
 	{
         last_item = getMenuItemCount();
@@ -340,6 +341,7 @@ unsigned int update_menuitem(int mousex)
 		{
 			break;
 		}
+        ++i;
 	}
 
 	if (i != last_item) // don't redraw if same
