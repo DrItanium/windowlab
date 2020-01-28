@@ -26,7 +26,7 @@ int do_menuitems;
 
 static int parseline(char *, char *, char *);
 
-MenuItem *menuitems = NULL;
+MenuItem *menuitems = nullptr;
 unsigned int num_menuitems;
 #ifdef XFT
 XGlyphInfo extents;
@@ -35,11 +35,11 @@ XGlyphInfo extents;
 void get_menuitems(void)
 {
 	unsigned int i, button_startx = 0;
-	FILE *menufile = NULL;
+	FILE *menufile = nullptr;
 	char menurcpath[PATH_MAX], *c;
 
 	menuitems = (MenuItem *)malloc(MAX_MENUITEMS_SIZE);
-	if (menuitems == NULL)
+	if (!menuitems)
 	{
 		err("Unable to allocate menu items array.");
 		return;
@@ -50,7 +50,7 @@ void get_menuitems(void)
 #ifdef DEBUG
 	printf("trying to open: %s\n", menurcpath);
 #endif
-	if ((menufile = fopen(menurcpath, "r")) == NULL)
+	if (!(menufile = fopen(menurcpath, "r")))
 	{
 		ssize_t len;
 		// get location of the executable
@@ -65,11 +65,11 @@ void get_menuitems(void)
 			// insert null to end the file path properly
 			menurcpath[len] = '\0';
 		}
-		if ((c = strrchr(menurcpath, '/')) != NULL)
+		if ((c = strrchr(menurcpath, '/')))
 		{
 			*c = '\0';
 		}
-		if ((c = strrchr(menurcpath, '/')) != NULL)
+		if ((c = strrchr(menurcpath, '/')))
 		{
 			*c = '\0';
 		}
@@ -77,7 +77,7 @@ void get_menuitems(void)
 #ifdef DEBUG
 		printf("trying to open: %s\n", menurcpath);
 #endif
-		if ((menufile = fopen(menurcpath, "r")) == NULL)
+		if (!(menufile = fopen(menurcpath, "r")))
 		{
 #ifdef DEBUG
 			printf("trying to open: %s\n", DEF_MENURC);
@@ -85,7 +85,7 @@ void get_menuitems(void)
 			menufile = fopen(DEF_MENURC, "r");
 		}
 	}
-	if (menufile != NULL)
+	if (menufile)
 	{
 		num_menuitems = 0;
 		while ((!feof(menufile)) && (!ferror(menufile)) && (num_menuitems < MAX_MENUITEMS))
@@ -145,10 +145,10 @@ int parseline(char *menustr, char *labelstr, char *commandstr)
 {
 	int success = 0;
 	int menustrlen = strlen(menustr);
-	char *ptemp = NULL;
+	char *ptemp = nullptr;
 	char *menustrcpy = (char *)malloc(menustrlen + 1);
 
-	if (menustrcpy == NULL)
+	if (!menustrcpy)
 	{
 		return 0;
 	}
@@ -156,11 +156,11 @@ int parseline(char *menustr, char *labelstr, char *commandstr)
 	strcpy(menustrcpy, menustr);
 	ptemp = strtok(menustrcpy, ":");
 
-	if (ptemp != NULL)
+	if (ptemp)
 	{
 		strcpy(labelstr, ptemp);
-		ptemp = strtok(NULL, "\n");
-		if (ptemp != NULL) // right of ':' is not empty
+		ptemp = strtok(nullptr, "\n");
+		if (ptemp) // right of ':' is not empty
 		{
 			while (*ptemp == ' ' || *ptemp == '\t')
 			{
@@ -173,7 +173,7 @@ int parseline(char *menustr, char *labelstr, char *commandstr)
 			}
 		}
 	}
-	if (menustrcpy != NULL)
+	if (menustrcpy)
 	{
 		free(menustrcpy);
 	}
@@ -183,22 +183,22 @@ int parseline(char *menustr, char *labelstr, char *commandstr)
 void free_menuitems(void)
 {
 	unsigned int i;
-	if (menuitems != NULL)
+	if (menuitems)
 	{
 		for (i = 0; i < num_menuitems; i++)
 		{
-			if (menuitems[i].label != NULL)
+			if (menuitems[i].label)
 			{
 				free(menuitems[i].label);
-				menuitems[i].label = NULL;
+				menuitems[i].label = nullptr;
 			}
-			if (menuitems[i].command != NULL)
+			if (menuitems[i].command)
 			{
 				free(menuitems[i].command);
-				menuitems[i].command = NULL;
+				menuitems[i].command = nullptr;
 			}
 		}
 		free(menuitems);
-		menuitems = NULL;
+		menuitems = nullptr;
 	}
 }
