@@ -218,7 +218,7 @@ void rclick_taskbar(int x)
 			case ButtonRelease:
 				if (current_item != UINT_MAX)
 				{
-					fork_exec(menuitems[current_item].command.data());
+					fork_exec(getMenuItems()[current_item].command.data());
 				}
 				break;
 			case KeyPress:
@@ -314,9 +314,8 @@ void draw_menubar(void)
 	dw = DisplayWidth(dsply, screen);
 	XFillRectangle(dsply, taskbar, menu_gc, 0, 0, dw, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	for (i = 0; i < num_menuitems; i++)
-	{
-		if (auto& menuItem = menuitems[i];!menuItem.label.empty() && !menuItem.command.empty())
+    for (auto& menuItem : getMenuItems()) {
+		if (!menuItem.label.empty() && !menuItem.command.empty())
 		{
 #ifdef XFT
 			XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
@@ -333,12 +332,11 @@ unsigned int update_menuitem(int mousex)
 	unsigned int i;
 	if (mousex == INT_MAX) // entered function to set last_item
 	{
-		last_item = num_menuitems;
+        last_item = getMenuItemCount();
 		return UINT_MAX;
 	}
-	for (i = 0; i < num_menuitems; i++)
-	{
-		if ((mousex >= menuitems[i].x) && (mousex <= (menuitems[i].x + menuitems[i].width)))
+    for (const auto& menuItem : getMenuItems()) {
+		if ((mousex >= menuItem.x) && (mousex <= (menuItem.x + menuItem.width)))
 		{
 			break;
 		}
@@ -346,18 +344,18 @@ unsigned int update_menuitem(int mousex)
 
 	if (i != last_item) // don't redraw if same
 	{
-		if (last_item != num_menuitems)
+		if (last_item != getMenuItemCount())
 		{
 			draw_menuitem(last_item, 0);
 		}
-		if (i != num_menuitems)
+		if (i != getMenuItemCount())
 		{
 			draw_menuitem(i, 1);
 		}
 		last_item = i; // set to new menu item
 	}
 
-	if (i != num_menuitems)
+	if (i != getMenuItemCount())
 	{
 		return i;
 	}
@@ -371,16 +369,16 @@ void draw_menuitem(unsigned int index, unsigned int active)
 {
 	if (active)
 	{
-		XFillRectangle(dsply, taskbar, selected_gc, menuitems[index].x, 0, menuitems[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, taskbar, selected_gc, getMenuItems()[index].x, 0, getMenuItems()[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	else
 	{
-		XFillRectangle(dsply, taskbar, menu_gc, menuitems[index].x, 0, menuitems[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, taskbar, menu_gc, getMenuItems()[index].x, 0, getMenuItems()[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 #ifdef XFT
-	XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuitems[index].x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuitems[index].label.data(), menuitems[index].label.size());
+	XftDrawString8(tbxftdraw, &xft_detail, xftfont, getMenuItems()[index].x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)getMenuItems()[index].label.data(), getMenuItems()[index].label.size());
 #else
-	XDrawString(dsply, taskbar, text_gc, menuitems[index].x + (SPACE * 2), font->ascent + SPACE, menuitems[index].label.data(), menuitems[index].label.size());
+	XDrawString(dsply, taskbar, text_gc, getMenuItems()[index].x + (SPACE * 2), font->ascent + SPACE, getMenuItems()[index].label.data(), getMenuItems()[index].label.size());
 #endif
 }
 

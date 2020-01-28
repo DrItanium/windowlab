@@ -37,7 +37,7 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <string>
-#include <list>
+#include <vector>
 #include <filesystem>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
@@ -336,9 +336,9 @@ extern float get_button_width(void);
 
 // menufile.c
 const std::filesystem::path& getDefMenuRc() noexcept;
-using MenuItemList = std::list<MenuItem>;
+using MenuItemList = std::vector<MenuItem>;
 MenuItemList& getMenuItems() noexcept;
-auto getMenuItemCount() noexcept { return getMenuItems().size(); }
+inline std::size_t getMenuItemCount() noexcept { return getMenuItems().size(); }
 void clearMenuItems() noexcept;
 void acquireMenuItems() noexcept;
 bool shouldDoMenuItems() noexcept;

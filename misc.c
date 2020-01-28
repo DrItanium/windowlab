@@ -84,7 +84,7 @@ void sig_handler(int signal)
 			quit_nicely();
 			break;
 		case SIGHUP:
-			do_menuitems = 1;
+            requestMenuItems();
 			break;
 		case SIGCHLD:
 			while ((pid = waitpid(-1, &status, WNOHANG)) != 0)
@@ -373,7 +373,7 @@ static void quit_nicely(void)
 	Window dummyw1, dummyw2, *wins;
 	Client *c;
 
-	free_menuitems();
+    clearMenuItems();
 
 	XQueryTree(dsply, root, &dummyw1, &dummyw2, &wins, &nwins);
 	for (i = 0; i < nwins; i++)
