@@ -44,20 +44,20 @@ void make_new_client(Window w)
 	long dummy;
 
 	c = (Client *)malloc(sizeof *c);
-	if (head_client == NULL)
+	if (!head_client)
 	{
 		head_client = c;
 	}
 	else
 	{
 		p = head_client;
-		while (p->next != NULL)
+		while (p->next )
 		{
 			p = p->next;
 		}
 		p->next = c;
 	}
-	c->next = NULL;
+	c->next = nullptr;
 
 	XGrabServer(dsply);
 
@@ -137,7 +137,7 @@ void make_new_client(Window w)
 	}
 
 	// if no client has focus give focus to the new client
-	if (focused_client == NULL)
+	if (!focused_client)
 	{
 		check_focus(c);
 		focused_client = c;
@@ -166,7 +166,7 @@ static PropMwmHints *get_mwm_hints(Window w)
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 #endif
