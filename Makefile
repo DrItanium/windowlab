@@ -27,8 +27,8 @@ DEFINES += -DDEF_MENURC="\"$(MENURC)\""
 
 # add freetype support required (requires XFree86 4.0.2 or later)
 DEFINES += -DXFT -DSHAPE
-EXTRA_INC += `pkg-config --cflags xft` -lXext
-EXTRA_LIBS += `pkg-config --libs xft`
+EXTRA_INC += `pkg-config --cflags xft`
+EXTRA_LIBS += `pkg-config --libs xft` -lXext
 
 # Uncomment for debugging info (abandon all hope, ye who enter here)
 #DEFINES += -DDEBUG

@@ -232,32 +232,24 @@ void remove_client(Client *c, int mode)
 
 void redraw(Client *c)
 {
-	if (c == fullscreen_client)
-	{
+	if (c == fullscreen_client) {
 		return;
 	}
 	XDrawLine(dsply, c->frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, c->width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
-	if (c == focused_client)
-	{
+	if (c == focused_client) {
 		XFillRectangle(dsply, c->frame, active_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
-	}
-	else
-	{
+	} else {
 		XFillRectangle(dsply, c->frame, inactive_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-	if (!c->trans && c->name)
-	{
+	if (!c->trans && c->name) {
 		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name->data(), c->name->size());
 	}
-	if (c == focused_client)
-	{
+	if (c == focused_client) {
 		draw_hide_button(c, &text_gc, &active_gc);
 		draw_toggledepth_button(c, &text_gc, &active_gc);
 		draw_close_button(c, &text_gc, &active_gc);
-	}
-	else
-	{
+	} else {
 		draw_hide_button(c, &text_gc, &inactive_gc);
 		draw_toggledepth_button(c, &text_gc, &inactive_gc);
 		draw_close_button(c, &text_gc, &inactive_gc);
