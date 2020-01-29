@@ -332,11 +332,10 @@ void gravitate(Client *c, int multiplier)
 void set_shape(Client *c)
 {
 	int n, order;
-	XRectangle temp, *dummy;
+	XRectangle temp;
 
-	dummy = XShapeGetRectangles(dsply, c->window, ShapeBounding, &n, &order);
-	if (n > 1)
-	{
+	XRectangle* dummy = XShapeGetRectangles(dsply, c->window, ShapeBounding, &n, &order);
+	if (n > 1) {
 		XShapeCombineShape(dsply, c->frame, ShapeBounding, 0, BARHEIGHT(), c->window, ShapeBounding, ShapeSet);
 		temp.x = -BORDERWIDTH(c);
 		temp.y = -BORDERWIDTH(c);
@@ -349,11 +348,8 @@ void set_shape(Client *c)
 		temp.height = BARHEIGHT() - BORDERWIDTH(c);
 		XShapeCombineRectangles(dsply, c->frame, ShapeClip, 0, BARHEIGHT(), &temp, 1, ShapeUnion, YXBanded);
 		c->has_been_shaped = 1;
-	}
-	else
-	{
-		if (c->has_been_shaped)
-		{
+	} else {
+		if (c->has_been_shaped) {
 			// I can't find a 'remove all shaping' function...
 			temp.x = -BORDERWIDTH(c);
 			temp.y = -BORDERWIDTH(c);
@@ -390,6 +386,20 @@ void check_focus(Client *c)
         Taskbar::instance().redraw();
 	}
 }
+
+ClientTracker::ClientPtr
+ClientTracker::getPrevFocused() noexcept {
+    unsigned int highest = 0;
+    ClientPtr previousFocused;
+    for (auto const& c : _clients) {
+        if (!c->hidden && c->focus_order > highest) {
+            highest = c->focus_order;
+            previousFocused = c;
+        }
+    }
+    return previousFocused;
+}
+
 
 Client *get_prev_focused(void)
 {

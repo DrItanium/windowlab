@@ -284,32 +284,6 @@ struct MenuItem final
 extern Display *dsply;
 extern Window root;
 extern int screen;
-class ClientTracker final {
-    public:
-        using ClientPtr = std::shared_ptr<Client>;
-        using ClientList = std::list<ClientPtr>;
-        static ClientTracker& instance() noexcept;
-    public:
-        auto getFocusedClient() const noexcept { return _focusedClient; }
-        auto getTopmostClient() const noexcept { return _topmostClient; }
-        auto getFullscreenClient() const noexcept { return _fullscreenClient; }
-        auto begin() const noexcept { return _clients.begin(); }
-        auto end() const noexcept { return _clients.end(); }
-        auto cbegin() const noexcept { return _clients.cbegin(); }
-        auto cend() const noexcept { return _clients.cend(); }
-        auto begin() noexcept { return _clients.begin(); }
-        auto end() noexcept { return _clients.end(); }
-        ClientPtr find(Window, int) noexcept;
-        void remove(ClientPtr, int) noexcept;
-        void redraw(ClientPtr) noexcept;
-    private:
-        ClientTracker() = default;
-    private:
-        std::list<ClientPtr> _clients;
-        std::weak_ptr<Client> _topmostClient;
-        std::weak_ptr<Client> _focusedClient;
-        std::weak_ptr<Client> _fullscreenClient;
-};
 extern Client *head_client, *focused_client, *topmost_client, *fullscreen_client;
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;
@@ -332,6 +306,33 @@ extern unsigned int numlockmask;
 void doEventLoop();
 
 // client.c
+class ClientTracker final {
+    public:
+        using ClientPtr = std::shared_ptr<Client>;
+        using ClientList = std::list<ClientPtr>;
+        static ClientTracker& instance() noexcept;
+    public:
+        auto getFocusedClient() const noexcept { return _focusedClient; }
+        auto getTopmostClient() const noexcept { return _topmostClient; }
+        auto getFullscreenClient() const noexcept { return _fullscreenClient; }
+        auto begin() const noexcept { return _clients.begin(); }
+        auto end() const noexcept { return _clients.end(); }
+        auto cbegin() const noexcept { return _clients.cbegin(); }
+        auto cend() const noexcept { return _clients.cend(); }
+        auto begin() noexcept { return _clients.begin(); }
+        auto end() noexcept { return _clients.end(); }
+        ClientPtr find(Window, int) noexcept;
+        void remove(ClientPtr, int) noexcept;
+        void redraw(ClientPtr) noexcept;
+    private:
+        ClientTracker() = default;
+        ClientPtr getPrevFocused() noexcept;
+    private:
+        std::list<ClientPtr> _clients;
+        std::weak_ptr<Client> _topmostClient;
+        std::weak_ptr<Client> _focusedClient;
+        std::weak_ptr<Client> _fullscreenClient;
+};
 Client *find_client(Window, int);
 void send_config(Client *);
 void remove_client(Client *, int);
