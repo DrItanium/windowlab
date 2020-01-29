@@ -90,12 +90,9 @@ void sig_handler(int signal)
 		case SIGCHLD:
 			while ((pid = waitpid(-1, &status, WNOHANG)) != 0)
 			{
-				if ((pid == -1) && (errno != EINTR))
-				{
+				if ((pid == -1) && (errno != EINTR)) {
 					break;
-				}
-				else
-				{
+				} else {
 					continue;
 				}
 			}
@@ -128,10 +125,8 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 
 /* Ick. Argh. You didn't see this function. */
 
-int ignore_xerror(Display *dsply, XErrorEvent *e)
+int ignore_xerror(Display * /*dsply*/, XErrorEvent* /*e*/)
 {
-	(void) dsply;
-	(void) e;
 	return 0;
 }
 
