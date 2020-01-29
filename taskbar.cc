@@ -310,6 +310,7 @@ Taskbar::redraw()
 }
 void redraw_taskbar(void)
 {
+    Taskbar::instance().redraw();
 }
 
 void draw_menubar(void)
