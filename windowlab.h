@@ -177,6 +177,7 @@ constexpr auto REMAP = 1;
 
 struct Client
 {
+    ~Client();
 	Client *next;
     std::optional<std::string> name;
 	XSizeHints *size;

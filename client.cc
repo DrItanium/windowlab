@@ -181,7 +181,20 @@ ClientTracker::remove(ClientTracker::ClientPtr c, int mode) noexcept
  * The 'withdrawing' argument specifies if the client is actually
  * (destroying itself||being destroyed by us) or if we are merely
  * cleaning up its data structures when we exit mid-session. */
-
+Client::~Client() {
+    gravitate(REMOVE_GRAVITY);
+    XReparentWindow(dsply, window, root, x, y);
+    XSetWindowBorderWidth(dsply, window, 1);
+    XRemoveFromSaveSet(dsply, window);
+    XDestroyWindow(dsply, frame);
+#ifdef XFT
+	XftDrawDestroy(xftdraw);
+#endif
+    if (size) {
+        XFree(size);
+    }
+    
+}
 void remove_client(Client *c, int mode)
 {
 	Client *p;
@@ -201,39 +214,19 @@ void remove_client(Client *c, int mode)
 	{
 		XMapWindow(dsply, c->window);
 	}
-	gravitate(c, REMOVE_GRAVITY);
-	XReparentWindow(dsply, c->window, root, c->x, c->y);
-	XSetWindowBorderWidth(dsply, c->window, 1);
-#ifdef XFT
-	XftDrawDestroy(c->xftdraw);
-#endif
-	XRemoveFromSaveSet(dsply, c->window);
-	XDestroyWindow(dsply, c->frame);
-
-	if (head_client == c)
-	{
+	if (head_client == c) {
 		head_client = c->next;
-	}
-	else
-	{
-		for (p = head_client; p && p->next; p = p->next)
-		{
-			if (p->next == c)
-			{
+	} else {
+		for (p = head_client; p && p->next; p = p->next) {
+			if (p->next == c) {
 				p->next = c->next;
 			}
 		}
 	}
-	if (c->size)
-	{
-		XFree(c->size);
-	}
-	if (c == fullscreen_client)
-	{
+	if (c == fullscreen_client) {
 		fullscreen_client = nullptr;
 	}
-	if (c == focused_client)
-	{
+	if (c == focused_client) {
 		focused_client = nullptr;
 		check_focus(get_prev_focused());
 	}
