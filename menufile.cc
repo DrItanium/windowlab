@@ -45,15 +45,18 @@ const std::filesystem::path& getHomeDirectory() noexcept {
     return _home;
 }
 
-MenuItemList& getMenuItems() noexcept {
-    static MenuItemList _menuitems;
-    return _menuitems;
+Menu&
+Menu::instance() noexcept {
+    static Menu _menu;
+    return _menu;
 }
-std::optional<MenuItem> getMenuItem(std::size_t index) noexcept {
-    if (index >= getMenuItemCount()) {
+
+std::optional<MenuItem> 
+Menu::at(std::size_t index) noexcept {
+    if (index >= size()) {
         return std::nullopt;
     } else {
-        return std::make_optional(getMenuItems()[index]);
+        return std::make_optional(_menuItems[index]);
     }
 }
 
@@ -81,10 +84,9 @@ std::optional<std::tuple<std::string, std::string>> parseLine(const std::string&
     }
     return std::nullopt;
 }
-
-void acquireMenuItems() noexcept {
-    clearMenuItems();
-    //std::cout << "Entering acquireMenuItems" << std::endl;
+void
+Menu::populate() noexcept {
+    clear();
     std::filesystem::path menurcpath = getHomeDirectory() / ".windowlab/windowlab.menurc";
     std::ifstream menufile(menurcpath);
     if (!menufile.is_open()) {
@@ -112,41 +114,28 @@ void acquireMenuItems() noexcept {
                 trimLeadingWs(line);
                 if (!line.empty() && (line.front() != '#')) {
                     if (auto parsed = parseLine(line); parsed) {
-                        getMenuItems().emplace_back(std::get<0>(*parsed), std::get<1>(*parsed));
+                        _menuItems.emplace_back(std::get<0>(*parsed), std::get<1>(*parsed));
                     }
                 }
             }
         }
     } else {
 		err("can't find ~/.windowlab/windowlab.menurc, %s or %s\n", menurcpath.c_str(), getDefMenuRc().c_str());
-        getMenuItems().emplace_back(NO_MENU_LABEL, NO_MENU_COMMAND);
+        _menuItems.emplace_back(NO_MENU_LABEL, NO_MENU_COMMAND);
     }
     menufile.close();
     unsigned int buttonStartX = 0;
-    for (auto& menuItem : getMenuItems()) {
+    for (auto& menuItem : _menuItems) {
         menuItem.x = buttonStartX;
 #ifdef XFT
-		XftTextExtents8(dsply, xftfont, (unsigned char *)menuItem.label.data(), menuItem.label.size(), &extents);
+		XftTextExtents8(dsply, xftfont, (unsigned char *)menuItem.getLabel().data(), menuItem.getLabel().size(), &extents);
         menuItem.width = extents.width + (SPACE * 4);
 #else
-		menuItem.width = XTextWidth(font, menuItem.label.data(), menuItem.label.size()) + (SPACE * 4);
+		menuItem.width = XTextWidth(font, menuItem.getLabel().data(), menuItem.getLabel().size()) + (SPACE * 4);
 #endif
-        buttonStartX += menuItem.width + 1;
+        buttonStartX += menuItem.getWidth()+ 1;
 	}
 	// menu items have been built
-    doMenuItems = false;
-    //std::cout << "Leaving acquireMenuItems" << std::endl;
-}
-
-void clearMenuItems() noexcept
-{
-    getMenuItems().clear();
-}
-
-bool shouldDoMenuItems() noexcept {
-    return doMenuItems;
-}
-void requestMenuItems() noexcept {
-    doMenuItems = true;
+    _updateMenuItems = false;
 }
 

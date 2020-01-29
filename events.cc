@@ -55,10 +55,8 @@ void doEventLoop()
 		show_event(ev);
 #endif
 		/* check to see if menu rebuild has been requested */
-        if (shouldDoMenuItems()) 
-        {
-            clearMenuItems();
-            acquireMenuItems();
+        if (Menu::instance().shouldRepopulate()) {
+            Menu::instance().populate();
         }
 		switch (ev.type)
 		{

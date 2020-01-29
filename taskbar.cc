@@ -198,7 +198,7 @@ Taskbar::rightClick(int x)
 				break;
 			case ButtonRelease:
 				if (current_item != UINT_MAX) {
-                    if (auto item = getMenuItem(current_item); item) {
+                    if (auto item = Menu::instance().at(current_item); item) {
                         forkExec(*item);
                     }
 				}
@@ -295,7 +295,7 @@ Taskbar::drawMenubar()
 {
 	XFillRectangle(dsply, _taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
 
-    for (auto& menuItem : getMenuItems()) {
+    for (auto& menuItem : Menu::instance()) {
 		if (!menuItem.label.empty() && !menuItem.command.empty())
 		{
             //std::cout << "displaying " << menuItem.label << std::endl;
@@ -315,10 +315,10 @@ Taskbar::updateMenuItem (int mousex)
 	static unsigned int last_item = UINT_MAX; // retain value from last call
 	unsigned int i = 0;
 	if (mousex == INT_MAX) { // entered function to set last_item
-        last_item = getMenuItemCount();
+        last_item = Menu::instance().size();
 		return UINT_MAX;
 	}
-    for (const auto& menuItem : getMenuItems()) {
+    for (const auto& menuItem : Menu::instance()) {
 		if ((mousex >= menuItem.x) && (mousex <= (menuItem.x + menuItem.width))) {
 			break;
 		}
@@ -326,16 +326,16 @@ Taskbar::updateMenuItem (int mousex)
 	}
 
 	if (i != last_item) /* don't redraw if same */ {
-		if (last_item != getMenuItemCount()) {
+		if (last_item != Menu::instance().size()) {
 			drawMenuItem(last_item, 0);
 		}
-		if (i != getMenuItemCount()) {
+		if (i != Menu::instance().size()) {
 			drawMenuItem(i, 1);
 		}
 		last_item = i; // set to new menu item
 	}
 
-	if (i != getMenuItemCount()) {
+	if (i != Menu::instance().size()) {
 		return i;
 	} else /* no item selected */ {
 		return UINT_MAX;
@@ -345,17 +345,19 @@ Taskbar::updateMenuItem (int mousex)
 void
 Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 {
-    auto& menuItem = getMenuItems()[index];
-	if (active)
-	{
-		XFillRectangle(dsply, _taskbar, selected_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+    auto menuItem = Menu::instance().at(index);
+    if (!menuItem) {
+        return;
+    }
+	if (active) {
+		XFillRectangle(dsply, _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(dsply, _taskbar, menu_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 #ifdef XFT
-	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
+	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem->getLabel().data(), menuItem->getLabel().size());
 #else
-	XDrawString(dsply, _taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label.data(), menuItem.label.size());
+	XDrawString(dsply, _taskbar, text_gc, menuItem->getX() + (SPACE * 2), font->ascent + SPACE, menuItem->getLabel().data(), menuItem->getLabel().size());
 #endif
 }
 

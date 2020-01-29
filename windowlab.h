@@ -392,14 +392,28 @@ class Taskbar final {
 };
 
 // menufile.c
+class Menu final {
+    public:
+        static Menu& instance() noexcept;
+        void clear() noexcept { _menuItems.clear(); }
+        std::optional<MenuItem> at(std::size_t index) noexcept;
+        const std::vector<MenuItem>& getMenuItems() const noexcept { return _menuItems; }
+        std::size_t size() const noexcept { return _menuItems.size(); }
+        void requestMenuItemUpdate() noexcept { _updateMenuItems = true; }
+        constexpr bool shouldRepopulate() const noexcept { return _updateMenuItems; }
+        auto begin() const noexcept { return _menuItems.begin(); }
+        auto end() const noexcept { return _menuItems.end(); }
+        auto cbegin() const noexcept { return _menuItems.begin(); }
+        auto cend() const noexcept { return _menuItems.end(); }
+        auto begin() noexcept { return _menuItems.begin(); }
+        auto end() noexcept { return _menuItems.end(); }
+        void populate() noexcept;
+    private:
+        Menu() = default;
+    private:
+        std::vector<MenuItem> _menuItems;
+        bool _updateMenuItems = true;
+};
 const std::filesystem::path& getDefMenuRc() noexcept;
-using MenuItemList = std::vector<MenuItem>;
-MenuItemList& getMenuItems() noexcept;
-std::optional<MenuItem> getMenuItem(std::size_t index) noexcept;
-inline std::size_t getMenuItemCount() noexcept { return getMenuItems().size(); }
-void clearMenuItems() noexcept;
-void acquireMenuItems() noexcept;
-bool shouldDoMenuItems() noexcept;
-void requestMenuItems() noexcept;
 
 #endif /* WINDOWLAB_H */

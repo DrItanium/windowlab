@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 	sigaction(SIGCHLD, &act, nullptr);
 
 	setup_display();
-    acquireMenuItems();
+    Menu::instance().populate();
     // exploit the side effects
     Taskbar::instance().make();
 	scan_wins();
