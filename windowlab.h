@@ -177,6 +177,23 @@ class XServerGrabber final {
         Display* _d;
 };
 
+using XErrorHandlingFunction = int(*)(Display*, XErrorEvent*);
+class XErrorHandlerChanger final {
+    public:
+        XErrorHandlerChanger(XErrorHandlingFunction changeTo, XErrorHandlingFunction revertTo) : _revertTo(revertTo) {
+            XSetErrorHandler(changeTo);
+        }
+        ~XErrorHandlerChanger() {
+            XSetErrorHandler(_revertTo);
+        }
+        XErrorHandlerChanger(const XErrorHandlerChanger&) = delete;
+        XErrorHandlerChanger(XErrorHandlerChanger&&) = delete;
+        XErrorHandlerChanger& operator=(XErrorHandlerChanger&&) = delete;
+        XErrorHandlerChanger& operator=(const XErrorHandlerChanger&) = delete;
+    private:
+        XErrorHandlingFunction _revertTo;
+};
+
 /* This structure keeps track of top-level windows (hereinafter
  * 'clients'). The clients we know about (i.e. all that don't set
  * override-redirect) are kept track of in linked list starting at the

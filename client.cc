@@ -144,7 +144,7 @@ ClientTracker::remove(ClientTracker::ClientPtr c, int mode) noexcept
 {
     {
         XServerGrabber grabServer(dsply); 
-        XSetErrorHandler(ignore_xerror);
+        XErrorHandlerChanger disableErrorHandling(ignore_xerror, handle_xerror);
 
         if (mode == WITHDRAW) {
             c->setWMState(WithdrawnState);
@@ -158,7 +158,6 @@ ClientTracker::remove(ClientTracker::ClientPtr c, int mode) noexcept
         }
 
         XSync(dsply, False);
-        XSetErrorHandler(handle_xerror);
     }
 
     Taskbar::instance().redraw();
@@ -193,7 +192,7 @@ void remove_client(Client *c, int mode)
 
     {
         XServerGrabber grabServer(dsply);
-        XSetErrorHandler(ignore_xerror);
+        XErrorHandlerChanger disableErrorHandling(ignore_xerror, handle_xerror);
 
 #ifdef DEBUG
         err("removing %s, %d: %d left", c->name, mode, XPending(dsply));
