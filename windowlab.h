@@ -42,6 +42,7 @@
 #include <filesystem>
 #include <iostream>
 #include <functional>
+#include <list>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -347,6 +348,7 @@ int handle_xerror(Display *, XErrorEvent *);
 int ignore_xerror(Display *, XErrorEvent *);
 int send_xmessage(Window, Atom, long);
 void get_mouse_position(int *, int *);
+std::tuple<int, int> getMousePosition();
 void fix_position(Client *);
 void refix_position(Client *, XConfigureRequestEvent *);
 #ifdef DEBUG
@@ -369,7 +371,7 @@ class Taskbar final {
         void redraw();
         float getButtonWidth();
         Window& getWindow() noexcept { return _taskbar; }
-    protected:
+    private:
         Taskbar() = default;
     private:
         void drawMenubar();

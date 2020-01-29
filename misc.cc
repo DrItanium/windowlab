@@ -153,11 +153,21 @@ int send_xmessage(Window w, Atom a, long x)
 
 void get_mouse_position(int *x, int *y)
 {
-	Window mouse_root, mouse_win;
-	int win_x, win_y;
-	unsigned int mask;
+    auto [ rx, ry ] = getMousePosition();
+    *x = rx;
+    *y = ry;
+}
 
-	XQueryPointer(dsply, root, &mouse_root, &mouse_win, x, y, &win_x, &win_y, &mask);
+std::tuple<int, int>
+getMousePosition() {
+    Window mouseRoot, mouseWin;
+    int winX = 0;
+    int winY = 0;
+    unsigned int mask = 0;
+    int tmpX = 0;
+    int tmpY = 0;
+    XQueryPointer(dsply, root, &mouseRoot, &mouseWin, &tmpX, &tmpY, &winX, &winY, &mask);
+    return std::make_tuple(tmpX, tmpY);
 }
 
 /* If this is the fullscreen client we don't take BARHEIGHT() into account
