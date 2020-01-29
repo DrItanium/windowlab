@@ -56,6 +56,7 @@ Taskbar::make() noexcept {
 #ifdef XFT
 	tbxftdraw = XftDrawCreate(dsply, (Drawable) taskbar, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 #endif
+    _made = true;
 }
 
 void remember_hidden(void)
