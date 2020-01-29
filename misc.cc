@@ -58,7 +58,6 @@ getEnvironmentVariable(const std::string& varName, const std::string& defaultVal
 }
 
 void fork_exec(const std::string& cmd) {
-	char *envshell, *envshellname;
 	pid_t pid = fork();
 
 	switch (pid)
@@ -70,9 +69,10 @@ void fork_exec(const std::string& cmd) {
                 std::filesystem::path envShellPath(envShell);
                 auto envShellName = envShellPath.filename();
                 if (envShellName.empty()) {
-                    envshellname = envshell;
+                    envShellName = envShell;
                 }
-                execlp(envshell, envshellname, "-c", cmd, nullptr);
+
+                execlp(envShell.c_str(), envShellName.c_str(), "-c", cmd.c_str(), nullptr);
                 err("exec failed, cleaning up child");
                 exit(1);
                 break;
