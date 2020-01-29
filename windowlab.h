@@ -43,6 +43,7 @@
 #include <iostream>
 #include <functional>
 #include <list>
+#include <experimental/memory>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -281,6 +282,18 @@ struct MenuItem final
 extern Display *dsply;
 extern Window root;
 extern int screen;
+class ClientTracker final {
+    public:
+        static ClientTracker& instance() noexcept;
+    public:
+    private:
+        ClientTracker() = default;
+    private:
+        std::list<std::shared_ptr<Client>> _clients;
+        std::weak_ptr<Client> _topmostClient;
+        std::weak_ptr<Client> _focusedClient;
+        std::weak_ptr<Client> _fullscreenClient;
+};
 extern Client *head_client, *focused_client, *topmost_client, *fullscreen_client;
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;
