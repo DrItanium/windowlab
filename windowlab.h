@@ -375,6 +375,10 @@ class Taskbar final {
         Window& getWindow() noexcept { return _taskbar; }
     protected:
         Taskbar() = default;
+    private:
+        void drawMenubar();
+        unsigned int updateMenuItem(int mousex);
+        void drawMenuItem(unsigned int index, unsigned int active);
 
     public:
         void make() noexcept;

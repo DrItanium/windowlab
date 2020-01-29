@@ -21,14 +21,7 @@
 #include "windowlab.h"
 #include <iostream>
 
-static void draw_menubar(void);
-static unsigned int update_menuitem(int);
-static void draw_menuitem(unsigned int, unsigned int);
 
-Window taskbar;
-#ifdef XFT
-XftDraw *tbxftdraw;
-#endif
 
 Taskbar&
 Taskbar::instance() noexcept {
@@ -49,12 +42,12 @@ Taskbar::make() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	taskbar = XCreateWindow(dsply, root, 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_taskbar = XCreateWindow(dsply, root, 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
-	XMapWindow(dsply, taskbar);
+	XMapWindow(dsply, _taskbar);
 
 #ifdef XFT
-	tbxftdraw = XftDrawCreate(dsply, (Drawable) taskbar, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
+	_tbxftdraw = XftDrawCreate(dsply, (Drawable) _taskbar, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 #endif
     _made = true;
 }
@@ -192,16 +185,16 @@ Taskbar::rightClick(int x)
 		XDestroyWindow(dsply, constraint_win);
 		return;
 	}
-	draw_menubar();
-	update_menuitem(INT_MAX); // force initial highlight
-	current_item = update_menuitem(x);
+    drawMenubar();
+    updateMenuItem(INT_MAX); // force initial highlight
+	current_item = updateMenuItem(x);
 	do
 	{
 		XMaskEvent(dsply, MouseMask|KeyMask, &ev);
 		switch (ev.type)
 		{
 			case MotionNotify:
-				current_item = update_menuitem(ev.xmotion.x);
+				current_item = updateMenuItem(ev.xmotion.x);
 				break;
 			case ButtonRelease:
 				if (current_item != UINT_MAX) {
@@ -231,7 +224,7 @@ Taskbar::rightClickRoot()
 	{
 		return;
 	}
-	draw_menubar();
+	drawMenubar();
 	do
 	{
 		XMaskEvent(dsply, MouseMask|KeyMask, &ev);
@@ -262,7 +255,7 @@ Taskbar::redraw()
 	Client *c;
 
 	auto buttonWidth = getButtonWidth();
-	XClearWindow(dsply, taskbar);
+	XClearWindow(dsply, _taskbar);
 
 	if (showing_taskbar == 0)
 	{
@@ -271,46 +264,43 @@ Taskbar::redraw()
 
 	for (c = head_client, i = 0; c ; c = c->next, i++)
 	{
-		auto button_startx = (int)(i * buttonWidth);
-		auto button_iwidth = (unsigned int)(((i + 1) * buttonWidth) - button_startx);
+		auto button_startx = static_cast<int>(i * buttonWidth);
+		auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
 		if (button_startx != 0)
 		{
-			XDrawLine(dsply, taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
+			XDrawLine(dsply, _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
 		if (c == focused_client)
 		{
-			XFillRectangle(dsply, taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+			XFillRectangle(dsply, _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
 		else
 		{
-			XFillRectangle(dsply, taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+			XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
 		if (!c->trans && c->name)
 		{
 #ifdef XFT
-			XftDrawString8(tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
+			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
 #else
-			XDrawString(dsply, taskbar, text_gc, button_startx + SPACE, SPACE + font->ascent, c->name, strlen(c->name));
+			XDrawString(dsply, _taskbar, text_gc, button_startx + SPACE, SPACE + font->ascent, c->name, strlen(c->name));
 #endif
 		}
 	}
 
 }
-void redraw_taskbar(void)
-{
-    Taskbar::instance().redraw();
-}
 
-void draw_menubar(void)
+void 
+Taskbar::drawMenubar()
 {
-	XFillRectangle(dsply, taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dsply, _taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : getMenuItems()) {
 		if (!menuItem.label.empty() && !menuItem.command.empty())
 		{
             //std::cout << "displaying " << menuItem.label << std::endl;
 #ifdef XFT
-			XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
+			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
 #else
 			XDrawString(dsply, taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label, menuItem.label.size());
 #endif
@@ -318,7 +308,8 @@ void draw_menubar(void)
 	}
 }
 
-unsigned int update_menuitem(int mousex)
+unsigned int 
+Taskbar::updateMenuItem (int mousex)
 {
     //std::cout << "enter update_menuitem" << std::endl;
 	static unsigned int last_item; // retain value from last call
@@ -340,11 +331,11 @@ unsigned int update_menuitem(int mousex)
 	{
 		if (last_item != getMenuItemCount())
 		{
-			draw_menuitem(last_item, 0);
+			drawMenuItem(last_item, 0);
 		}
 		if (i != getMenuItemCount())
 		{
-			draw_menuitem(i, 1);
+			drawMenuItem(i, 1);
 		}
 		last_item = i; // set to new menu item
 	}
@@ -359,21 +350,20 @@ unsigned int update_menuitem(int mousex)
 	}
 }
 
-void draw_menuitem(unsigned int index, unsigned int active)
+void
+Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 {
     auto& menuItem = getMenuItems()[index];
 	if (active)
 	{
-		XFillRectangle(dsply, taskbar, selected_gc, menuItem.x, 0, menuItem.width, BARHEIGHT() - DEF_BORDERWIDTH);
-	}
-	else
-	{
-		XFillRectangle(dsply, taskbar, menu_gc, menuItem.x, 0, menuItem.width, BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _taskbar, selected_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+	} else {
+		XFillRectangle(dsply, _taskbar, menu_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 #ifdef XFT
-	XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
+	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
 #else
-	XDrawString(dsply, taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label.data(), menuItem.label.size());
+	XDrawString(dsply, _taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label.data(), menuItem.label.size());
 #endif
 }
 
