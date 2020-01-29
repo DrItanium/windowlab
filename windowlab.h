@@ -341,10 +341,10 @@ void err(Args&& ... parts) noexcept {
     std::cerr << std::endl;
 }
 
-void err(const char *, ...);
 std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
 std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
-void fork_exec(const std::string&);
+void forkExec(const std::string&);
+inline void forkExec(const MenuItem& item) noexcept { forkExec(item.getCommand()); }
 
 void sig_handler(int);
 int handle_xerror(Display *, XErrorEvent *);

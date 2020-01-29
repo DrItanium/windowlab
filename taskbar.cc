@@ -204,8 +204,8 @@ void rclick_taskbar(int x)
 				break;
 			case ButtonRelease:
 				if (current_item != UINT_MAX) {
-                    if (auto item= getMenuItem(current_item); item) {
-                        fork_exec(item->getCommand());
+                    if (auto item = getMenuItem(current_item); item) {
+                        forkExec(*item);
                     }
 				}
 				break;

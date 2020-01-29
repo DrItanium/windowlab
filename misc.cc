@@ -29,17 +29,6 @@
 
 static void quit_nicely(void);
 
-void err(const char *fmt, ...)
-{
-	va_list argp;
-
-	fprintf(stderr, "windowlab: ");
-	va_start(argp, fmt);
-	vfprintf(stderr, fmt, argp);
-	va_end(argp);
-	fprintf(stderr, "\n");
-}
-
 std::optional<std::string>
 getEnvironmentVariable(const std::string& varName) noexcept {
     if (auto result = ::getenv(varName.c_str()); result) {
@@ -57,7 +46,7 @@ getEnvironmentVariable(const std::string& varName, const std::string& defaultVal
     }
 }
 
-void fork_exec(const std::string& cmd) {
+void forkExec(const std::string& cmd) {
 	pid_t pid = fork();
 
 	switch (pid)
