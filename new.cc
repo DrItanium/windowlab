@@ -80,12 +80,12 @@ void make_new_client(Window w)
 	if (attr.map_state != IsViewable)
 	{
 		init_position(c);
-		set_wm_state(c, NormalState);
+        c->setWMState(NormalState);
 		if ((hints = XGetWMHints(dsply, w)))
 		{
 			if (hints->flags & StateHint)
 			{
-				set_wm_state(c, hints->initial_state);
+                c->setWMState(hints->initial_state);
 			}
 			XFree(hints);
 		}
@@ -99,7 +99,7 @@ void make_new_client(Window w)
 	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 #endif
 
-	if (get_wm_state(c) != IconicState)
+	if (c->getWMState() != IconicState)
 	{
 		XMapWindow(dsply, c->window);
 		XMapRaised(dsply, c->frame);

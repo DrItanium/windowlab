@@ -56,7 +56,7 @@ void hide(Client *c)
 			}
 			XUnmapWindow(dsply, c->frame);
 			XUnmapWindow(dsply, c->window);
-			set_wm_state(c, IconicState);
+            c->setWMState(IconicState);
 			check_focus(get_prev_focused());
 		}
 	}
@@ -72,7 +72,7 @@ void unhide(Client *c)
 			topmost_client = c;
 			XMapWindow(dsply, c->window);
 			XMapRaised(dsply, c->frame);
-			set_wm_state(c, NormalState);
+            c->setWMState(NormalState);
 		}
 	}
 }

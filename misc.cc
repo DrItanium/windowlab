@@ -303,7 +303,7 @@ void show_event(XEvent e)
 
 static const char *show_state(Client *c)
 {
-	switch (get_wm_state(c))
+	switch (c->getWMState()) 
 	{
 		SHOW(WithdrawnState)
 		SHOW(NormalState)

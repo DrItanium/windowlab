@@ -267,15 +267,13 @@ void rclick_root(void)
 	redraw_taskbar();
 	ungrab();
 }
-
-void redraw_taskbar(void)
+void
+Taskbar::redraw() 
 {
 	unsigned int i;
-	int button_startx, button_iwidth;
-	float button_width;
 	Client *c;
 
-	button_width = get_button_width();
+	auto buttonWidth = getButtonWidth();
 	XClearWindow(dsply, taskbar);
 
 	if (showing_taskbar == 0)
@@ -285,8 +283,8 @@ void redraw_taskbar(void)
 
 	for (c = head_client, i = 0; c ; c = c->next, i++)
 	{
-		button_startx = (int)(i * button_width);
-		button_iwidth = (unsigned int)(((i + 1) * button_width) - button_startx);
+		auto button_startx = (int)(i * buttonWidth);
+		auto button_iwidth = (unsigned int)(((i + 1) * buttonWidth) - button_startx);
 		if (button_startx != 0)
 		{
 			XDrawLine(dsply, taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
@@ -308,6 +306,10 @@ void redraw_taskbar(void)
 #endif
 		}
 	}
+
+}
+void redraw_taskbar(void)
+{
 }
 
 void draw_menubar(void)
@@ -370,35 +372,40 @@ unsigned int update_menuitem(int mousex)
 
 void draw_menuitem(unsigned int index, unsigned int active)
 {
+    auto& menuItem = getMenuItems()[index];
 	if (active)
 	{
-		XFillRectangle(dsply, taskbar, selected_gc, getMenuItems()[index].x, 0, getMenuItems()[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, taskbar, selected_gc, menuItem.x, 0, menuItem.width, BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	else
 	{
-		XFillRectangle(dsply, taskbar, menu_gc, getMenuItems()[index].x, 0, getMenuItems()[index].width, BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, taskbar, menu_gc, menuItem.x, 0, menuItem.width, BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 #ifdef XFT
-	XftDrawString8(tbxftdraw, &xft_detail, xftfont, getMenuItems()[index].x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)getMenuItems()[index].label.data(), getMenuItems()[index].label.size());
+	XftDrawString8(tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
 #else
-	XDrawString(dsply, taskbar, text_gc, getMenuItems()[index].x + (SPACE * 2), font->ascent + SPACE, getMenuItems()[index].label.data(), getMenuItems()[index].label.size());
+	XDrawString(dsply, taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label.data(), menuItem.label.size());
 #endif
 }
 
+float
+Taskbar::getButtonWidth()
+{
+    unsigned int nwins = 0;
+    Client *c = head_client;
+    while (c)
+    {
+        nwins++;
+        c = c->next;
+    }
+    return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / nwins;
+}
 float get_button_width(void)
 {
-	unsigned int nwins = 0;
-	Client *c = head_client;
-	while (c)
-	{
-		nwins++;
-		c = c->next;
-	}
-	return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / nwins;
+    return Taskbar::instance().getButtonWidth();
 }
-
-void cycle_previous(void)
-{
+void 
+Taskbar::cyclePrevious() {
 	Client *c = focused_client;
 	Client *original_c = c;
 	if (head_client && head_client->next) // at least 2 windows exist
@@ -426,8 +433,13 @@ void cycle_previous(void)
 		lclick_taskbutton(nullptr, c);
 	}
 }
+void cycle_previous(void)
+{
+    Taskbar::instance().cyclePrevious();
+}
 
-void cycle_next(void)
+void
+Taskbar::cycleNext()
 {
 	Client *c = focused_client;
 	if (head_client && head_client->next) // at least 2 windows exist
@@ -439,4 +451,8 @@ void cycle_next(void)
 		else c = c->next;
 		lclick_taskbutton(nullptr, c);
 	}
+}
+void cycle_next(void)
+{
+    Taskbar::instance().cycleNext();
 }

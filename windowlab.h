@@ -304,8 +304,6 @@ extern void do_event_loop(void);
 
 // client.c
 extern Client *find_client(Window, int);
-extern void set_wm_state(Client *, int);
-extern long get_wm_state(Client *);
 extern void send_config(Client *);
 extern void remove_client(Client *, int);
 extern void redraw(Client *);
@@ -372,7 +370,7 @@ class Taskbar final {
     protected:
         Taskbar() = default;
 
-    private:
+    public:
         void make() noexcept;
     private:
         bool _made = false;
