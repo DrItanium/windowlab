@@ -174,13 +174,13 @@ void fix_position(Client *c)
 	
 	titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
 
-	if (c->width < MINWINWIDTH)
+	if (c->width < MINWINWIDTH())
 	{
-		c->width = MINWINWIDTH;
+		c->width = MINWINWIDTH();
 	}
-	if (c->height < MINWINHEIGHT)
+	if (c->height < MINWINHEIGHT())
 	{
-		c->height = MINWINHEIGHT;
+		c->height = MINWINHEIGHT();
 	}
 	
 	if (c->width > xmax)

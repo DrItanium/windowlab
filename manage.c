@@ -515,13 +515,13 @@ static void limit_size(Client *c, Rect *newdims)
 		}
 	}
 
-	if (newdims->width < MINWINWIDTH)
+	if (newdims->width < MINWINWIDTH())
 	{
-		newdims->width = MINWINWIDTH;
+		newdims->width = MINWINWIDTH();
 	}
-	if (newdims->height < MINWINHEIGHT)
+	if (newdims->height < MINWINHEIGHT())
 	{
-		newdims->height = MINWINHEIGHT;
+		newdims->height = MINWINHEIGHT();
 	}
 
 	if (newdims->width > dw)

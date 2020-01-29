@@ -259,3 +259,10 @@ static void setup_display(void)
 	grab_keysym(root, MODIFIER, KEY_FULLSCREEN);
 	grab_keysym(root, MODIFIER, KEY_TOGGLEZ);
 }
+int BARHEIGHT() noexcept {
+#ifdef XFT
+    return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
+#else
+    return (font->ascent + font->descent + 2*SPACE + 2);
+#endif
+}

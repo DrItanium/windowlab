@@ -1,7 +1,5 @@
-/* WindowLab - an X11 window manager
- * Copyright (c) 2001-2010 Nick Gravgaard
- * me at nickgravgaard.com
- * http://nickgravgaard.com/windowlab/
+/* WindowLab17 - An X11 window manager based off of windowlab but rewritten in C++17
+ * Based off of "WindowLab - an X11 window manager by Nick Gravgaard"
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,6 +48,7 @@
 #ifndef PATH_MAX
 #define PATH_MAX 4096
 #endif
+constexpr auto MaximumPathLength = PATH_MAX;
 
 // here are the default settings - change to suit your taste
 
@@ -70,7 +69,7 @@
 #define DEF_EMPTY "#000"
 #define DEF_BORDERWIDTH 2
 #define ACTIVE_SHADOW 0x2000 // eg #fff becomes #ddd
-#define SPACE 3
+constexpr auto SPACE = 3;
 
 // change MODIFIER to None to remove the need to hold down a modifier key
 // the Windows key should be Mod4Mask and the Alt key is Mod1Mask
@@ -81,9 +80,8 @@
 #define KEY_CYCLENEXT XK_q
 #define KEY_FULLSCREEN XK_F11
 #define KEY_TOGGLEZ XK_F12
-
 // max time between clicks in double click
-#define DEF_DBLCLKTIME 400
+constexpr auto DEF_DBLCLKTIME = 400;
 
 // a few useful masks made up out of X's basic ones. `ChildMask' is a silly name, but oh well.
 #define ChildMask (SubstructureRedirectMask|SubstructureNotifyMask)
@@ -91,6 +89,18 @@
 #define MouseMask (ButtonMask|PointerMotionMask)
 #define KeyMask (KeyPressMask|KeyReleaseMask)
 
+// false_v taken from https://quuxplusone.github.io/blog/2018/04/02/false-v/
+template<typename...>
+inline constexpr bool false_v = false;
+
+template<typename T>
+constexpr T ABS(T x) noexcept {
+    if constexpr (std::is_integral_v<std::decay_t<T>>) {
+        return x < 0 ? -x : x;
+    } else {
+        static_assert(false_v<T>, "ABS not implemented for given type!");
+    }
+}
 #define ABS(x) (((x) < 0) ? -(x) : (x))
 
 // shorthand for wordy function calls
@@ -111,15 +121,13 @@
 #define lower_win(c) ((void) XLowerWindow(dsply, (c)->frame))
 #define raise_win(c) ((void) XRaiseWindow(dsply, (c)->frame))
 
-
-// bar height
-inline auto BARHEIGHT() noexcept {
-#ifdef XFT
-    return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
-#else
-    return (font->ascent + font->descent + 2*SPACE + 2);
-#endif
+template<typename T>
+constexpr auto BORDERWIDTH(T) noexcept {
+    return DEF_BORDERWIDTH;
 }
+
+int BARHEIGHT() noexcept;
+// bar height
 
 // minimum window width and height, enough for 3 buttons and a bit of titlebar
 inline auto MINWINWIDTH() noexcept {
