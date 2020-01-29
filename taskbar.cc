@@ -344,19 +344,20 @@ Taskbar::updateMenuItem (int mousex)
 void
 Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 {
-    auto menuItem = Menu::instance().at(index);
-    if (!menuItem) {
+    auto lookup = Menu::instance().at(index);
+    if (!lookup) {
         return;
-    }
+    } 
+    auto menuItem = lookup->get(); // clunky unpack at this point in time
 	if (active) {
-		XFillRectangle(dsply, _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _taskbar, selected_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(dsply, _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _taskbar, menu_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 #ifdef XFT
-	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem->getLabel().data(), menuItem->getLabel().size());
+	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.getX() + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.getLabel().data(), menuItem.getLabel().size());
 #else
-	XDrawString(dsply, _taskbar, text_gc, menuItem->getX() + (SPACE * 2), font->ascent + SPACE, menuItem->getLabel().data(), menuItem->getLabel().size());
+	XDrawString(dsply, _taskbar, text_gc, menuItem.getX() + (SPACE * 2), font->ascent + SPACE, menuItem.getLabel().data(), menuItem.getLabel().size());
 #endif
 }
 

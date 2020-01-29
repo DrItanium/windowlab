@@ -52,12 +52,12 @@ Menu::instance() noexcept {
     return _menu;
 }
 
-std::optional<MenuItem> 
+std::optional<std::reference_wrapper<MenuItem>>
 Menu::at(std::size_t index) noexcept {
     if (index >= size()) {
         return std::nullopt;
     } else {
-        return std::make_optional(_menuItems[index]);
+        return std::make_optional(std::reference_wrapper<MenuItem>(_menuItems[index]));
     }
 }
 

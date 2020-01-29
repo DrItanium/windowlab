@@ -404,13 +404,10 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 static void handle_map_request(XMapRequestEvent *e)
 {
 	Client *c = find_client(e->window, WINDOW);
-	if (c )
-	{
+	if (c ) {
 		unhide(c);
-	}
-	else
-	{
-		make_new_client(e->window);
+	} else {
+        makeNewClient(e->window);
 	}
 }
 

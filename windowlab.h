@@ -43,7 +43,7 @@
 #include <iostream>
 #include <functional>
 #include <list>
-#include <experimental/memory>
+#include <memory>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -284,6 +284,7 @@ extern Window root;
 extern int screen;
 class ClientTracker final {
     public:
+        using ClientList = std::list<std::shared_ptr<Client>>;
         static ClientTracker& instance() noexcept;
     public:
         auto getFocusedClient() const noexcept { return _focusedClient; }
@@ -295,6 +296,7 @@ class ClientTracker final {
         auto cend() const noexcept { return _clients.cend(); }
         auto begin() noexcept { return _clients.begin(); }
         auto end() noexcept { return _clients.end(); }
+        std::shared_ptr<Client> find(Window, int) noexcept;
     private:
         ClientTracker() = default;
     private:
@@ -415,7 +417,7 @@ class Menu final {
     public:
         static Menu& instance() noexcept;
         void clear() noexcept { _menuItems.clear(); }
-        std::optional<MenuItem> at(std::size_t index) noexcept;
+        std::optional<std::reference_wrapper<MenuItem>> at(std::size_t index) noexcept;
         const std::vector<MenuItem>& getMenuItems() const noexcept { return _menuItems; }
         std::size_t size() const noexcept { return _menuItems.size(); }
         void requestMenuItemUpdate() noexcept { _updateMenuItems = true; }
