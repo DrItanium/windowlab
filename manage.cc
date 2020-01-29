@@ -178,14 +178,13 @@ void move(Client *c)
 	XEvent ev;
 	int old_cx = c->x;
 	int old_cy = c->y;
-	int mousex, mousey, dw, dh;
 	Client *exposed_c;
 	Rect bounddims;
 	XSetWindowAttributes pattr;
 
-	dw = DisplayWidth(dsply, screen);
-	dh = DisplayHeight(dsply, screen);
-	get_mouse_position(&mousex, &mousey);
+	int dw = DisplayWidth(dsply, screen);
+	int dh = DisplayHeight(dsply, screen);
+    auto [mousex, mousey] = getMousePosition();
 
 	bounddims.setX((mousex - c->x) - BORDERWIDTH(c));
 	bounddims.setWidth((dw - bounddims.getX() - (c->width - bounddims.getX())) + 1);

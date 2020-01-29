@@ -102,8 +102,6 @@ void
 Taskbar::leftClick(int x) 
 {
 	XEvent ev;
-	int mousex, mousey;
-	Rect bounddims;
 	Window constraint_win;
 	XSetWindowAttributes pattr;
 
@@ -112,8 +110,9 @@ Taskbar::leftClick(int x)
 	if (head_client) {
 		remember_hidden();
 
-		get_mouse_position(&mousex, &mousey);
-        bounddims = {0, 0, DisplayWidth(dsply, screen), BARHEIGHT()};
+        // unused?
+        auto [mousex, mousey] = getMousePosition();
+        Rect bounddims {0, 0, DisplayWidth(dsply, screen), BARHEIGHT()};
 
 		constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 		XMapWindow(dsply, constraint_win);
@@ -172,11 +171,10 @@ void
 Taskbar::rightClick(int x)
 {
 	XEvent ev;
-	int mousex, mousey;
 	unsigned int current_item = UINT_MAX;
 	XSetWindowAttributes pattr;
 
-	get_mouse_position(&mousex, &mousey);
+	auto [mousex, mousey] = getMousePosition();
 	Rect bounddims { 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() };
 
 	auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
