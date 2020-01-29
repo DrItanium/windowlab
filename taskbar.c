@@ -30,8 +30,19 @@ Window taskbar;
 XftDraw *tbxftdraw;
 #endif
 
-void make_taskbar(void)
-{
+Taskbar&
+Taskbar::instance() noexcept {
+    static Taskbar _bar;
+    if (!_bar._made) {
+        _bar.make();
+    }
+    return _bar;
+}
+void
+Taskbar::make() noexcept {
+    if (_made) {
+        return;
+    }
 	XSetWindowAttributes pattr;
 
 	pattr.override_redirect = True;

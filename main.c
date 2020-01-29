@@ -103,7 +103,8 @@ int main(int argc, char **argv)
 
 	setup_display();
     acquireMenuItems();
-	make_taskbar();
+    // exploit the side effects
+    (void)Taskbar::instance();
 	scan_wins();
 	do_event_loop();
 	return 1; // just another brick in the -Wall

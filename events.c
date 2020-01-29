@@ -157,7 +157,7 @@ static void handle_button_press(XButtonEvent *e)
 			rclick_root();
 		}
 	}
-	else if (e->window == taskbar)
+	else if (e->window == Taskbar::instance().getWindow())
 	{
 		switch (e->button)
 		{
@@ -527,7 +527,7 @@ static void handle_property_change(XPropertyEvent *e)
 static void handle_enter_event(XCrossingEvent *e)
 {
 	Client *c = nullptr;
-	if (e->window == taskbar)
+	if (e->window == Taskbar::instance().getWindow())
 	{
 		in_taskbar = 1;
 		if (showing_taskbar == 0)
@@ -589,7 +589,7 @@ static void handle_colormap_change(XColormapEvent *e)
 
 static void handle_expose_event(XExposeEvent *e)
 {
-	if (e->window == taskbar)
+	if (e->window == Taskbar::instance().getWindow())
 	{
 		if (e->count == 0)
 		{

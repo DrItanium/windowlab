@@ -304,11 +304,31 @@ extern void dump(Client *);
 extern void dump_clients(void);
 #endif
 
-// taskbar.c
-extern Window taskbar;
-#ifdef XFT
-extern XftDraw *tbxftdraw;
+class Taskbar final {
+    public:
+        static Taskbar& instance() noexcept;
+        void cyclePrevious();
+        void cycleNext();
+        void leftClick(int);
+        void rightClick(int);
+        void rightClickRoot();
+        void redraw();
+        float getButtonWidth();
+        Window& getWindow() noexcept { return _taskbar; }
+    protected:
+        Taskbar() = default;
+
+    private:
+        void make() noexcept;
+    private:
+        bool _made = false;
+        Window _taskbar;
+#if XFT
+        XftDraw* _tbxftdraw = nullptr;
 #endif
+
+};
+// taskbar.c
 extern void make_taskbar(void);
 extern void cycle_previous(void);
 extern void cycle_next(void);
@@ -327,7 +347,4 @@ void clearMenuItems() noexcept;
 void acquireMenuItems() noexcept;
 bool shouldDoMenuItems() noexcept;
 void requestMenuItems() noexcept;
-//extern int do_menuitems;
-//extern void get_menuitems(void);
-//extern void free_menuitems(void);
 #endif /* WINDOWLAB_H */
