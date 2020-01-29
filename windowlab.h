@@ -269,7 +269,10 @@ struct MenuItem final
     public:
         MenuItem() = default;
         MenuItem(const std::string& lbl, const std::string& cmd, int __x = 0, int w = 0) noexcept : command(cmd), label(lbl), x(__x), width(w) { }
-
+        const std::string& getCommand() const noexcept { return command; }
+        const std::string& getLabel() const noexcept { return label; }
+        constexpr auto getX() const noexcept { return x; }
+        constexpr auto getWidth() const noexcept { return width; }
         std::string command, label;
         int x = 0;
         int width = 0;
@@ -341,7 +344,6 @@ void err(Args&& ... parts) noexcept {
 void err(const char *, ...);
 std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
 std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
-void fork_exec(char *);
 void fork_exec(const std::string&);
 
 void sig_handler(int);

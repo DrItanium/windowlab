@@ -64,30 +64,23 @@ void fork_exec(const std::string& cmd) {
 	switch (pid)
 	{
   		case 0:
-			setsid();
-            auto envShell = getEnvironmentVariable("SHELL", "/bin/sh");
-            std::filesystem::path envShellPath(envShell);
-			envshellname = strrchr(envshell, '/');
-			if (!envshellname)
-			{
-				envshellname = envshell;
-			}
-			else
-			{
-				/* move to the character after the slash */
-				envshellname++;
-			}
-			execlp(envshell, envshellname, "-c", cmd, nullptr);
-			err("exec failed, cleaning up child");
-			exit(1);
-			break;
+            {
+                setsid();
+                auto envShell = getEnvironmentVariable("SHELL", "/bin/sh");
+                std::filesystem::path envShellPath(envShell);
+                auto envShellName = envShellPath.filename();
+                if (envShellName.empty()) {
+                    envshellname = envshell;
+                }
+                execlp(envshell, envshellname, "-c", cmd, nullptr);
+                err("exec failed, cleaning up child");
+                exit(1);
+                break;
+            }
 		case -1:
 			err("can't fork");
 			break;
 	}
-}
-void fork_exec(char *cmd)
-{
 }
 
 void sig_handler(int signal)
