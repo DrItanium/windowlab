@@ -177,8 +177,8 @@ constexpr auto REMAP = 1;
 
 struct Client
 {
-	struct Client *next;
-	char *name;
+	Client *next;
+    std::optional<std::string> name;
 	XSizeHints *size;
 	Window window, frame, trans;
 	Colormap cmap;

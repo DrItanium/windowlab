@@ -280,7 +280,7 @@ Taskbar::redraw()
 		if (!c->trans && c->name)
 		{
 #ifdef XFT
-			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
+			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name->data(), c->name->size());
 #else
 			XDrawString(dsply, _taskbar, text_gc, button_startx + SPACE, SPACE + font->ascent, c->name, strlen(c->name));
 #endif

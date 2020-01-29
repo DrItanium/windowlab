@@ -224,10 +224,6 @@ void remove_client(Client *c, int mode)
 			}
 		}
 	}
-	if (c->name)
-	{
-		XFree(c->name);
-	}
 	if (c->size)
 	{
 		XFree(c->size);
@@ -269,7 +265,7 @@ void redraw(Client *c)
 	if (!c->trans && c->name)
 	{
 #ifdef XFT
-		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
+		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name->data(), c->name->size());
 #else
 		XDrawString(dsply, c->frame, text_gc, SPACE, SPACE + font->ascent, c->name, strlen(c->name));
 #endif

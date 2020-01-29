@@ -530,7 +530,7 @@ void write_titletext(Client *c, Window bar_win)
 	{
 #ifdef XFT
 		(void) bar_win; // fixes a warning
-		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
+		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name->data(), c->name->size());
 #else
 		XDrawString(dsply, bar_win, text_gc, SPACE, SPACE + font->ascent, c->name, strlen(c->name));
 #endif

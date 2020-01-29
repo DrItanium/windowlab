@@ -483,12 +483,14 @@ static void handle_property_change(XPropertyEvent *e)
 		switch (e->atom)
 		{
 			case XA_WM_NAME:
-				if (c->name)
-				{
-					XFree(c->name);
-					c->name = nullptr;
-				}
-				XFetchName(dsply, c->window, &c->name);
+                char* tempStorage;
+				XFetchName(dsply, c->window, &tempStorage);
+                if (tempStorage) {
+                    c->name.emplace(tempStorage); // copy into a string and return the memory back to Xorg
+                    XFree(tempStorage); 
+                } else {
+                    c->name.reset();
+                }
 				redraw(c);
                 Taskbar::instance().redraw();
 				break;
