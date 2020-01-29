@@ -138,7 +138,7 @@ void toggle_fullscreen(Client *c)
 			fullscreen_client = c;
 			showing_taskbar = in_taskbar;
 		}
-		redraw_taskbar();
+        Taskbar::instance().redraw();
 	}
 }
 

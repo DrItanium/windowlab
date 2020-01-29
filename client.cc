@@ -193,7 +193,7 @@ void remove_client(Client *c, int mode)
 	XSetErrorHandler(handle_xerror);
 	XUngrabServer(dsply);
 
-	redraw_taskbar();
+    Taskbar::instance().redraw();
 }
 
 void redraw(Client *c)
@@ -329,7 +329,7 @@ void check_focus(Client *c)
 		{
 			redraw(old_focused);
 		}
-		redraw_taskbar();
+        Taskbar::instance().redraw();
 	}
 }
 

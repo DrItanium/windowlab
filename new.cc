@@ -126,7 +126,7 @@ void make_new_client(Window w)
 	XSync(dsply, False);
 	XUngrabServer(dsply);
 
-	redraw_taskbar();
+    Taskbar::instance().redraw();
 }
 
 /* This one does *not* free the data coming back from Xlib; it just

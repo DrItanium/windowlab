@@ -109,13 +109,14 @@ void doEventLoop()
 static void handle_key_press(XKeyEvent *e)
 {
 	KeySym key = XKeycodeToKeysym(dsply, e->keycode, 0);
+    auto& taskbar = Taskbar::instance();
 	switch (key)
 	{
 		case KEY_CYCLEPREV:
-			cycle_previous();
+            taskbar.cyclePrevious();
 			break;
 		case KEY_CYCLENEXT:
-			cycle_next();
+            taskbar.cycleNext();
 			break;
 		case KEY_FULLSCREEN:
 			toggle_fullscreen(focused_client);
@@ -154,7 +155,7 @@ static void handle_button_press(XButtonEvent *e)
 #endif
 		if (e->button == Button3)
 		{
-			rclick_root();
+            Taskbar::instance().rightClickRoot();
 		}
 	}
 	else if (e->window == Taskbar::instance().getWindow())
@@ -162,16 +163,16 @@ static void handle_button_press(XButtonEvent *e)
 		switch (e->button)
 		{
 			case Button1: // left mouse button
-				lclick_taskbar(e->x);
+                Taskbar::instance().leftClick(e->x);
 				break;
 			case Button3: // right mouse button
-				rclick_taskbar(e->x);
+                Taskbar::instance().rightClick(e->x);
 				break;
 			case Button4: // mouse wheel up
-				cycle_previous();
+                Taskbar::instance().cyclePrevious();
 				break;
 			case Button5: // mouse wheel down
-				cycle_next();
+                Taskbar::instance().cycleNext();
 				break;
 		}
 	}
@@ -194,7 +195,7 @@ static void handle_button_press(XButtonEvent *e)
 		}
 		else if (e->button == Button3)
 		{
-			rclick_root();
+            Taskbar::instance().rightClickRoot();
 		}
 	}
 }
@@ -493,7 +494,7 @@ static void handle_property_change(XPropertyEvent *e)
 				}
 				XFetchName(dsply, c->window, &c->name);
 				redraw(c);
-				redraw_taskbar();
+                Taskbar::instance().redraw();
 				break;
 			case XA_WM_NORMAL_HINTS:
 				XGetWMNormalHints(dsply, c->window, c->size, &dummy);
@@ -521,7 +522,7 @@ static void handle_enter_event(XCrossingEvent *e)
 		if (showing_taskbar == 0)
 		{
 			showing_taskbar = 1;
-			redraw_taskbar();
+            Taskbar::instance().redraw();
 		}
 	}
 	else
@@ -532,7 +533,7 @@ static void handle_enter_event(XCrossingEvent *e)
 			if (showing_taskbar == 1)
 			{
 				showing_taskbar = 0;
-				redraw_taskbar();
+                Taskbar::instance().redraw();
 			}
 		}
 		else // no fullscreen client
@@ -540,7 +541,7 @@ static void handle_enter_event(XCrossingEvent *e)
 			if (showing_taskbar == 0)
 			{
 				showing_taskbar = 1;
-				redraw_taskbar();
+                Taskbar::instance().redraw();
 			}
 		}
 
@@ -581,7 +582,7 @@ static void handle_expose_event(XExposeEvent *e)
 	{
 		if (e->count == 0)
 		{
-			redraw_taskbar();
+            Taskbar::instance().redraw();
 		}
 	}
 	else

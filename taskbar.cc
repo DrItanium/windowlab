@@ -104,7 +104,8 @@ void lclick_taskbutton(Client *old_c, Client *c)
 	check_focus(c);
 }
 
-void lclick_taskbar(int x)
+void
+Taskbar::leftClick(int x) 
 {
 	XEvent ev;
 	int mousex, mousey;
@@ -112,7 +113,6 @@ void lclick_taskbar(int x)
 	Window constraint_win;
 	XSetWindowAttributes pattr;
 
-	float button_width;
 	unsigned int button_clicked, old_button_clicked, i;
 	Client *c, *exposed_c, *old_c;
 	if (head_client) {
@@ -129,9 +129,9 @@ void lclick_taskbar(int x)
 			return;
 		}
 
-		button_width = get_button_width();
+        auto buttonWidth = getButtonWidth();
 
-		button_clicked = (unsigned int)(x / button_width);
+		button_clicked = (unsigned int)(x / buttonWidth);
 		for (i = 0, c = head_client; i < button_clicked; i++) {
 			c = c->next;
 		}
@@ -145,12 +145,12 @@ void lclick_taskbar(int x)
 				case Expose:
 					exposed_c = find_client(ev.xexpose.window, FRAME);
 					if (exposed_c) {
-						redraw(exposed_c);
+						::redraw(exposed_c);
 					}
 					break;
 				case MotionNotify:
 					old_button_clicked = button_clicked;
-					button_clicked = (unsigned int)(ev.xmotion.x / button_width);
+					button_clicked = (unsigned int)(ev.xmotion.x / buttonWidth);
 					if (button_clicked != old_button_clicked) {
 						old_c = c;
 						for (i = 0, c = head_client; i < button_clicked; i++) {
@@ -174,7 +174,8 @@ void lclick_taskbar(int x)
 	}
 }
 
-void rclick_taskbar(int x)
+void
+Taskbar::rightClick(int x)
 {
 	XEvent ev;
 	int mousex, mousey;
@@ -216,13 +217,14 @@ void rclick_taskbar(int x)
 	}
 	while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
-	redraw_taskbar();
+    Taskbar::instance().redraw();
 	XUnmapWindow(dsply, constraint_win);
 	XDestroyWindow(dsply, constraint_win);
 	ungrab();
 }
 
-void rclick_root(void)
+void
+Taskbar::rightClickRoot()
 {
 	XEvent ev;
 	if (!grab(root, MouseMask, None))
@@ -239,7 +241,7 @@ void rclick_root(void)
 				if (ev.xmotion.y < BARHEIGHT())
 				{
 					ungrab();
-					rclick_taskbar(ev.xmotion.x);
+                    rightClick(ev.xmotion.x);
 					return;
 				}
 				break;
@@ -250,7 +252,7 @@ void rclick_root(void)
 	}
 	while (ev.type != ButtonRelease && ev.type != KeyPress);
 
-	redraw_taskbar();
+    redraw();
 	ungrab();
 }
 void
@@ -386,10 +388,6 @@ Taskbar::getButtonWidth()
         c = c->next;
     }
     return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / nwins;
-}
-float get_button_width(void)
-{
-    return Taskbar::instance().getButtonWidth();
 }
 void 
 Taskbar::cyclePrevious() {

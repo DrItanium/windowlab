@@ -386,13 +386,6 @@ class Taskbar final {
 #endif
 
 };
-void cycle_previous(void);
-void cycle_next(void);
-void lclick_taskbar(int);
-void rclick_taskbar(int);
-void rclick_root(void);
-void redraw_taskbar(void);
-float get_button_width(void);
 
 // menufile.c
 const std::filesystem::path& getDefMenuRc() noexcept;
