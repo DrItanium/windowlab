@@ -53,12 +53,18 @@ Client *find_client(Window w, int mode)
 
 void set_wm_state(Client *c, int state)
 {
+    c->setWMState(state);
+}
+
+void 
+Client::setWMState(int state) noexcept
+{
 	CARD32 data[2];
 
 	data[0] = state;
 	data[1] = None; //Icon? We don't need no steenking icon.
 
-	XChangeProperty(dsply, c->window, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data, 2);
+	XChangeProperty(dsply, window, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data, 2);
 }
 
 /* If we can't find a WM_STATE we're going to have to assume
@@ -69,18 +75,25 @@ void set_wm_state(Client *c, int state)
 
 long get_wm_state(Client *c)
 {
+    return c->getWMState();
+}
+
+long 
+Client::getWMState() const noexcept
+{
 	Atom real_type;
 	int real_format;
 	long state = WithdrawnState;
 	unsigned long items_read, items_left;
 	unsigned char *data;
 
-	if (XGetWindowProperty(dsply, c->window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read)
+	if (XGetWindowProperty(dsply, window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read)
 	{
 		state = *(long *)data;
 		XFree(data);
 	}
 	return state;
+
 }
 
 /* This will need to be called whenever we update our Client stuff.

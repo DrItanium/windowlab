@@ -178,7 +178,7 @@ inline auto MINWINHEIGHT() noexcept {
  * ignore_unmap. This way our unmap event handler can tell when it
  * isn't supposed to do anything. */
 
-typedef struct Client
+struct Client
 {
 	struct Client *next;
 	char *name;
@@ -197,7 +197,9 @@ typedef struct Client
 #ifdef XFT
 	XftDraw *xftdraw;
 #endif
-} Client;
+    long getWMState() const noexcept;
+    void setWMState(int) noexcept; 
+};
 
 struct Rect final {
     public:
