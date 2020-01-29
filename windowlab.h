@@ -38,6 +38,7 @@
 #include <vector>
 #include <filesystem>
 #include <iostream>
+#include <functional>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -204,12 +205,54 @@ struct Client
 struct Rect final {
     public:
         constexpr Rect() noexcept = default;
-        constexpr Rect(int __x, int __y, int w, int h) noexcept : x(__x), y(__y), width(w), height(h) { }
+        constexpr Rect(int x, int y, int w, int h) noexcept : _x(x), _y(y), _width(w), _height(h) { }
         ~Rect() = default;
-        int x = 0;
-        int y = 0;
-        int width = 0;
-        int height = 0;
+        constexpr auto getX() const noexcept { return _x; }
+        constexpr auto getY() const noexcept { return _y; }
+        constexpr auto getWidth() const noexcept { return _width; }
+        constexpr auto getHeight() const noexcept { return _height; }
+        void setX(int value) noexcept { _x = value; }
+        void setX(int value, std::function<bool(int)> cond) noexcept {
+            if (cond(_x)) {
+                setX(value);
+            }
+        }
+        void setY(int value) noexcept { _y = value; }
+        void setY(int value, std::function<bool(int)> cond) noexcept {
+            if (cond(_y)) {
+                setY(value);
+            }
+        }
+        void setWidth(int value) noexcept { _width = value; }
+        void setWidth(int value, std::function<bool(int)> cond) noexcept { 
+            if (cond(_width)) {
+                setWidth(value);
+            }
+        }
+        void setHeight(int value) noexcept { _height = value; }
+        void setHeight(int value, std::function<bool(int)> cond) noexcept { 
+            if (cond(_height)) {
+                setHeight(value);
+            }
+        }
+        void addToHeight(int accumulation) noexcept {
+            setHeight(getHeight() + accumulation);
+        }
+        void addToWidth(int accumulation) noexcept {
+            setWidth(getWidth() + accumulation);
+        }
+        void subtractFromHeight(int amount) noexcept {
+            setHeight(getHeight() - amount);
+        }
+        void subtractFromWidth(int amount) noexcept {
+            setWidth(getWidth() - amount);
+        }
+    private:
+
+        int _x = 0;
+        int _y = 0;
+        int _width = 0;
+        int _height = 0;
 };
 
 struct MenuItem final

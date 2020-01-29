@@ -339,79 +339,72 @@ void resize(Client *c, int x, int y)
 						if (in_taskbar == 1) // first time outside taskbar
 						{
 							in_taskbar = 0;
-							bounddims.x = 0;
-							bounddims.width = dw;
-							bounddims.y = BARHEIGHT();
-							bounddims.height = dh - BARHEIGHT();
-							XMoveResizeWindow(dsply, constraint_win, bounddims.x, bounddims.y, bounddims.width, bounddims.height);
+                            bounddims( 0, BARHEIGHT, dw, dh - BARHEIGHT());
+							XMoveResizeWindow(dsply, constraint_win, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight());
 							in_taskbar = 0;
 						}
 						// inside the window, dragging outwards
 						if (dragging_outwards)
 						{
-							if (ev.xmotion.x < newdims.x + BORDERWIDTH(c))
+							if (ev.xmotion.x < newdims.getX() + BORDERWIDTH(c))
 							{
-								newdims.width += newdims.x + BORDERWIDTH(c) - ev.xmotion.x;
-								newdims.x = ev.xmotion.x - BORDERWIDTH(c);
+								newdims.addToWidth(newdims.getX() + BORDERWIDTH(c) - ev.xmotion.x);
+								newdims.setX(ev.xmotion.x - BORDERWIDTH(c));
 								leftedge_changed = 1;
 							}
-							else if (ev.xmotion.x > newdims.x + newdims.width + BORDERWIDTH(c))
+							else if (ev.xmotion.x > newdims.getX() + newdims.getWidth() + BORDERWIDTH(c))
 							{
-								newdims.width = (ev.xmotion.x - newdims.x - BORDERWIDTH(c)) + 1; // add 1 to allow window to be flush with edge of screen
+								newdims.setWidth((ev.xmotion.x - newdims.getX() - BORDERWIDTH(c)) + 1); // add 1 to allow window to be flush with edge of screen
 								rightedge_changed = 1;
 							}
-							if (ev.xmotion.y < newdims.y + BORDERWIDTH(c))
+							if (ev.xmotion.y < newdims.getY() + BORDERWIDTH(c))
 							{
-								newdims.height += newdims.y + BORDERWIDTH(c) - ev.xmotion.y;
-								newdims.y = ev.xmotion.y - BORDERWIDTH(c);
+								newdims.addToHeight(newdims.getY() + BORDERWIDTH(c) - ev.xmotion.y);
+								newdims.setY(ev.xmotion.y - BORDERWIDTH(c));
 								topedge_changed = 1;
 							}
-							else if (ev.xmotion.y > newdims.y + newdims.height + BORDERWIDTH(c))
+							else if (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(c))
 							{
-								newdims.height = (ev.xmotion.y - newdims.y - BORDERWIDTH(c)) + 1; // add 1 to allow window to be flush with edge of screen
+								newdims.setHeight((ev.xmotion.y - newdims.getY() - BORDERWIDTH(c)) + 1); // add 1 to allow window to be flush with edge of screen
 								bottomedge_changed = 1;
 							}
 						}
 						// outside the window, dragging inwards
 						else
 						{
-							unsigned int above_win, below_win, leftof_win, rightof_win;
-							unsigned int in_win;
+							unsigned int above_win = (ev.xmotion.y < newdims.getY() + BORDERWIDTH(c));
+							unsigned int below_win = (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(c));
+							unsigned int leftof_win = (ev.xmotion.x < newdims.getX() + BORDERWIDTH(c));
+							unsigned int rightof_win = (ev.xmotion.x > newdims.getX() + newdims.getWidth()+ BORDERWIDTH(c));
 
-							above_win = (ev.xmotion.y < newdims.y + BORDERWIDTH(c));
-							below_win = (ev.xmotion.y > newdims.y + newdims.height + BORDERWIDTH(c));
-							leftof_win = (ev.xmotion.x < newdims.x + BORDERWIDTH(c));
-							rightof_win = (ev.xmotion.x > newdims.x + newdims.width + BORDERWIDTH(c));
-
-							in_win = ((!above_win) && (!below_win) && (!leftof_win) && (!rightof_win));
+							unsigned int in_win = ((!above_win) && (!below_win) && (!leftof_win) && (!rightof_win));
 
 							if (in_win)
 							{
-								unsigned int from_left, from_right, from_top, from_bottom;
-								from_left = ev.xmotion.x - newdims.x - BORDERWIDTH(c);
-								from_right = newdims.x + newdims.width + BORDERWIDTH(c) - ev.xmotion.x;
-								from_top = ev.xmotion.y - newdims.y - BORDERWIDTH(c);
-								from_bottom = newdims.y + newdims.height + BORDERWIDTH(c) - ev.xmotion.y;
+								unsigned int from_left = ev.xmotion.x - newdims.getX() - BORDERWIDTH(c);
+								unsigned int from_right = newdims.getX() + newdims.getWidth() + BORDERWIDTH(c) - ev.xmotion.x;
+								unsigned int from_top = ev.xmotion.y - newdims.getY() - BORDERWIDTH(c);
+								unsigned int from_bottom = newdims.getY() + newdims.getHeight() + BORDERWIDTH(c) - ev.xmotion.y;
 								if (from_left < from_right && from_left < from_top && from_left < from_bottom)
 								{
-									newdims.width -= ev.xmotion.x - newdims.x - BORDERWIDTH(c);
-									newdims.x = ev.xmotion.x - BORDERWIDTH(c);
+                                    newdims.subtractFromWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(c));
+                                    newdims.setX(ev.xmotion.x - BORDERWIDTH(c));
 									leftedge_changed = 1;
 								}
 								else if (from_right < from_top && from_right < from_bottom)
 								{
-									newdims.width = ev.xmotion.x - newdims.x - BORDERWIDTH(c);
+                                    newdims.setWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(c));
 									rightedge_changed = 1;
 								}
 								else if (from_top < from_bottom)
 								{
-									newdims.height -= ev.xmotion.y - newdims.y - BORDERWIDTH(c);
-									newdims.y = ev.xmotion.y - BORDERWIDTH(c);
+									newdims.subtractFromHeight(ev.xmotion.y - newdims.getY() - BORDERWIDTH(c));
+									newdims.setY(ev.xmotion.y - BORDERWIDTH(c));
 									topedge_changed = 1;
 								}
 								else
 								{
-									newdims.height = ev.xmotion.y - newdims.y - BORDERWIDTH(c);
+                                    newdims.setHeight( ev.xmotion.y - newdims.getY() - BORDERWIDTH(c));
 									bottomedge_changed = 1;
 								}
 							}
@@ -420,36 +413,36 @@ void resize(Client *c, int x, int y)
 						if (leftedge_changed || rightedge_changed || topedge_changed || bottomedge_changed)
 						{
 							copy_dims(&newdims, &recalceddims);
-							recalceddims.height -= BARHEIGHT();
+							recalceddims.subtractFromHeight(BARHEIGHT());
 
 							if (get_incsize(c, (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, PIXELS))
 							{
 								if (leftedge_changed)
 								{
-									recalceddims.x = (recalceddims.x + recalceddims.width) - newwidth;
-									recalceddims.width = newwidth;
+									recalceddims.setX((recalceddims.getX() + recalceddims.getWidth()) - newwidth);
+									recalceddims.setWidth(newwidth);
 								}
 								else if (rightedge_changed)
 								{
-									recalceddims.width = newwidth;
+                                    recalceddims.setWidth(newwidth);
 								}
 
 								if (topedge_changed)
 								{
-									recalceddims.y = (recalceddims.y + recalceddims.height) - newheight;
-									recalceddims.height = newheight;
+									recalceddims.setY((recalceddims.getY() + recalceddims.getHeight()) - newheight);
+									recalceddims.setHeight(newheight);
 								}
 								else if (bottomedge_changed)
 								{
-									recalceddims.height = newheight;
+                                    recalceddims.setHeight(newheight);
 								}
 							}
 
-							recalceddims.height += BARHEIGHT();
+                            recalceddims.addToHeight(BARHEIGHT());
 							limit_size(c, &recalceddims);
 
-							XMoveResizeWindow(dsply, resize_win, recalceddims.x, recalceddims.y, recalceddims.width, recalceddims.height);
-							XResizeWindow(dsply, resizebar_win, recalceddims.width, BARHEIGHT() - DEF_BORDERWIDTH);
+							XMoveResizeWindow(dsply, resize_win, recalceddims.getX(), recalceddims.getY(), recalceddims.getWidth(), recalceddims.getHeight());
+							XResizeWindow(dsply, resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 						}
 					}
 				}
@@ -460,10 +453,10 @@ void resize(Client *c, int x, int y)
 
 	XUngrabServer(dsply);
 	ungrab();
-	c->x = recalceddims.x;
-	c->y = recalceddims.y + BARHEIGHT();
-	c->width = recalceddims.width;
-	c->height = recalceddims.height - BARHEIGHT();
+	c->x = recalceddims.getX();
+	c->y = recalceddims.getY() + BARHEIGHT();
+	c->width = recalceddims.getWidth();
+	c->height = recalceddims.getHeight() - BARHEIGHT();
 
 	XMoveResizeWindow(dsply, c->frame, c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT());
 	XResizeWindow(dsply, c->window, c->width, c->height);
@@ -487,51 +480,24 @@ void resize(Client *c, int x, int y)
 
 static void limit_size(Client *c, Rect *newdims)
 {
-	int dw, dh;
-	dw = DisplayWidth(dsply, screen);
-	dh = DisplayHeight(dsply, screen);
+	auto dw = DisplayWidth(dsply, screen);
+	auto dh = DisplayHeight(dsply, screen);
 
 	if (c->size->flags & PMinSize)
 	{
-		if (newdims->width < c->size->min_width)
-		{
-			newdims->width = c->size->min_width;
-		}
-		if (newdims->height < c->size->min_height)
-		{
-			newdims->height = c->size->min_height;
-		}
+        newdims->setWidth(c->size->min_width, [compare = c->size->min_width](int width) { return width < compare; });
+        newdims->setHeight(c->size->min_height, [compare = c->size->min_height](int height) { return height < compare; });
 	}
 
 	if (c->size->flags & PMaxSize)
 	{
-		if (newdims->width > c->size->max_width)
-		{
-			newdims->width = c->size->max_width;
-		}
-		if (newdims->height > c->size->max_height)
-		{
-			newdims->height = c->size->max_height;
-		}
+        newdims->setWidth(c->size->max_width, [compare = c->size->max_width](int width) { return width > compare; });
+        newdims->setHeight(c->size->max_height, [compare = c->size->max_height](int height) { return height > compare; });
 	}
-
-	if (newdims->width < MINWINWIDTH())
-	{
-		newdims->width = MINWINWIDTH();
-	}
-	if (newdims->height < MINWINHEIGHT())
-	{
-		newdims->height = MINWINHEIGHT();
-	}
-
-	if (newdims->width > dw)
-	{
-		newdims->width = dw;
-	}
-	if (newdims->height > (dh - BARHEIGHT()))
-	{
-		newdims->height = (dh - BARHEIGHT());
-	}
+    newdims->setWidth(MINWINWIDTH(), [](int width) { return width < MINWINWIDTH(); });
+    newdims->setHeight(MINWINHEIGHT(), [](int height) { return height < MINWINHEIGHT(); });
+    newdims->setWidth(dw, [dw](int width) { return width > dw; });
+    newdims->setHeight((dh - BARHEIGHT()), [compare = (dh - BARHEIGHT())](int height) { return height > compare; });
 }
 
 /* If the window in question has a ResizeInc int, then it wants to be
@@ -541,32 +507,31 @@ static void limit_size(Client *c, Rect *newdims)
 
 static int get_incsize(Client *c, unsigned int *x_ret, unsigned int *y_ret, Rect *newdims, int mode)
 {
-	int basex, basey;
 	if (c->size->flags & PResizeInc)
 	{
-		basex = (c->size->flags & PBaseSize) ? c->size->base_width : (c->size->flags & PMinSize) ? c->size->min_width : 0;
-		basey = (c->size->flags & PBaseSize) ? c->size->base_height : (c->size->flags & PMinSize) ? c->size->min_height : 0;
+		auto basex = (c->size->flags & PBaseSize) ? c->size->base_width : (c->size->flags & PMinSize) ? c->size->min_width : 0;
+		auto basey = (c->size->flags & PBaseSize) ? c->size->base_height : (c->size->flags & PMinSize) ? c->size->min_height : 0;
 		// work around broken apps that set their resize increments to 0
-		if (mode == PIXELS)
+		if (auto nWidth= newdims->getWidth(), nHeight = newdims->getHeight(); mode == PIXELS)
 		{
 			if (c->size->width_inc != 0)
 			{
-				*x_ret = newdims->width - ((newdims->width - basex) % c->size->width_inc);
+				*x_ret = nWidth - ((nWidth - basex) % c->size->width_inc);
 			}
 			if (c->size->height_inc != 0)
 			{
-				*y_ret = newdims->height - ((newdims->height - basey) % c->size->height_inc);
+				*y_ret = nHeight - ((nHeight - basey) % c->size->height_inc);
 			}
 		}
 		else // INCREMENTS
 		{
 			if (c->size->width_inc != 0)
 			{
-				*x_ret = (newdims->width - basex) / c->size->width_inc;
+				*x_ret = (nWidth - basex) / c->size->width_inc;
 			}
 			if (c->size->height_inc != 0)
 			{
-				*y_ret = (newdims->height - basey) / c->size->height_inc;
+				*y_ret = (nHeight - basey) / c->size->height_inc;
 			}
 		}
 		return 1;

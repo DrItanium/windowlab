@@ -335,26 +335,14 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 
 	if (fullscreen_client  && c == fullscreen_client)
 	{
-		if (e->value_mask & CWX)
-		{
-			fs_prevdims.x = e->x;
-		}
-		if (e->value_mask & CWY)
-		{
-			fs_prevdims.y = e->y;
-		}
-		if (e->value_mask & CWWidth)
-		{
-			fs_prevdims.width = e->width;
-		}
-		if (e->value_mask & CWHeight)
-		{
-			fs_prevdims.height = e->height;
-		}
+        fs_prevdims.setX(e->x, [e](int) { return e->value_mask & CWX; });
+        fs_prevdims.setY(e->y, [e](int) { return e->value_mask & CWY; });
+        fs_prevdims.setWidth(e->width, [e](int) { return e->value_mask & CWWidth; });
+        fs_prevdims.setHeight(e->height, [e](int) { return e->value_mask & CWHeight; });
 		return;
 	}
 
-	if (c )
+	if (c)
 	{
 		gravitate(c, REMOVE_GRAVITY);
 		if (e->value_mask & CWX)
