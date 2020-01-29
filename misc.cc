@@ -358,11 +358,9 @@ static void quit_nicely(void)
 	if (font) {
 		XFreeFont(dsply, font);
 	}
-#ifdef XFT
 	if (xftfont) {
 		XftFontClose(dsply, xftfont);
 	}
-#endif
 	XFreeCursor(dsply, resize_curs);
 	XFreeGC(dsply, border_gc);
 	XFreeGC(dsply, text_gc);

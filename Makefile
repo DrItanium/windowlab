@@ -1,9 +1,5 @@
 # Makefile for WindowLab
 
-# Comment out to remove shape support (for X11R5 or just a tiny bin)
-DEFINES += -DSHAPE
-EXTRA_LIBS += -lXext
-
 # Set this to the hardcoded location of all files if it's not /
 PREFIX = /usr/local
 
@@ -29,10 +25,9 @@ endif
 
 DEFINES += -DDEF_MENURC="\"$(MENURC)\""
 
-# Uncomment to add freetype support (requires XFree86 4.0.2 or later)
-# This needs -lXext above, even if you have disabled shape support
-DEFINES += -DXFT
-EXTRA_INC += `pkg-config --cflags xft`
+# add freetype support required (requires XFree86 4.0.2 or later)
+DEFINES += -DXFT -DSHAPE
+EXTRA_INC += `pkg-config --cflags xft` -lXext
 EXTRA_LIBS += `pkg-config --libs xft`
 
 # Uncomment for debugging info (abandon all hope, ye who enter here)

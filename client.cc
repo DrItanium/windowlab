@@ -178,9 +178,7 @@ Client::~Client() {
     XSetWindowBorderWidth(dsply, window, 1);
     XRemoveFromSaveSet(dsply, window);
     XDestroyWindow(dsply, frame);
-#ifdef XFT
 	XftDrawDestroy(xftdraw);
-#endif
     if (size) {
         XFree(size);
     }
@@ -250,11 +248,7 @@ void redraw(Client *c)
 	}
 	if (!c->trans && c->name)
 	{
-#ifdef XFT
 		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name->data(), c->name->size());
-#else
-		XDrawString(dsply, c->frame, text_gc, SPACE, SPACE + font->ascent, c->name, strlen(c->name));
-#endif
 	}
 	if (c == focused_client)
 	{
@@ -310,7 +304,6 @@ void gravitate(Client *c, int multiplier)
  * server will paint the border in the region between the two. (I knew
  * that using X borders would get me eventually... ;-)) */
 
-#ifdef SHAPE
 void set_shape(Client *c)
 {
 	int n, order;
@@ -342,7 +335,6 @@ void set_shape(Client *c)
 	}
 	XFree(dummy);
 }
-#endif
 
 void check_focus(Client *c)
 {

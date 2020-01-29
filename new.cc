@@ -67,9 +67,7 @@ void makeNewClient(Window w)
         c->ignore_unmap = 0;
         c->hidden = 0;
         c->was_hidden = 0;
-#ifdef SHAPE
         c->has_been_shaped = 0;
-#endif
         c->x = attr.x;
         c->y = attr.y;
         c->width = attr.width;
@@ -99,9 +97,7 @@ void makeNewClient(Window w)
         gravitate(c, APPLY_GRAVITY);
         reparent(c);
 
-#ifdef XFT
         c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
-#endif
 
         if (c->getWMState() != IconicState)
         {
@@ -183,13 +179,11 @@ static void reparent(Client *c)
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
 	c->frame = XCreateWindow(dsply, root, c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT(), BORDERWIDTH(c), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
-#ifdef SHAPE
 	if (shape)
 	{
 		XShapeSelectInput(dsply, c->window, ShapeNotifyMask);
 		set_shape(c);
 	}
-#endif
 
 	XAddToSaveSet(dsply, c->window);
 	XSelectInput(dsply, c->window, ColormapChangeMask|PropertyChangeMask);

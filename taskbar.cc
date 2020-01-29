@@ -47,9 +47,7 @@ Taskbar::make() noexcept {
 
 	XMapWindow(dsply, _taskbar);
 
-#ifdef XFT
 	_tbxftdraw = XftDrawCreate(dsply, (Drawable) _taskbar, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
-#endif
     _made = true;
 }
 
@@ -279,11 +277,7 @@ Taskbar::redraw()
 		}
 		if (!c->trans && c->name)
 		{
-#ifdef XFT
 			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name->data(), c->name->size());
-#else
-			XDrawString(dsply, _taskbar, text_gc, button_startx + SPACE, SPACE + font->ascent, c->name, strlen(c->name));
-#endif
 		}
 	}
 
@@ -298,11 +292,7 @@ Taskbar::drawMenubar()
 		if (!menuItem.label.empty() && !menuItem.command.empty())
 		{
             //std::cout << "displaying " << menuItem.label << std::endl;
-#ifdef XFT
 			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
-#else
-			XDrawString(dsply, taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label, menuItem.label.size());
-#endif
 		}
 	}
 }
@@ -354,11 +344,7 @@ Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 	} else {
 		XFillRectangle(dsply, _taskbar, menu_gc, menuItem.getX(), 0, menuItem.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-#ifdef XFT
 	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.getX() + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.getLabel().data(), menuItem.getLabel().size());
-#else
-	XDrawString(dsply, _taskbar, text_gc, menuItem.getX() + (SPACE * 2), font->ascent + SPACE, menuItem.getLabel().data(), menuItem.getLabel().size());
-#endif
 }
 
 float

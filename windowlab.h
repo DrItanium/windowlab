@@ -44,22 +44,14 @@
 #include <functional>
 #include <list>
 #include <memory>
-#ifdef SHAPE
 #include <X11/extensions/shape.h>
-#endif
-#ifdef XFT
 #include <X11/Xft/Xft.h>
-#endif
 
 
 // here are the default settings - change to suit your taste
 
 // if you aren't sure about DEF_FONT, change it to "fixed"; almost all X installations will have that available
-#ifdef XFT
 #define DEF_FONT "-bitstream-bitstream vera sans-medium-r-*-*-*-100-*-*-*-*-*-*"
-#else
-#define DEF_FONT "-b&h-lucida-medium-r-*-*-10-*-*-*-*-*-*-*"
-#endif
 
 // use named colours, #rgb, #rrggbb or #rrrgggbbb format
 #define DEF_BORDER "#000"
@@ -224,12 +216,8 @@ struct Client
 	unsigned int hidden;
 	unsigned int was_hidden;
 	unsigned int focus_order;
-#ifdef SHAPE
 	Bool has_been_shaped;
-#endif
-#ifdef XFT
 	XftDraw *xftdraw;
-#endif
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
     void sendConfig() noexcept;
@@ -324,18 +312,14 @@ extern Client *head_client, *focused_client, *topmost_client, *fullscreen_client
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
-#ifdef XFT
 extern XftFont *xftfont;
 extern XftColor xft_detail;
-#endif
 extern GC border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc, selected_gc, empty_gc;
 extern XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, selected_col, empty_col;
 extern Cursor resize_curs;
 extern Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
 extern char *opt_font, *opt_border, *opt_text, *opt_active, *opt_inactive, *opt_menu, *opt_selected, *opt_empty;
-#ifdef SHAPE
 extern int shape, shape_event;
-#endif
 extern unsigned int numlockmask;
 
 // events.c
@@ -374,9 +358,7 @@ void send_config(Client *);
 void remove_client(Client *, int);
 void redraw(Client *);
 void gravitate(Client *, int);
-#ifdef SHAPE
 void set_shape(Client *);
-#endif
 void check_focus(Client *);
 Client *get_prev_focused(void);
 void draw_hide_button(Client *, GC *, GC *);
@@ -448,9 +430,7 @@ class Taskbar final {
     private:
         bool _made = false;
         Window _taskbar;
-#if XFT
         XftDraw* _tbxftdraw = nullptr;
-#endif
 
 };
 

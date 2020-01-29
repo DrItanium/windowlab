@@ -32,9 +32,7 @@
 // semaphor activated by SIGHUP
 bool doMenuItems = false;
 
-#ifdef XFT
 XGlyphInfo extents;
-#endif
 
 const std::filesystem::path& getDefMenuRc() noexcept {
     static std::filesystem::path _menu(DEF_MENURC);
@@ -128,12 +126,8 @@ Menu::populate() noexcept {
     unsigned int buttonStartX = 0;
     for (auto& menuItem : _menuItems) {
         menuItem.x = buttonStartX;
-#ifdef XFT
 		XftTextExtents8(dsply, xftfont, (unsigned char *)menuItem.getLabel().data(), menuItem.getLabel().size(), &extents);
         menuItem.width = extents.width + (SPACE * 4);
-#else
-		menuItem.width = XTextWidth(font, menuItem.getLabel().data(), menuItem.getLabel().size()) + (SPACE * 4);
-#endif
         buttonStartX += menuItem.getWidth()+ 1;
 	}
 	// menu items have been built
