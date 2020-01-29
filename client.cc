@@ -437,9 +437,8 @@ void draw_hide_button(Client *c, GC *detail_gc, GC *background_gc)
 
 void draw_toggledepth_button(Client *c, GC *detail_gc, GC *background_gc)
 {
-	int x, topleft_offset;
-	x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
-	topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
+	int x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
+	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
 	XFillRectangle(dsply, c->frame, *background_gc, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	XDrawRectangle(dsply, c->frame, *detail_gc, x + topleft_offset, topleft_offset, 7, 7);
@@ -448,9 +447,8 @@ void draw_toggledepth_button(Client *c, GC *detail_gc, GC *background_gc)
 
 void draw_close_button(Client *c, GC *detail_gc, GC *background_gc)
 {
-	int x, topleft_offset;
-	x = c->width - (BARHEIGHT() - DEF_BORDERWIDTH);
-	topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
+	int x = c->width - (BARHEIGHT() - DEF_BORDERWIDTH);
+	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
 	XFillRectangle(dsply, c->frame, *background_gc, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
