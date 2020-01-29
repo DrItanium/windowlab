@@ -98,7 +98,6 @@ constexpr T ABS(T x) noexcept {
         static_assert(false_v<T>, "ABS not implemented for given type!");
     }
 }
-#define ABS(x) (((x) < 0) ? -(x) : (x))
 
 // shorthand for wordy function calls
 #define setmouse(w, x, y) XWarpPointer(dsply, None, w, 0, 0, 0, 0, x, y)
@@ -300,32 +299,32 @@ extern unsigned int numlockmask;
 void doEventLoop();
 
 // client.c
-extern Client *find_client(Window, int);
-extern void send_config(Client *);
-extern void remove_client(Client *, int);
-extern void redraw(Client *);
-extern void gravitate(Client *, int);
+Client *find_client(Window, int);
+void send_config(Client *);
+void remove_client(Client *, int);
+void redraw(Client *);
+void gravitate(Client *, int);
 #ifdef SHAPE
-extern void set_shape(Client *);
+void set_shape(Client *);
 #endif
-extern void check_focus(Client *);
-extern Client *get_prev_focused(void);
-extern void draw_hide_button(Client *, GC *, GC *);
-extern void draw_toggledepth_button(Client *, GC *, GC *);
-extern void draw_close_button(Client *, GC *, GC *);
+void check_focus(Client *);
+Client *get_prev_focused(void);
+void draw_hide_button(Client *, GC *, GC *);
+void draw_toggledepth_button(Client *, GC *, GC *);
+void draw_close_button(Client *, GC *, GC *);
 
 // new.c
-extern void make_new_client(Window);
+void make_new_client(Window);
 
 // manage.c
-extern void move(Client *);
-extern void raise_lower(Client *);
-extern void resize(Client *, int, int);
-extern void hide(Client *);
-extern void unhide(Client *);
-extern void toggle_fullscreen(Client *);
-extern void send_wm_delete(Client *);
-extern void write_titletext(Client *, Window);
+void move(Client *);
+void raise_lower(Client *);
+void resize(Client *, int, int);
+void hide(Client *);
+void unhide(Client *);
+void toggle_fullscreen(Client *);
+void send_wm_delete(Client *);
+void write_titletext(Client *, Window);
 
 // misc.c
 template<typename ... Args>
