@@ -67,8 +67,6 @@ all: $(PROG)
 $(PROG): $(OBJS)
 	$(CXX) $(OBJS) $(LDPATH) $(LIBS) $(LDFLAGS) -o $@
 
-$(OBJS): %.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 $(OBJS): %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
