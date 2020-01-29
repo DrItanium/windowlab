@@ -43,10 +43,10 @@ EXTRA_LIBS += `pkg-config --libs xft`
 CC = gcc
 CXX = g++
 ifndef CFLAGS
-CFLAGS = -g -O2 -Wall -W
+CFLAGS = -g -Os -Wall -W
 endif
 ifndef CXXFLAGS
-CXXFLAGS = -g -O2 -Wall -W -std=c++17
+CXXFLAGS = -g -Os -Wall -W -std=c++17
 endif
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)$(MANBASE)/man1
