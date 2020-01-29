@@ -300,7 +300,7 @@ extern int shape, shape_event;
 extern unsigned int numlockmask;
 
 // events.c
-extern void do_event_loop(void);
+void doEventLoop();
 
 // client.c
 extern Client *find_client(Window, int);
@@ -338,19 +338,23 @@ void err(Args&& ... parts) noexcept {
     std::cerr << std::endl;
 }
 
-extern void err(const char *, ...);
-extern void fork_exec(char *);
-extern void sig_handler(int);
-extern int handle_xerror(Display *, XErrorEvent *);
-extern int ignore_xerror(Display *, XErrorEvent *);
-extern int send_xmessage(Window, Atom, long);
-extern void get_mouse_position(int *, int *);
-extern void fix_position(Client *);
-extern void refix_position(Client *, XConfigureRequestEvent *);
+void err(const char *, ...);
+std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
+std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
+void fork_exec(char *);
+void fork_exec(const std::string&);
+
+void sig_handler(int);
+int handle_xerror(Display *, XErrorEvent *);
+int ignore_xerror(Display *, XErrorEvent *);
+int send_xmessage(Window, Atom, long);
+void get_mouse_position(int *, int *);
+void fix_position(Client *);
+void refix_position(Client *, XConfigureRequestEvent *);
 #ifdef DEBUG
-extern void show_event(XEvent);
-extern void dump(Client *);
-extern void dump_clients(void);
+void show_event(XEvent);
+void dump(Client *);
+void dump_clients(void);
 #endif
 
 Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
@@ -380,19 +384,19 @@ class Taskbar final {
 #endif
 
 };
-extern void make_taskbar(void);
-extern void cycle_previous(void);
-extern void cycle_next(void);
-extern void lclick_taskbar(int);
-extern void rclick_taskbar(int);
-extern void rclick_root(void);
-extern void redraw_taskbar(void);
-extern float get_button_width(void);
+void cycle_previous(void);
+void cycle_next(void);
+void lclick_taskbar(int);
+void rclick_taskbar(int);
+void rclick_root(void);
+void redraw_taskbar(void);
+float get_button_width(void);
 
 // menufile.c
 const std::filesystem::path& getDefMenuRc() noexcept;
 using MenuItemList = std::vector<MenuItem>;
 MenuItemList& getMenuItems() noexcept;
+std::optional<MenuItem> getMenuItem(std::size_t index) noexcept;
 inline std::size_t getMenuItemCount() noexcept { return getMenuItems().size(); }
 void clearMenuItems() noexcept;
 void acquireMenuItems() noexcept;

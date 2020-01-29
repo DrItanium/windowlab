@@ -24,6 +24,8 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include "windowlab.h"
+#include <optional>
+#include <string>
 
 static void quit_nicely(void);
 
@@ -38,8 +40,24 @@ void err(const char *fmt, ...)
 	fprintf(stderr, "\n");
 }
 
-void fork_exec(char *cmd)
-{
+std::optional<std::string>
+getEnvironmentVariable(const std::string& varName) noexcept {
+    if (auto result = ::getenv(varName.c_str()); result) {
+        return std::make_optional(result);
+    } else {
+        return std::nullopt;
+    }
+}
+std::string
+getEnvironmentVariable(const std::string& varName, const std::string& defaultValue) noexcept {
+    if (auto result = ::getenv(varName.c_str()); result) {
+        return result;
+    } else {
+        return defaultValue;
+    }
+}
+
+void fork_exec(const std::string& cmd) {
 	char *envshell, *envshellname;
 	pid_t pid = fork();
 
@@ -47,11 +65,8 @@ void fork_exec(char *cmd)
 	{
   		case 0:
 			setsid();
-			envshell = getenv("SHELL");
-			if (!envshell)
-			{
-				envshell = "/bin/sh";
-			}
+            auto envShell = getEnvironmentVariable("SHELL", "/bin/sh");
+            std::filesystem::path envShellPath(envShell);
 			envshellname = strrchr(envshell, '/');
 			if (!envshellname)
 			{
@@ -70,6 +85,9 @@ void fork_exec(char *cmd)
 			err("can't fork");
 			break;
 	}
+}
+void fork_exec(char *cmd)
+{
 }
 
 void sig_handler(int signal)

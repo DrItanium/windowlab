@@ -49,6 +49,13 @@ MenuItemList& getMenuItems() noexcept {
     static MenuItemList _menuitems;
     return _menuitems;
 }
+std::optional<MenuItem> getMenuItem(std::size_t index) noexcept {
+    if (index >= getMenuItemCount()) {
+        return std::nullopt;
+    } else {
+        return std::make_optional(getMenuItems()[index]);
+    }
+}
 
 void trimLeadingWs(std::string& line) {
     line.erase(line.begin(), std::find_if(line.begin(), line.end(), [](auto ch) { return !std::isspace(ch); }));

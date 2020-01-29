@@ -44,7 +44,7 @@ static int interruptible_XNextEvent(XEvent *event);
 /* We may want to put in some sort of check for unknown events at some
  * point. TWM has an interesting and different way of doing this... */
 
-void do_event_loop(void)
+void doEventLoop()
 {
 	XEvent ev;
 

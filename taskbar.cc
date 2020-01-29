@@ -86,26 +86,18 @@ void forget_hidden(void)
 
 void lclick_taskbutton(Client *old_c, Client *c)
 {
-	if (old_c != nullptr)
-	{
-		if (old_c->was_hidden)
-		{
+	if (old_c) {
+		if (old_c->was_hidden) {
 			hide(old_c);
 		}
 	}
 
-	if (c->hidden)
-	{
+	if (c->hidden) {
 		unhide(c);
-	}
-	else
-	{
-		if (c->was_hidden)
-		{
+	} else {
+        if (c->was_hidden) {
 			hide(c);
-		}
-		else
-		{
+		} else {
 			raise_lower(c);
 		}
 	}
@@ -123,8 +115,7 @@ void lclick_taskbar(int x)
 	float button_width;
 	unsigned int button_clicked, old_button_clicked, i;
 	Client *c, *exposed_c, *old_c;
-	if (head_client != nullptr)
-	{
+	if (head_client) {
 		remember_hidden();
 
 		get_mouse_position(&mousex, &mousey);
@@ -133,8 +124,7 @@ void lclick_taskbar(int x)
 		constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 		XMapWindow(dsply, constraint_win);
 
-		if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess))
-		{
+		if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
 			XDestroyWindow(dsply, constraint_win);
 			return;
 		}
@@ -142,8 +132,7 @@ void lclick_taskbar(int x)
 		button_width = get_button_width();
 
 		button_clicked = (unsigned int)(x / button_width);
-		for (i = 0, c = head_client; i < button_clicked; i++)
-		{
+		for (i = 0, c = head_client; i < button_clicked; i++) {
 			c = c->next;
 		}
 
@@ -152,23 +141,19 @@ void lclick_taskbar(int x)
 		do
 		{
 			XMaskEvent(dsply, ExposureMask|MouseMask|KeyMask, &ev);
-			switch (ev.type)
-			{
+			switch (ev.type) {
 				case Expose:
 					exposed_c = find_client(ev.xexpose.window, FRAME);
-					if (exposed_c)
-					{
+					if (exposed_c) {
 						redraw(exposed_c);
 					}
 					break;
 				case MotionNotify:
 					old_button_clicked = button_clicked;
 					button_clicked = (unsigned int)(ev.xmotion.x / button_width);
-					if (button_clicked != old_button_clicked)
-					{
+					if (button_clicked != old_button_clicked) {
 						old_c = c;
-						for (i = 0, c = head_client; i < button_clicked; i++)
-						{
+						for (i = 0, c = head_client; i < button_clicked; i++) {
 							c = c->next;
 						}
 						lclick_taskbutton(old_c, c);
@@ -202,8 +187,7 @@ void rclick_taskbar(int x)
 	auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 	XMapWindow(dsply, constraint_win);
 
-	if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess))
-	{
+	if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
 		XDestroyWindow(dsply, constraint_win);
 		return;
 	}
@@ -219,9 +203,10 @@ void rclick_taskbar(int x)
 				current_item = update_menuitem(ev.xmotion.x);
 				break;
 			case ButtonRelease:
-				if (current_item != UINT_MAX)
-				{
-					fork_exec(getMenuItems()[current_item].command.data());
+				if (current_item != UINT_MAX) {
+                    if (auto item= getMenuItem(current_item); item) {
+                        fork_exec(item->getCommand());
+                    }
 				}
 				break;
 			case KeyPress:

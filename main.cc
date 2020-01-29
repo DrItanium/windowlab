@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     // exploit the side effects
     Taskbar::instance().make();
 	scan_wins();
-	do_event_loop();
+	doEventLoop();
 	return 1; // just another brick in the -Wall
 }
 
