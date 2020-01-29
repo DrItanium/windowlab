@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <iostream>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -278,6 +279,13 @@ extern void send_wm_delete(Client *);
 extern void write_titletext(Client *, Window);
 
 // misc.c
+template<typename ... Args>
+void err(Args&& ... parts) noexcept {
+    std::cerr << "windowlab: ";
+    (std::cerr << ... << parts);
+    std::cerr << std::endl;
+}
+
 extern void err(const char *, ...);
 extern void fork_exec(char *);
 extern void sig_handler(int);
