@@ -37,7 +37,7 @@ void makeNewClient(Window w)
 	XWindowAttributes attr;
 	XWMHints *hints = nullptr;
 	long dummy = 0;
-	Client* c = (Client *)malloc(sizeof *c);
+    Client* c = new Client();
 	if (!head_client)
 	{
 		head_client = c;

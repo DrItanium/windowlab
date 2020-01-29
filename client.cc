@@ -241,7 +241,7 @@ void remove_client(Client *c, int mode)
 		focused_client = nullptr;
 		check_focus(get_prev_focused());
 	}
-	free(c);
+    delete c;
 
 	XSync(dsply, False);
 	XSetErrorHandler(handle_xerror);
