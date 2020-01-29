@@ -196,6 +196,8 @@ struct Client
 #endif
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
+    void sendConfig() noexcept;
+    void gravitate(int) noexcept;
 };
 
 struct Rect final {
@@ -284,7 +286,8 @@ extern Window root;
 extern int screen;
 class ClientTracker final {
     public:
-        using ClientList = std::list<std::shared_ptr<Client>>;
+        using ClientPtr = std::shared_ptr<Client>;
+        using ClientList = std::list<ClientPtr>;
         static ClientTracker& instance() noexcept;
     public:
         auto getFocusedClient() const noexcept { return _focusedClient; }
@@ -296,11 +299,13 @@ class ClientTracker final {
         auto cend() const noexcept { return _clients.cend(); }
         auto begin() noexcept { return _clients.begin(); }
         auto end() noexcept { return _clients.end(); }
-        std::shared_ptr<Client> find(Window, int) noexcept;
+        ClientPtr find(Window, int) noexcept;
+        void remove(ClientPtr, int) noexcept;
+        void redraw(ClientPtr) noexcept;
     private:
         ClientTracker() = default;
     private:
-        std::list<std::shared_ptr<Client>> _clients;
+        std::list<ClientPtr> _clients;
         std::weak_ptr<Client> _topmostClient;
         std::weak_ptr<Client> _focusedClient;
         std::weak_ptr<Client> _fullscreenClient;

@@ -21,8 +21,8 @@
 
 #include "windowlab.h"
 
-std::shared_ptr<Client> 
-ClientTracker::findClient(Window w, int mode) noexcept {
+ClientTracker::ClientPtr
+ClientTracker::find(Window w, int mode) noexcept {
     for (auto & c : _clients) {
         if (mode == FRAME) {
             if (c->frame == w) {
@@ -112,27 +112,65 @@ Client::getWMState() const noexcept
 
 }
 
+void
+Client::sendConfig() noexcept
+{
+	XConfigureEvent ce;
+
+	ce.type = ConfigureNotify;
+	ce.event = window;
+	ce.window = window;
+	ce.x = x;
+	ce.y = y;
+	ce.width = width;
+	ce.height = height;
+	ce.border_width = 0;
+	ce.above = None;
+	ce.override_redirect = 0;
+
+	XSendEvent(dsply, window, False, StructureNotifyMask, (XEvent *)&ce);
+}
+
 /* This will need to be called whenever we update our Client stuff.
  * Yeah, yeah, stop yelling at me about OO. */
 
 void send_config(Client *c)
 {
-	XConfigureEvent ce;
-
-	ce.type = ConfigureNotify;
-	ce.event = c->window;
-	ce.window = c->window;
-	ce.x = c->x;
-	ce.y = c->y;
-	ce.width = c->width;
-	ce.height = c->height;
-	ce.border_width = 0;
-	ce.above = None;
-	ce.override_redirect = 0;
-
-	XSendEvent(dsply, c->window, False, StructureNotifyMask, (XEvent *)&ce);
+    c->sendConfig();
 }
 
+void
+ClientTracker::remove(ClientTracker::ClientPtr c, int mode) noexcept
+{
+    XGrabServer(dsply);
+    XSetErrorHandler(ignore_xerror);
+
+    if (mode == WITHDRAW) {
+        c->setWMState(WithdrawnState);
+    } else { // REMAP
+        XMapWindow(dsply, c->window);
+    }
+    c->gravitate(REMOVE_GRAVITY);
+    XReparentWindow(dsply, c->window, root, c->x, c->y);
+    XSetWindowBorderWidth(dsply, c->window, 1);
+
+#ifdef XFT
+    XftDrawDestroy(c->xftdraw);
+#endif
+    XRemoveFromSaveSet(dsply, c->window);
+    XDestroyWindow(dsply, c->frame);
+    _clients.remove(c);
+
+    if (auto focused = _focusedClient.lock(); focused && c == focused) {
+        check_focus(get_prev_focused());
+    }
+
+	XSync(dsply, False);
+	XSetErrorHandler(handle_xerror);
+	XUngrabServer(dsply);
+
+    Taskbar::instance().redraw();
+}
 /* After pulling my hair out trying to find some way to tell if a
  * window is still valid, I've decided to instead carefully ignore any
  * errors raised by this function. We know that the X calls are, and
@@ -258,10 +296,10 @@ void redraw(Client *c)
  * use, but the others should be obvious). Our titlebar is on the top
  * so we only have to adjust in the first case. */
 
-void gravitate(Client *c, int multiplier)
-{
+void
+Client::gravitate(int multiplier) noexcept {
 	int dy = 0;
-	int gravity = (c->size->flags & PWinGravity) ? c->size->win_gravity : NorthWestGravity;
+	int gravity = (size->flags & PWinGravity) ? size->win_gravity : NorthWestGravity;
 
 	switch (gravity)
 	{
@@ -275,7 +313,11 @@ void gravitate(Client *c, int multiplier)
 			break;
 	}
 
-	c->y += multiplier * dy;
+	y += multiplier * dy;
+}
+void gravitate(Client *c, int multiplier)
+{
+    c->gravitate(multiplier);
 }
 
 /* Well, the man pages for the shape extension say nothing, but I was
