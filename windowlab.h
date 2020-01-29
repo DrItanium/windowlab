@@ -64,8 +64,8 @@
 #define DEF_MENU "#ddd"
 #define DEF_SELECTED "#aad"
 #define DEF_EMPTY "#000"
-#define DEF_BORDERWIDTH 2
-#define ACTIVE_SHADOW 0x2000 // eg #fff becomes #ddd
+constexpr auto DEF_BORDERWIDTH = 2;
+constexpr auto ACTIVE_SHADOW = 0x2000; // eg #fff becomes #ddd
 constexpr auto SPACE = 3;
 
 // change MODIFIER to None to remove the need to hold down a modifier key
