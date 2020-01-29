@@ -142,32 +142,24 @@ void send_config(Client *c)
 void
 ClientTracker::remove(ClientTracker::ClientPtr c, int mode) noexcept
 {
-    XGrabServer(dsply);
-    XSetErrorHandler(ignore_xerror);
+    {
+        XServerGrabber grabServer(dsply); 
+        XSetErrorHandler(ignore_xerror);
 
-    if (mode == WITHDRAW) {
-        c->setWMState(WithdrawnState);
-    } else { // REMAP
-        XMapWindow(dsply, c->window);
+        if (mode == WITHDRAW) {
+            c->setWMState(WithdrawnState);
+        } else { // REMAP
+            XMapWindow(dsply, c->window);
+        }
+        _clients.remove(c);
+
+        if (auto focused = _focusedClient.lock(); focused && c == focused) {
+            check_focus(get_prev_focused());
+        }
+
+        XSync(dsply, False);
+        XSetErrorHandler(handle_xerror);
     }
-    c->gravitate(REMOVE_GRAVITY);
-    XReparentWindow(dsply, c->window, root, c->x, c->y);
-    XSetWindowBorderWidth(dsply, c->window, 1);
-
-#ifdef XFT
-    XftDrawDestroy(c->xftdraw);
-#endif
-    XRemoveFromSaveSet(dsply, c->window);
-    XDestroyWindow(dsply, c->frame);
-    _clients.remove(c);
-
-    if (auto focused = _focusedClient.lock(); focused && c == focused) {
-        check_focus(get_prev_focused());
-    }
-
-	XSync(dsply, False);
-	XSetErrorHandler(handle_xerror);
-	XUngrabServer(dsply);
 
     Taskbar::instance().redraw();
 }
@@ -199,42 +191,44 @@ void remove_client(Client *c, int mode)
 {
 	Client *p;
 
-	XGrabServer(dsply);
-	XSetErrorHandler(ignore_xerror);
+    {
+        XServerGrabber grabServer(dsply);
+        XSetErrorHandler(ignore_xerror);
 
 #ifdef DEBUG
-	err("removing %s, %d: %d left", c->name, mode, XPending(dsply));
+        err("removing %s, %d: %d left", c->name, mode, XPending(dsply));
 #endif
 
-	if (mode == WITHDRAW)
-	{
-		set_wm_state(c, WithdrawnState);
-	}
-	else //REMAP
-	{
-		XMapWindow(dsply, c->window);
-	}
-	if (head_client == c) {
-		head_client = c->next;
-	} else {
-		for (p = head_client; p && p->next; p = p->next) {
-			if (p->next == c) {
-				p->next = c->next;
-			}
-		}
-	}
-	if (c == fullscreen_client) {
-		fullscreen_client = nullptr;
-	}
-	if (c == focused_client) {
-		focused_client = nullptr;
-		check_focus(get_prev_focused());
-	}
-    delete c;
+        if (mode == WITHDRAW)
+        {
+            set_wm_state(c, WithdrawnState);
+        }
+        else //REMAP
+        {
+            XMapWindow(dsply, c->window);
+        }
+        if (head_client == c) {
+            head_client = c->next;
+        } else {
+            for (p = head_client; p && p->next; p = p->next) {
+                if (p->next == c) {
+                    p->next = c->next;
+                }
+            }
+        }
+        if (c == fullscreen_client) {
+            fullscreen_client = nullptr;
+        }
+        if (c == focused_client) {
+            focused_client = nullptr;
+            check_focus(get_prev_focused());
+        }
+        delete c;
 
-	XSync(dsply, False);
-	XSetErrorHandler(handle_xerror);
-	XUngrabServer(dsply);
+        XSync(dsply, False);
+        XSetErrorHandler(handle_xerror);
+        XUngrabServer(dsply);
+    }
 
     Taskbar::instance().redraw();
 }

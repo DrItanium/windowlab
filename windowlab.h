@@ -158,6 +158,24 @@ constexpr auto REMAP = 1;
 // stuff for the menu file
 #define NO_MENU_LABEL "xterm"
 #define NO_MENU_COMMAND "xterm"
+/**
+ * RAII interface around X{Grab,Ungrab}Server function
+ */
+class XServerGrabber final {
+    public:
+        XServerGrabber(Display* d) : _d(d) { 
+            XGrabServer(_d);
+        }
+        ~XServerGrabber() {
+            XUngrabServer(_d);
+        }
+        XServerGrabber(const XServerGrabber&) = delete;
+        XServerGrabber(XServerGrabber&&) = delete;
+        XServerGrabber& operator=(XServerGrabber&&) = delete;
+        XServerGrabber& operator=(const XServerGrabber&) = delete;
+    private:
+        Display* _d;
+};
 
 /* This structure keeps track of top-level windows (hereinafter
  * 'clients'). The clients we know about (i.e. all that don't set

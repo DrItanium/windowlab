@@ -214,36 +214,35 @@ static void handle_windowbar_click(XButtonEvent *e, Client *c)
 		{
 			return;
 		}
+        {
+            XServerGrabber grabServer(dsply);
+            in_box = 1;
 
-		XGrabServer(dsply);
+            draw_button(c, &text_gc, &depressed_gc, in_box_down);
 
-		in_box = 1;
+            do
+            {
+                XMaskEvent(dsply, MouseMask, &ev);
+                in_box_up = box_clicked(c, ev.xbutton.x - (c->x + DEF_BORDERWIDTH));
+                win_ypos = (ev.xbutton.y - c->y) + BARHEIGHT();
+                if (ev.type == MotionNotify)
+                {
+                    if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down))
+                    {
+                        in_box = 1;
+                        draw_button(c, &text_gc, &depressed_gc, in_box_down);
+                    }
+                    else
+                    {
+                        in_box = 0;
+                        draw_button(c, &text_gc, &active_gc, in_box_down);
+                    }
+                }
+            }
+            while (ev.type != ButtonRelease);
+            draw_button(c, &text_gc, &active_gc, in_box_down);
 
-		draw_button(c, &text_gc, &depressed_gc, in_box_down);
-
-		do
-		{
-			XMaskEvent(dsply, MouseMask, &ev);
-			in_box_up = box_clicked(c, ev.xbutton.x - (c->x + DEF_BORDERWIDTH));
-			win_ypos = (ev.xbutton.y - c->y) + BARHEIGHT();
-			if (ev.type == MotionNotify)
-			{
-				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down))
-				{
-					in_box = 1;
-					draw_button(c, &text_gc, &depressed_gc, in_box_down);
-				}
-				else
-				{
-					in_box = 0;
-					draw_button(c, &text_gc, &active_gc, in_box_down);
-				}
-			}
-		}
-		while (ev.type != ButtonRelease);
-		draw_button(c, &text_gc, &active_gc, in_box_down);
-
-		XUngrabServer(dsply);
+        }
 		ungrab();
 		if (in_box)
 		{

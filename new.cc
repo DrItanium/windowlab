@@ -41,97 +41,94 @@ void makeNewClient(Window w)
 	if (!head_client)
 	{
 		head_client = c;
-	}
-	else
-	{
+	} else {
 		p = head_client;
-		while (p->next )
-		{
+		while (p->next ) {
 			p = p->next;
 		}
 		p->next = c;
 	}
 	c->next = nullptr;
 
-	XGrabServer(dsply);
+    { 
+        XServerGrabber grabServer(dsply);
+        XGetTransientForHint(dsply, w, &c->trans);
+        char* tempStorage;
+        XFetchName(dsply, w, &tempStorage);
+        if (tempStorage) {
+            c->name.emplace(tempStorage);
+            XFree(tempStorage);
+        } else {
+            c->name.reset();
+        }
+        XGetWindowAttributes(dsply, w, &attr);
 
-	XGetTransientForHint(dsply, w, &c->trans);
-    char* tempStorage;
-	XFetchName(dsply, w, &tempStorage);
-    if (tempStorage) {
-        c->name.emplace(tempStorage);
-        XFree(tempStorage);
-    } else {
-        c->name.reset();
-    }
-	XGetWindowAttributes(dsply, w, &attr);
-
-	c->window = w;
-	c->ignore_unmap = 0;
-	c->hidden = 0;
-	c->was_hidden = 0;
+        c->window = w;
+        c->ignore_unmap = 0;
+        c->hidden = 0;
+        c->was_hidden = 0;
 #ifdef SHAPE
-	c->has_been_shaped = 0;
+        c->has_been_shaped = 0;
 #endif
-	c->x = attr.x;
-	c->y = attr.y;
-	c->width = attr.width;
-	c->height = attr.height;
-	c->cmap = attr.colormap;
-	c->size = XAllocSizeHints();
-	XGetWMNormalHints(dsply, c->window, c->size, &dummy);
+        c->x = attr.x;
+        c->y = attr.y;
+        c->width = attr.width;
+        c->height = attr.height;
+        c->cmap = attr.colormap;
+        c->size = XAllocSizeHints();
+        XGetWMNormalHints(dsply, c->window, c->size, &dummy);
 
-	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
-	c->ignore_unmap++;
-	
-	if (attr.map_state != IsViewable)
-	{
-		init_position(c);
-        c->setWMState(NormalState);
-		if ((hints = XGetWMHints(dsply, w)))
-		{
-			if (hints->flags & StateHint)
-			{
-                c->setWMState(hints->initial_state);
-			}
-			XFree(hints);
-		}
-	}
+        // XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
+        c->ignore_unmap++;
 
-	fix_position(c);
-	gravitate(c, APPLY_GRAVITY);
-	reparent(c);
+        if (attr.map_state != IsViewable)
+        {
+            init_position(c);
+            c->setWMState(NormalState);
+            if ((hints = XGetWMHints(dsply, w)))
+            {
+                if (hints->flags & StateHint)
+                {
+                    c->setWMState(hints->initial_state);
+                }
+                XFree(hints);
+            }
+        }
+
+        fix_position(c);
+        gravitate(c, APPLY_GRAVITY);
+        reparent(c);
 
 #ifdef XFT
-	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
+        c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 #endif
 
-	if (c->getWMState() != IconicState)
-	{
-		XMapWindow(dsply, c->window);
-		XMapRaised(dsply, c->frame);
+        if (c->getWMState() != IconicState)
+        {
+            XMapWindow(dsply, c->window);
+            XMapRaised(dsply, c->frame);
 
-		topmost_client = c;
-	}
-	else
-	{
-		c->hidden = 1;
-		if(attr.map_state == IsViewable)
-		{
-			c->ignore_unmap++;
-			XUnmapWindow(dsply, c->window);
-		}
-	}
+            topmost_client = c;
+        }
+        else
+        {
+            c->hidden = 1;
+            if(attr.map_state == IsViewable)
+            {
+                c->ignore_unmap++;
+                XUnmapWindow(dsply, c->window);
+            }
+        }
 
-	// if no client has focus give focus to the new client
-	if (!focused_client)
-	{
-		check_focus(c);
-		focused_client = c;
-	}
+        // if no client has focus give focus to the new client
+        if (!focused_client)
+        {
+            check_focus(c);
+            focused_client = c;
+        }
 
-	XSync(dsply, False);
-	XUngrabServer(dsply);
+        XSync(dsply, False);
+    }
 
     Taskbar::instance().redraw();
 }
