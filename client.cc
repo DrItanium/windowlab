@@ -21,6 +21,21 @@
 
 #include "windowlab.h"
 
+std::shared_ptr<Client> 
+ClientTracker::findClient(Window w, int mode) noexcept {
+    for (auto & c : _clients) {
+        if (mode == FRAME) {
+            if (c->frame == w) {
+                return c;
+            }
+        } else {
+            if (c->window == w) {
+                return c;
+            }
+        }
+    }
+    return nullptr;
+}
 Client *find_client(Window w, int mode)
 {
 	Client *c = head_client;
