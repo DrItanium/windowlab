@@ -47,11 +47,6 @@
 #endif
 
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-constexpr auto MaximumPathLength = PATH_MAX;
-
 // here are the default settings - change to suit your taste
 
 // if you aren't sure about DEF_FONT, change it to "fixed"; almost all X installations will have that available
@@ -141,25 +136,22 @@ inline auto MINWINHEIGHT() noexcept {
 }
 
 // multipliers for calling gravitate
-#define APPLY_GRAVITY 1
-#define REMOVE_GRAVITY -1
+constexpr auto APPLY_GRAVITY = 1;
+constexpr auto REMOVE_GRAVITY = -1;
 
 // modes to call get_incsize with
-#define PIXELS 0
-#define INCREMENTS 1
+constexpr auto PIXELS = 0;
+constexpr auto INCREMENTS = 1;
 
 // modes for find_client
-#define WINDOW 0
-#define FRAME 1
+constexpr auto WINDOW = 0;
+constexpr auto FRAME = 1;
 
 // modes for remove_client
-#define WITHDRAW 0
-#define REMAP 1
+constexpr auto WITHDRAW = 0;
+constexpr auto REMAP = 1;
 
 // stuff for the menu file
-#define MAX_MENUITEMS 24
-#define MAX_MENUITEMS_SIZE (sizeof(MenuItem) * MAX_MENUITEMS)
-#define STR_SIZE 128
 #define NO_MENU_LABEL "xterm"
 #define NO_MENU_COMMAND "xterm"
 
@@ -273,6 +265,8 @@ struct MenuItem final
         const std::string& getLabel() const noexcept { return label; }
         constexpr auto getX() const noexcept { return x; }
         constexpr auto getWidth() const noexcept { return width; }
+        void setX(int value) noexcept { x = value; }
+        void setWidth(int value) noexcept { width = value; }
         std::string command, label;
         int x = 0;
         int width = 0;
