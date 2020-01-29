@@ -1,6 +1,9 @@
 /* WindowLab17 - An X11 window manager based off of windowlab but rewritten in C++17
  * Based off of "WindowLab - an X11 window manager by Nick Gravgaard"
  *
+ * WindowLab17 Copyright (c) 2020 Joshua Scoggins
+ * WindowLab Copyright (c) 2001-2010 Nick Gravgaard
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
