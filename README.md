@@ -1,8 +1,12 @@
-# WindowLab
+# WindowLab17
 
-## Rethinking the window manager
+## Rethinking the window manager but this time in C++17
 
-Copyright (c) 2001 Nick Gravgaard
+WindowLab17 Copyright (c) 2020 Joshua Scoggins
+Original WindowLab Copyright (c) 2001 Nick Gravgaard
+
+
+NOTE: At this point WindowLab17 is meant to be externally indistinguishable from WindowLab so everything following this still applies.
 
 ![WindowLab screenshot](screenshot.png)
 
