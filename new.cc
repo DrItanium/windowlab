@@ -151,8 +151,6 @@ void make_new_client(Window w)
 
 static void init_position(Client *c)
 {
-	int mousex, mousey;
-
 	// make sure it's big enough for the 3 buttons and a bit of bar
 	if (c->width < 4 * BARHEIGHT())
 	{
@@ -165,7 +163,7 @@ static void init_position(Client *c)
 
 	if (c->x == 0 && c->y == 0)
 	{
-		get_mouse_position(&mousex, &mousey);
+        auto [mousex, mousey] = getMousePosition();
 		c->x = mousex;
 		c->y = mousey + BARHEIGHT();
 		gravitate(c, REMOVE_GRAVITY);

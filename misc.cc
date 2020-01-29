@@ -151,13 +151,6 @@ int send_xmessage(Window w, Atom a, long x)
 	return XSendEvent(dsply, w, False, NoEventMask, (XEvent *)&e);
 }
 
-void get_mouse_position(int *x, int *y)
-{
-    auto [ rx, ry ] = getMousePosition();
-    *x = rx;
-    *y = ry;
-}
-
 std::tuple<int, int>
 getMousePosition() {
     Window mouseRoot, mouseWin;
