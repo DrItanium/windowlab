@@ -318,7 +318,7 @@ void draw_toggledepth_button(Client *, GC *, GC *);
 void draw_close_button(Client *, GC *, GC *);
 
 // new.c
-void make_new_client(Window);
+void makeNewClient(Window);
 
 // manage.c
 void move(Client *);

@@ -88,8 +88,7 @@ void sig_handler(int signal)
             Menu::instance().populate();
 			break;
 		case SIGCHLD:
-			while ((pid = waitpid(-1, &status, WNOHANG)) != 0)
-			{
+			while ((pid = waitpid(-1, &status, WNOHANG)) != 0) {
 				if ((pid == -1) && (errno != EINTR)) {
 					break;
 				} else {
@@ -104,20 +103,16 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 {
 	Client *c = find_client(e->resourceid, WINDOW);
 
-	if (e->error_code == BadAccess && e->resourceid == root)
-	{
+	if (e->error_code == BadAccess && e->resourceid == root) {
 		err("root window unavailable (maybe another wm is running?)");
 		exit(1);
-	}
-	else
-	{
+	} else {
 		char msg[255];
 		XGetErrorText(dsply, e->error_code, msg, sizeof msg);
 		err("X error (%#lx): %s", e->resourceid, msg);
 	}
 
-	if (c )
-	{
+	if (c) {
 		remove_client(c, WITHDRAW);
 	}
 	return 0;
@@ -173,39 +168,31 @@ void fix_position(Client *c)
 	
 	titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
 
-	if (c->width < MINWINWIDTH())
-	{
+	if (c->width < MINWINWIDTH()) {
 		c->width = MINWINWIDTH();
 	}
-	if (c->height < MINWINHEIGHT())
-	{
+	if (c->height < MINWINHEIGHT()) {
 		c->height = MINWINHEIGHT();
 	}
 	
-	if (c->width > xmax)
-	{
+	if (c->width > xmax) {
 		c->width = xmax;
 	}
-	if (c->height + (BARHEIGHT() + titlebarheight) > ymax)
-	{
+	if (c->height + (BARHEIGHT() + titlebarheight) > ymax) {
 		c->height = ymax - (BARHEIGHT() + titlebarheight);
 	}
 
-	if (c->x < 0)
-	{
+	if (c->x < 0) {
 		c->x = 0;
 	}
-	if (c->y < BARHEIGHT())
-	{
+	if (c->y < BARHEIGHT()) {
 		c->y = BARHEIGHT();
 	}
 
-	if (c->x + c->width + BORDERWIDTH(c) >= xmax)
-	{
+	if (c->x + c->width + BORDERWIDTH(c) >= xmax) {
 		c->x = xmax - c->width;
 	}
-	if (c->y + c->height + BARHEIGHT() >= ymax)
-	{
+	if (c->y + c->height + BARHEIGHT() >= ymax) {
 		c->y = (ymax - c->height) - BARHEIGHT();
 	}
 
@@ -282,13 +269,10 @@ void show_event(XEvent e)
 		SHOW_EV(ResizeRequest, xresizerequest)
 		SHOW_EV(UnmapNotify, xunmap)
 		default:
-			if (shape && e.type == shape_event)
-			{
+			if (shape && e.type == shape_event) {
 				s = "ShapeNotify";
 				w = ((XShapeEvent *)&e)->window;
-			}
-			else
-			{
+			} else {
 				s = "unknown event";
 				w = None;
 			}
@@ -335,10 +319,8 @@ static const char *show_grav(Client *c)
 	}
 }
 
-void dump(Client *c)
-{
-	if (c )
-	{
+void dump(Client *c) {
+	if (c ) {
 		err("%s\n\t%s, %s, ignore %d, was_hidden %d\n\tframe %#lx, win %#lx, geom %dx%d+%d+%d", c->name, show_state(c), show_grav(c), c->ignore_unmap, c->was_hidden, c->frame, c->window, c->width, c->height, c->x, c->y);
 	}
 }
@@ -346,8 +328,7 @@ void dump(Client *c)
 void dump_clients(void)
 {
 	Client *c = head_client;
-	while (c )
-	{
+	while (c) {
 		dump(c);
 		c = c->next;
 	}
@@ -366,23 +347,19 @@ static void quit_nicely(void)
     Menu::instance().clear();
 
 	XQueryTree(dsply, root, &dummyw1, &dummyw2, &wins, &nwins);
-	for (i = 0; i < nwins; i++)
-	{
+	for (i = 0; i < nwins; i++) {
 		c = find_client(wins[i], FRAME);
-		if (c )
-		{
+		if (c) {
 			remove_client(c, REMAP);
 		}
 	}
 	XFree(wins);
 
-	if (font)
-	{
+	if (font) {
 		XFreeFont(dsply, font);
 	}
 #ifdef XFT
-	if (xftfont)
-	{
+	if (xftfont) {
 		XftFontClose(dsply, xftfont);
 	}
 #endif

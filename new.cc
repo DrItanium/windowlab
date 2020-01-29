@@ -31,14 +31,13 @@ static void reparent(Client *);
  * because there's one for the reparent (which happens on all viewable
  * windows) and then another for the unmapping itself. */
 
-void make_new_client(Window w)
+void makeNewClient(Window w)
 {
-	Client *c, *p;
+	Client *p = nullptr;
 	XWindowAttributes attr;
-	XWMHints *hints;
-	long dummy;
-
-	c = (Client *)malloc(sizeof *c);
+	XWMHints *hints = nullptr;
+	long dummy = 0;
+	Client* c = (Client *)malloc(sizeof *c);
 	if (!head_client)
 	{
 		head_client = c;
