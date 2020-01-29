@@ -286,6 +286,15 @@ class ClientTracker final {
     public:
         static ClientTracker& instance() noexcept;
     public:
+        auto getFocusedClient() const noexcept { return _focusedClient; }
+        auto getTopmostClient() const noexcept { return _topmostClient; }
+        auto getFullscreenClient() const noexcept { return _fullscreenClient; }
+        auto begin() const noexcept { return _clients.begin(); }
+        auto end() const noexcept { return _clients.end(); }
+        auto cbegin() const noexcept { return _clients.cbegin(); }
+        auto cend() const noexcept { return _clients.cend(); }
+        auto begin() noexcept { return _clients.begin(); }
+        auto end() noexcept { return _clients.end(); }
     private:
         ClientTracker() = default;
     private:
