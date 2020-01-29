@@ -180,7 +180,6 @@ void move(Client *c)
 	int mousex, mousey, dw, dh;
 	Client *exposed_c;
 	Rect bounddims;
-	Window constraint_win;
 	XSetWindowAttributes pattr;
 
 	dw = DisplayWidth(dsply, screen);
@@ -194,7 +193,7 @@ void move(Client *c)
 	bounddims.addToY((BARHEIGHT() * 2) - BORDERWIDTH(c));
 	bounddims.addToHeight(c->height - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
 
-	constraint_win = XCreateWindow(dsply, root, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight(), 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
+    auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 #ifdef DEBUG
 	fprintf(stderr, "move() : constraint_win is (%d, %d)-(%d, %d)\n", bounddims.getX(), bounddims.getY(), bounddims.getX() + bounddims.getWidth(), bounddims.getY() + bounddims.getHeight());
 #endif
@@ -238,7 +237,7 @@ void resize(Client *c, int x, int y)
 	Client *exposed_c;
 	Rect recalceddims;
 	unsigned int dragging_outwards, dw, dh;
-	Window constraint_win, resize_win, resizebar_win;
+	Window resize_win, resizebar_win;
 	XSetWindowAttributes pattr, resize_pattr, resizebar_pattr;
 
 	if (x > c->x + BORDERWIDTH(c) && x < (c->x + c->width) - BORDERWIDTH(c) && y > (c->y - BARHEIGHT()) + BORDERWIDTH(c) && y < (c->y + c->height) - BORDERWIDTH(c))
@@ -257,7 +256,7 @@ void resize(Client *c, int x, int y)
 
     Rect bounddims { 0, 0, dw, dh };
 
-	constraint_win = XCreateWindow(dsply, root, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight(), 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
+	auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 	XMapWindow(dsply, constraint_win);
 
 	if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, resize_curs, CurrentTime) == GrabSuccess))
@@ -267,14 +266,14 @@ void resize(Client *c, int x, int y)
 	}
     Rect newdims { c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT() };
 
-	copy_dims(&newdims, &recalceddims);
+    recalceddims = newdims;
 
 	// create and map resize window
 	resize_pattr.override_redirect = True;
 	resize_pattr.background_pixel = menu_col.pixel;
 	resize_pattr.border_pixel = border_col.pixel;
 	resize_pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	resize_win = XCreateWindow(dsply, root, newdims.getX(), newdims.getY(), newdims.getWidth(), newdims.getHeight(), DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resize_pattr);
+    resize_win = createWindow(dsply, root, newdims, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resize_pattr);
 	XMapRaised(dsply, resize_win);
 
 	resizebar_pattr.override_redirect = True;
@@ -398,7 +397,7 @@ void resize(Client *c, int x, int y)
 						// coords have changed
 						if (leftedge_changed || rightedge_changed || topedge_changed || bottomedge_changed)
 						{
-							copy_dims(&newdims, &recalceddims);
+                            recalceddims = newdims;
 							recalceddims.subtractFromHeight(BARHEIGHT());
 
 							if (get_incsize(c, (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, PIXELS))

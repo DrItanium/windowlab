@@ -220,36 +220,27 @@ void fix_position(Client *c)
 
 void refix_position(Client *c, XConfigureRequestEvent *e)
 {
-	Rect olddims;
-	olddims.x = c->x - BORDERWIDTH(c);
-	olddims.y = c->y - BORDERWIDTH(c);
-	olddims.width = c->width;
-	olddims.height = c->height;
+	Rect olddims { c->x - BORDERWIDTH(c),
+                   c->y - BORDERWIDTH(c),
+                   c->width,
+                   c->height };
 	fix_position(c);
-	if (olddims.x != c->x)
+	if (olddims.getX() != c->x)
 	{
 		e->value_mask |= CWX;
 	}
-	if (olddims.y != c->y)
+	if (olddims.getY() != c->y)
 	{
 		e->value_mask |= CWY;
 	}
-	if (olddims.width != c->width)
+	if (olddims.getWidth() != c->width)
 	{
 		e->value_mask |= CWWidth;
 	}
-	if (olddims.height != c->height)
+	if (olddims.getHeight() != c->height)
 	{
 		e->value_mask |= CWHeight;
 	}
-}
-
-void copy_dims(Rect *sourcedims, Rect *destdims)
-{
-	destdims->x = sourcedims->x;
-	destdims->y = sourcedims->y;
-	destdims->width = sourcedims->width;
-	destdims->height = sourcedims->height;
 }
 
 #ifdef DEBUG
@@ -405,4 +396,8 @@ static void quit_nicely(void)
 
 	XCloseDisplay(dsply);
 	exit(0);
+}
+
+Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept {
+    return XCreateWindow(disp, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, attributes);
 }

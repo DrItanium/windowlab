@@ -127,13 +127,9 @@ void lclick_taskbar(int x)
 		remember_hidden();
 
 		get_mouse_position(&mousex, &mousey);
+        bounddims = {0, 0, DisplayWidth(dsply, screen), BARHEIGHT()};
 
-		bounddims.x = 0;
-		bounddims.y = 0;
-		bounddims.width = DisplayWidth(dsply, screen);
-		bounddims.height = BARHEIGHT();
-
-		constraint_win = XCreateWindow(dsply, root, bounddims.x, bounddims.y, bounddims.width, bounddims.height, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
+		constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 		XMapWindow(dsply, constraint_win);
 
 		if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess))
@@ -196,19 +192,13 @@ void rclick_taskbar(int x)
 {
 	XEvent ev;
 	int mousex, mousey;
-	Rect bounddims;
 	unsigned int current_item = UINT_MAX;
-	Window constraint_win;
 	XSetWindowAttributes pattr;
 
 	get_mouse_position(&mousex, &mousey);
+	Rect bounddims { 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() };
 
-	bounddims.x = 0;
-	bounddims.y = 0;
-	bounddims.width = DisplayWidth(dsply, screen);
-	bounddims.height = BARHEIGHT();
-
-	constraint_win = XCreateWindow(dsply, root, bounddims.x, bounddims.y, bounddims.width, bounddims.height, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
+	auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 	XMapWindow(dsply, constraint_win);
 
 	if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess))

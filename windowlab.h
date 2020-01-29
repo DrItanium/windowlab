@@ -349,13 +349,15 @@ extern int send_xmessage(Window, Atom, long);
 extern void get_mouse_position(int *, int *);
 extern void fix_position(Client *);
 extern void refix_position(Client *, XConfigureRequestEvent *);
-extern void copy_dims(Rect *, Rect *);
 #ifdef DEBUG
 extern void show_event(XEvent);
 extern void dump(Client *);
 extern void dump_clients(void);
 #endif
 
+Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
+
+// taskbar.c
 class Taskbar final {
     public:
         static Taskbar& instance() noexcept;
@@ -380,7 +382,6 @@ class Taskbar final {
 #endif
 
 };
-// taskbar.c
 extern void make_taskbar(void);
 extern void cycle_previous(void);
 extern void cycle_next(void);
@@ -399,4 +400,5 @@ void clearMenuItems() noexcept;
 void acquireMenuItems() noexcept;
 bool shouldDoMenuItems() noexcept;
 void requestMenuItems() noexcept;
+
 #endif /* WINDOWLAB_H */
