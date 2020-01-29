@@ -40,17 +40,17 @@ EXTRA_LIBS += `pkg-config --libs xft`
 
 # --------------------------------------------------------------------
 
-#CC = asminst -a x86_32_gcc -- gcc
 CC = gcc
 CXX = g++
 ifndef CFLAGS
-#CFLAGS = -m32 -g -O2 -Wall -W
+CFLAGS = -g -O2 -Wall -W
+endif
+ifndef CXXFLAGS
 CXXFLAGS = -g -O2 -Wall -W -std=c++17
 endif
-DESTDIR = /home/jscoggins/sys/windowlab
-BINDIR = $(DESTDIR)$(PREFIX)/bin
-MANDIR = $(DESTDIR)$(PREFIX)$(MANBASE)/man1
-CFGDIR = $(DESTDIR)$(SYSCONFDIR)
+BINDIR = $(PREFIX)/bin
+MANDIR = $(PREFIX)$(MANBASE)/man1
+CFGDIR = $(SYSCONFDIR)
 INCLUDES = -I$(XROOT)/include $(EXTRA_INC)
 LDPATH = -L$(XROOT)/lib
 LDFLAGS = -std=c++17
@@ -65,11 +65,11 @@ HEADERS = windowlab.h
 all: $(PROG)
 
 $(PROG): $(OBJS)
-#	$(CC) $(OBJS) $(LDPATH) $(LIBS) $(LDFLAGS) -o $@
 	$(CXX) $(OBJS) $(LDPATH) $(LIBS) $(LDFLAGS) -o $@
 
 $(OBJS): %.o: %.c $(HEADERS)
-#	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
+$(OBJS): %.o: %.cc $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 install: all
