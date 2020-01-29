@@ -223,6 +223,9 @@ struct Rect final {
                 setY(value);
             }
         }
+        void addToY(int value) noexcept {
+            setY(getY() + value);
+        }
         void setWidth(int value) noexcept { _width = value; }
         void setWidth(int value, std::function<bool(int)> cond) noexcept { 
             if (cond(_width)) {
@@ -246,6 +249,12 @@ struct Rect final {
         }
         void subtractFromWidth(int amount) noexcept {
             setWidth(getWidth() - amount);
+        }
+        void become(int x, int y, int w, int h) noexcept {
+            setX(x);
+            setY(y);
+            setWidth(w);
+            setHeight(h);
         }
     private:
 
