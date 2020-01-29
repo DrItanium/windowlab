@@ -312,40 +312,32 @@ unsigned int
 Taskbar::updateMenuItem (int mousex)
 {
     //std::cout << "enter update_menuitem" << std::endl;
-	static unsigned int last_item; // retain value from last call
+	static unsigned int last_item = UINT_MAX; // retain value from last call
 	unsigned int i = 0;
-	if (mousex == INT_MAX) // entered function to set last_item
-	{
+	if (mousex == INT_MAX) { // entered function to set last_item
         last_item = getMenuItemCount();
 		return UINT_MAX;
 	}
     for (const auto& menuItem : getMenuItems()) {
-		if ((mousex >= menuItem.x) && (mousex <= (menuItem.x + menuItem.width)))
-		{
+		if ((mousex >= menuItem.x) && (mousex <= (menuItem.x + menuItem.width))) {
 			break;
 		}
         ++i;
 	}
 
-	if (i != last_item) // don't redraw if same
-	{
-		if (last_item != getMenuItemCount())
-		{
+	if (i != last_item) /* don't redraw if same */ {
+		if (last_item != getMenuItemCount()) {
 			drawMenuItem(last_item, 0);
 		}
-		if (i != getMenuItemCount())
-		{
+		if (i != getMenuItemCount()) {
 			drawMenuItem(i, 1);
 		}
 		last_item = i; // set to new menu item
 	}
 
-	if (i != getMenuItemCount())
-	{
+	if (i != getMenuItemCount()) {
 		return i;
-	}
-	else // no item selected
-	{
+	} else /* no item selected */ {
 		return UINT_MAX;
 	}
 }
