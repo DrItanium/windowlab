@@ -36,7 +36,7 @@ EXTRA_INC += `pkg-config --cflags xft`
 EXTRA_LIBS += `pkg-config --libs xft`
 
 # Uncomment for debugging info (abandon all hope, ye who enter here)
-DEFINES += -DDEBUG
+#DEFINES += -DDEBUG
 
 # --------------------------------------------------------------------
 
