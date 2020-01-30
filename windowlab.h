@@ -395,8 +395,8 @@ class Menu final {
     public:
         static Menu& instance() noexcept;
         void clear() noexcept { _menuItems.clear(); }
-        std::optional<MenuItem> at(std::size_t index) noexcept;
-        const std::vector<MenuItem>& getMenuItems() const noexcept { return _menuItems; }
+        std::shared_ptr<MenuItem> at(std::size_t index) noexcept;
+        const auto& getMenuItems() const noexcept { return _menuItems; }
         std::size_t size() const noexcept { return _menuItems.size(); }
         void requestMenuItemUpdate() noexcept { _updateMenuItems = true; }
         constexpr bool shouldRepopulate() const noexcept { return _updateMenuItems; }
@@ -410,7 +410,7 @@ class Menu final {
     private:
         Menu() = default;
     private:
-        std::vector<MenuItem> _menuItems;
+        std::vector<std::shared_ptr<MenuItem>> _menuItems;
         bool _updateMenuItems = true;
 };
 const std::filesystem::path& getDefMenuRc() noexcept;

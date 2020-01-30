@@ -295,13 +295,12 @@ Taskbar::drawMenubar()
 	XFillRectangle(dsply, _taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : Menu::instance()) {
-		if (!menuItem.label.empty() && !menuItem.command.empty())
+		if (!menuItem->label.empty() && !menuItem->command.empty())
 		{
-            //std::cout << "displaying " << menuItem.label << std::endl;
 #ifdef XFT
-			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem.x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem.label.data(), menuItem.label.size());
+			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem->x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem->label.data(), menuItem->label.size());
 #else
-			XDrawString(dsply, taskbar, text_gc, menuItem.x + (SPACE * 2), font->ascent + SPACE, menuItem.label, menuItem.label.size());
+			XDrawString(dsply, taskbar, text_gc, menuItem->x + (SPACE * 2), font->ascent + SPACE, menuItem->label, menuItem->label.size());
 #endif
 		}
 	}
@@ -318,7 +317,7 @@ Taskbar::updateMenuItem (int mousex)
 		return UINT_MAX;
 	}
     for (const auto& menuItem : Menu::instance()) {
-		if ((mousex >= menuItem.x) && (mousex <= (menuItem.x + menuItem.width))) {
+		if ((mousex >= menuItem->x) && (mousex <= (menuItem->x + menuItem->width))) {
 			break;
 		}
         ++i;

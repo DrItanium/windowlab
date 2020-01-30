@@ -52,12 +52,12 @@ Menu::instance() noexcept {
     return _menu;
 }
 
-std::optional<MenuItem> 
+std::shared_ptr<MenuItem>
 Menu::at(std::size_t index) noexcept {
     if (index >= size()) {
-        return std::nullopt;
+        return nullptr;
     } else {
-        return std::make_optional(_menuItems[index]);
+        return _menuItems[index];
     }
 }
 
@@ -115,26 +115,26 @@ Menu::populate() noexcept {
                 trimLeadingWs(line);
                 if (!line.empty() && (line.front() != '#')) {
                     if (auto parsed = parseLine(line); parsed) {
-                        _menuItems.emplace_back(std::get<0>(*parsed), std::get<1>(*parsed));
+                        _menuItems.emplace_back(std::make_shared<MenuItem>(std::get<0>(*parsed), std::get<1>(*parsed)));
                     }
                 }
             }
         }
     } else {
 		err("can't find ~/.windowlab/windowlab.menurc, %s or %s\n", menurcpath.c_str(), getDefMenuRc().c_str());
-        _menuItems.emplace_back(NO_MENU_LABEL, NO_MENU_COMMAND);
+        _menuItems.emplace_back(std::make_shared<MenuItem>(NO_MENU_LABEL, NO_MENU_COMMAND));
     }
     menufile.close();
     unsigned int buttonStartX = 0;
     for (auto& menuItem : _menuItems) {
-        menuItem.x = buttonStartX;
+        menuItem->setX(buttonStartX);
 #ifdef XFT
-		XftTextExtents8(dsply, xftfont, (unsigned char *)menuItem.getLabel().data(), menuItem.getLabel().size(), &extents);
-        menuItem.width = extents.width + (SPACE * 4);
+		XftTextExtents8(dsply, xftfont, (unsigned char *)menuItem->getLabel().data(), menuItem->getLabel().size(), &extents);
+        menuItem->setWidth(extents.width + (SPACE * 4));
 #else
-		menuItem.width = XTextWidth(font, menuItem.getLabel().data(), menuItem.getLabel().size()) + (SPACE * 4);
+		menuItem->setWidth(XTextWidth(font, menuItem->getLabel().data(), menuItem->getLabel().size()) + (SPACE * 4));
 #endif
-        buttonStartX += menuItem.getWidth()+ 1;
+        buttonStartX += menuItem->getWidth()+ 1;
 	}
 	// menu items have been built
     _updateMenuItems = false;
