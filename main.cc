@@ -123,7 +123,7 @@ static void scan_wins(void)
 		XGetWindowAttributes(dsply, wins[i], &attr);
 		if (!attr.override_redirect && attr.map_state == IsViewable)
 		{
-			make_new_client(wins[i]);
+			makeNewClient(wins[i]);
 		}
 	}
 	XFree(wins);
