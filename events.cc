@@ -409,7 +409,7 @@ static void handle_unmap_event(XUnmapEvent *e)
 static void handle_destroy_event(XDestroyWindowEvent *e)
 {
 	ClientPointer c = find_client(e->window, WINDOW);
-	if (c )
+	if (c)
 	{
 		remove_client(c, WITHDRAW);
 	}

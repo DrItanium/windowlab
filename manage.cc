@@ -185,7 +185,6 @@ void move(ClientPointer c)
 	int dw = DisplayWidth(dsply, screen);
 	int dh = DisplayHeight(dsply, screen);
     auto [mousex, mousey] = getMousePosition();
-
 	bounddims.setX((mousex - c->x) - BORDERWIDTH(c));
 	bounddims.setWidth((dw - bounddims.getX() - (c->width - bounddims.getX())) + 1);
 	bounddims.setY(mousey - c->y);
