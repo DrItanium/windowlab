@@ -362,14 +362,7 @@ Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 float
 Taskbar::getButtonWidth()
 {
-    unsigned int nwins = 0;
-    ClientPointer c = head_client;
-    while (c)
-    {
-        nwins++;
-        c = c->next;
-    }
-    return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / nwins;
+    return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / clients.size();
 }
 void 
 Taskbar::cyclePrevious() {
