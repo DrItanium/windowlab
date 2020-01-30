@@ -376,38 +376,18 @@ Taskbar::cyclePrevious() {
     if (clients.size() >= 2) { // at least 2 windows exist
         ClientPointer c = focused_client;
         ClientPointer original_c = c;
-        if (!c) {
-            c = clients.front();
+        auto pos = findClient(c);
+        if (pos == clients.end() || pos == clients.begin()) {
+            // we default to the front of the list and then go back one so it really is just list.back() if
+            // the focused_client is not in the list. We also do the same thing if we are looking at
+            // the front of the collection as well.
+            c = clients.back();
+        } else {
+            // otherwise we must go to the previous element
+            c = *(--pos);
         }
-        if (c == clients.front()) {
-            original_c = nullptr;
-        }
+        lclick_taskbutton(nullptr, c);
     }
-	ClientPointer c = focused_client;
-	ClientPointer original_c = c;
-    if (clients.size() >= 2) {
-		if (!c)
-		{
-			c = head_client;
-		}
-		if (c == head_client)
-		{
-			original_c = nullptr;
-		}
-		do
-		{
-			if (!c->next)
-			{
-				c = head_client;
-			}
-			else
-			{
-				c = c->next;
-			}
-		}
-		while (c->next != original_c);
-		lclick_taskbutton(nullptr, c);
-	}
 }
 void cycle_previous(void)
 {
@@ -417,14 +397,21 @@ void cycle_previous(void)
 void
 Taskbar::cycleNext()
 {
-	ClientPointer c = focused_client;
     if (clients.size() >= 2) {
-		if (!c || !c->next)
-		{
-			c = head_client;
-		}
-		else c = c->next;
-		lclick_taskbutton(nullptr, c);
+	    ClientPointer c = focused_client;
+        auto pos = findClient(c);
+        if (pos != clients.end()) {
+            if (auto next = ++pos; next == clients.end()) {
+                // we jump to the front if we encounter the end iterator
+                c = clients.front();
+            } else {
+                c = *next;
+            }
+        } else {
+            // we are looking at the end of the list so just default to the front as the "next"
+            c = clients.front();
+        }
+        lclick_taskbutton(nullptr, c);
 	}
 }
 void cycle_next(void)

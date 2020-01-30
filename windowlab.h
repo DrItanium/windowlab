@@ -283,7 +283,18 @@ extern Window root;
 extern int screen;
 using ClientPointer = typename Client::Ptr;
 extern std::vector<typename Client::Ptr> clients;
-std::size_t indexOfClient(ClientPointer);
+decltype(clients)::const_iterator findClient(ClientPointer p) {
+    return std::find(clients.begin(), clients.end(), p);
+}
+
+bool removeClientFromList(ClientPointer p) {
+    if (auto loc = findClient(p); loc != clients.end()) {
+        clients.erase(loc);
+        return true;
+    } else {
+        return false;
+    }
+}
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;
@@ -296,7 +307,8 @@ extern GC border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc, sel
 extern XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, selected_col, empty_col;
 extern Cursor resize_curs;
 extern Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
-extern char *opt_font, *opt_border, *opt_text, *opt_active, *opt_inactive, *opt_menu, *opt_selected, *opt_empty;
+extern std::string opt_font, opt_border, opt_text, opt_active, opt_inactive, opt_menu, opt_selected, opt_empty;
+//extern char *opt_font, *opt_border, *opt_text, *opt_active, *opt_inactive, *opt_menu, *opt_selected, *opt_empty;
 #ifdef SHAPE
 extern int shape, shape_event;
 #endif

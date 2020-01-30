@@ -44,18 +44,18 @@ unsigned int in_taskbar = 0; // actually, we don't know yet
 unsigned int showing_taskbar = 1;
 unsigned int focus_count = 0;
 Rect fs_prevdims;
-char *opt_font = DEF_FONT;
-char *opt_border = DEF_BORDER;
-char *opt_text = DEF_TEXT;
-char *opt_active = DEF_ACTIVE;
-char *opt_inactive = DEF_INACTIVE;
-char *opt_menu = DEF_MENU;
-char *opt_selected = DEF_SELECTED;
-char *opt_empty = DEF_EMPTY;
-char *opt_display = nullptr;
+std::string opt_font = DEF_FONT;
+std::string opt_border = DEF_BORDER;
+std::string opt_text = DEF_TEXT;
+std::string opt_active = DEF_ACTIVE;
+std::string opt_inactive = DEF_INACTIVE;
+std::string opt_menu = DEF_MENU;
+std::string opt_selected = DEF_SELECTED;
+std::string opt_empty = DEF_EMPTY;
+std::string opt_display;
 #ifdef SHAPE
 Bool shape;
-int shape_event;
+int shape_event = 0;
 #endif
 unsigned int numlockmask = 0;
 
@@ -140,7 +140,7 @@ static void setup_display(void)
 	int dummy;
 #endif
 
-	dsply = XOpenDisplay(opt_display);
+	dsply = XOpenDisplay(opt_display.c_str());
 
 	if (!dsply)
 	{
@@ -157,13 +157,13 @@ static void setup_display(void)
 	wm_protos = XInternAtom(dsply, "WM_PROTOCOLS", False);
 	wm_delete = XInternAtom(dsply, "WM_DELETE_WINDOW", False);
 	wm_cmapwins = XInternAtom(dsply, "WM_COLORMAP_WINDOWS", False);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_border, &border_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_text, &text_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_active, &active_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_inactive, &inactive_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_menu, &menu_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_selected, &selected_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_empty, &empty_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_border.c_str(), &border_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_text.c_str(), &text_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_active.c_str(), &active_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_inactive.c_str(), &inactive_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_menu.c_str(), &menu_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_selected.c_str(), &selected_col, &dummyc);
+	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_empty.c_str(), &empty_col, &dummyc);
 
 	depressed_col.pixel = active_col.pixel;
 	depressed_col.red = active_col.red - ACTIVE_SHADOW;
@@ -181,7 +181,7 @@ static void setup_display(void)
 	xft_detail.color.alpha = 0xffff;
 	xft_detail.pixel = text_col.pixel;
 
-	xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font);
+	xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font.c_str());
 	if (!xftfont)
 	{
 		err("font '%s' not found", opt_font);

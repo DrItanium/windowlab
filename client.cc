@@ -109,6 +109,7 @@ void send_config(ClientPointer c)
 	XSendEvent(dsply, c->window, False, StructureNotifyMask, (XEvent *)&ce);
 }
 
+
 /* After pulling my hair out trying to find some way to tell if a
  * window is still valid, I've decided to instead carefully ignore any
  * errors raised by this function. We know that the X calls are, and
@@ -119,7 +120,6 @@ void send_config(ClientPointer c)
  * The 'withdrawing' argument specifies if the client is actually
  * (destroying itself||being destroyed by us) or if we are merely
  * cleaning up its data structures when we exit mid-session. */
-
 void remove_client(ClientPointer c, int mode)
 {
 	ClientPointer p;
@@ -147,8 +147,7 @@ void remove_client(ClientPointer c, int mode)
 #endif
 	XRemoveFromSaveSet(dsply, c->window);
 	XDestroyWindow(dsply, c->frame);
-
-    clients.remove(c);
+    removeClientFromList(c);
 	if (c->name)
 	{
 		XFree(c->name);
@@ -166,7 +165,6 @@ void remove_client(ClientPointer c, int mode)
 		focused_client = nullptr;
 		check_focus(get_prev_focused());
 	}
-	//free(c);
 
 	XSync(dsply, False);
 	XSetErrorHandler(handle_xerror);
