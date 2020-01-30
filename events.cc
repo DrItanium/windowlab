@@ -486,14 +486,9 @@ static void handle_property_change(XPropertyEvent *e)
 		switch (e->atom)
 		{
             case XA_WM_NAME: {
-                                 char* temporaryStorage = nullptr;
-                                 XFetchName(dsply, c->window, &temporaryStorage);
-                                 if (temporaryStorage) {
-                                     // copy and then discard the temporary
-                                     // learned this technique from CLIPS to prevent memory management issues
-                                     c->name.emplace(temporaryStorage);
-                                     XFree(temporaryStorage);
-                                 }
+                                 auto [ status, opt ] = fetchName(dsply, c->window);
+                                 (void)status; // status isn't actually used but is returned in the tuple
+                                 c->name = opt;
                                  redraw(c);
                                  Taskbar::instance().redraw();
                                  break;

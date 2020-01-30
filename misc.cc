@@ -381,3 +381,17 @@ void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const 
     auto length = string.length();
     XftDrawString8(d, color, font, x, y, (unsigned char*)ptr, length);
 }
+
+std::tuple<Status, std::optional<std::string>> 
+fetchName(Display* disp, Window w) {
+    char* temporaryStorage = nullptr;
+    auto status = XFetchName(disp, w, &temporaryStorage);
+    std::optional<std::string> returned;
+    if (temporaryStorage) {
+        // copy and then discard the temporary
+        // learned this technique from CLIPS to prevent memory management issues
+        returned = std::make_optional(temporaryStorage);
+        XFree(temporaryStorage);
+    }
+    return std::make_tuple(status, returned);
+}

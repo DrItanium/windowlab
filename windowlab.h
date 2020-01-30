@@ -362,6 +362,7 @@ void dump_clients(void);
 
 Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
 void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string);
+std::tuple<Status, std::optional<std::string>> fetchName(Display* disp, Window w);
 
 // taskbar.c
 class Taskbar final {

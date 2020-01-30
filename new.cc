@@ -42,12 +42,8 @@ void makeNewClient(Window w)
 	XGrabServer(dsply);
 
 	XGetTransientForHint(dsply, w, &c->trans);
-    char* temporaryStorage = nullptr;
-	XFetchName(dsply, w, &temporaryStorage);
-    if (temporaryStorage) {
-        c->name.emplace(temporaryStorage);
-        XFree(temporaryStorage);
-    }
+    auto [ status, opt ] = fetchName(dsply, w);
+    c->name = opt;
 	XGetWindowAttributes(dsply, w, &attr);
 
 	c->window = w;
