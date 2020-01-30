@@ -45,19 +45,13 @@
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
-#ifdef XFT
 #include <X11/Xft/Xft.h>
-#endif
 
 
 // here are the default settings - change to suit your taste
 
 // if you aren't sure about DEF_FONT, change it to "fixed"; almost all X installations will have that available
-#ifdef XFT
 #define DEF_FONT "-bitstream-bitstream vera sans-medium-r-*-*-*-100-*-*-*-*-*-*"
-#else
-#define DEF_FONT "-b&h-lucida-medium-r-*-*-10-*-*-*-*-*-*-*"
-#endif
 
 // use named colours, #rgb, #rrggbb or #rrrgggbbb format
 #define DEF_BORDER "#000"
@@ -176,8 +170,7 @@ constexpr auto REMAP = 1;
 struct Client
 {
     using Ptr = std::shared_ptr<Client>;
-    //Ptr next;
-	char *name;
+    std::optional<std::string> name;
 	XSizeHints *size;
 	Window window, frame, trans;
 	Colormap cmap;
@@ -190,9 +183,7 @@ struct Client
 #ifdef SHAPE
 	Bool has_been_shaped;
 #endif
-#ifdef XFT
 	XftDraw *xftdraw;
-#endif
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
 };
@@ -300,16 +291,13 @@ extern bool in_taskbar, showing_taskbar;
 extern unsigned int focus_count;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
-#ifdef XFT
 extern XftFont *xftfont;
 extern XftColor xft_detail;
-#endif
 extern GC border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc, selected_gc, empty_gc;
 extern XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, selected_col, empty_col;
 extern Cursor resize_curs;
 extern Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
 extern std::string opt_font, opt_border, opt_text, opt_active, opt_inactive, opt_menu, opt_selected, opt_empty;
-//extern char *opt_font, *opt_border, *opt_text, *opt_active, *opt_inactive, *opt_menu, *opt_selected, *opt_empty;
 #ifdef SHAPE
 extern int shape, shape_event;
 #endif
@@ -373,6 +361,7 @@ void dump_clients(void);
 #endif
 
 Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
+void drawString(XftDraw* d, XRenderColor* color, XftFont* font, int x, int y, const std::string& string);
 
 // taskbar.c
 class Taskbar final {
@@ -398,9 +387,7 @@ class Taskbar final {
     private:
         bool _made = false;
         Window _taskbar;
-#if XFT
         XftDraw* _tbxftdraw = nullptr;
-#endif
 
 };
 

@@ -485,16 +485,19 @@ static void handle_property_change(XPropertyEvent *e)
 	{
 		switch (e->atom)
 		{
-			case XA_WM_NAME:
-				if (c->name)
-				{
-					XFree(c->name);
-					c->name = nullptr;
-				}
-				XFetchName(dsply, c->window, &c->name);
-				redraw(c);
-                Taskbar::instance().redraw();
-				break;
+            case XA_WM_NAME: {
+                                 char* temporaryStorage = nullptr;
+                                 XFetchName(dsply, c->window, &temporaryStorage);
+                                 if (temporaryStorage) {
+                                     // copy and then discard the temporary
+                                     // learned this technique from CLIPS to prevent memory management issues
+                                     c->name.emplace(temporaryStorage);
+                                     XFree(temporaryStorage);
+                                 }
+                                 redraw(c);
+                                 Taskbar::instance().redraw();
+                                 break;
+                             }
 			case XA_WM_NORMAL_HINTS:
 				XGetWMNormalHints(dsply, c->window, c->size, &dummy);
 				break;

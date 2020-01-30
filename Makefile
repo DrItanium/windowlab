@@ -2,7 +2,6 @@
 
 # Comment out to remove shape support (for X11R5 or just a tiny bin)
 DEFINES += -DSHAPE
-EXTRA_LIBS += -lXext
 
 # Set this to the hardcoded location of all files if it's not /
 PREFIX = /usr/local
@@ -29,11 +28,7 @@ endif
 
 DEFINES += -DDEF_MENURC="\"$(MENURC)\""
 
-# Uncomment to add freetype support (requires XFree86 4.0.2 or later)
-# This needs -lXext above, even if you have disabled shape support
-DEFINES += -DXFT
-EXTRA_INC += `pkg-config --cflags xft`
-EXTRA_LIBS += `pkg-config --libs xft`
+# Freetype support required (requires XFree86 4.0.2 or later)
 
 # Uncomment for debugging info (abandon all hope, ye who enter here)
 #DEFINES += -DDEBUG
@@ -51,11 +46,11 @@ endif
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)$(MANBASE)/man1
 CFGDIR = $(SYSCONFDIR)
-INCLUDES = -I$(XROOT)/include $(EXTRA_INC)
+INCLUDES = -I$(XROOT)/include `pkg-config --cflags xft` $(EXTRA_INC)
 LDPATH = -L$(XROOT)/lib
 LDFLAGS = -std=c++17
 #LDFLAGS = -m32
-LIBS = -lX11 $(EXTRA_LIBS)
+LIBS = -lX11 -lXext `pkg-config --libs xft` $(EXTRA_LIBS)
 
 PROG = windowlab
 MANPAGE = windowlab.1x

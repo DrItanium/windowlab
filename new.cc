@@ -42,7 +42,12 @@ void makeNewClient(Window w)
 	XGrabServer(dsply);
 
 	XGetTransientForHint(dsply, w, &c->trans);
-	XFetchName(dsply, w, &c->name);
+    char* temporaryStorage = nullptr;
+	XFetchName(dsply, w, &temporaryStorage);
+    if (temporaryStorage) {
+        c->name.emplace(temporaryStorage);
+        XFree(temporaryStorage);
+    }
 	XGetWindowAttributes(dsply, w, &attr);
 
 	c->window = w;
@@ -81,9 +86,7 @@ void makeNewClient(Window w)
 	gravitate(c, APPLY_GRAVITY);
 	reparent(c);
 
-#ifdef XFT
 	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
-#endif
 
 	if (c->getWMState() != IconicState)
 	{

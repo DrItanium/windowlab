@@ -142,16 +142,10 @@ void remove_client(ClientPointer c, int mode)
 	gravitate(c, REMOVE_GRAVITY);
 	XReparentWindow(dsply, c->window, root, c->x, c->y);
 	XSetWindowBorderWidth(dsply, c->window, 1);
-#ifdef XFT
 	XftDrawDestroy(c->xftdraw);
-#endif
 	XRemoveFromSaveSet(dsply, c->window);
 	XDestroyWindow(dsply, c->frame);
     removeClientFromList(c);
-	if (c->name)
-	{
-		XFree(c->name);
-	}
 	if (c->size)
 	{
 		XFree(c->size);
@@ -191,11 +185,9 @@ void redraw(ClientPointer c)
 	}
 	if (!c->trans && c->name)
 	{
-#ifdef XFT
-		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
-#else
-		XDrawString(dsply, c->frame, text_gc, SPACE, SPACE + font->ascent, c->name, strlen(c->name));
-#endif
+        auto strPtr = c->name->data();
+        auto strLength = c->name->size();
+		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)strPtr, strLength);
 	}
 	if (c == focused_client)
 	{

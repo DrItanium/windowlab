@@ -28,17 +28,12 @@ Display *dsply = nullptr;
 Window root;
 int screen;
 XFontStruct *font = nullptr;
-#ifdef XFT
 XftFont *xftfont = nullptr;
 XftColor xft_detail;
-#endif
 GC string_gc, border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc, selected_gc, empty_gc;
 XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, selected_col, empty_col;
 Cursor resize_curs;
 Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
-#ifdef MWM_HINTS
-Atom mwm_hints;
-#endif
 ClientPointer focused_client, topmost_client, fullscreen_client;
 bool in_taskbar = false; // actually, we don't know yet
 bool showing_taskbar = true;
@@ -174,7 +169,6 @@ static void setup_display(void)
 	depressed_col.blue = depressed_col.blue <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.blue : 0;
 	XAllocColor(dsply, DefaultColormap(dsply, screen), &depressed_col);
 
-#ifdef XFT
 	xft_detail.color.red = text_col.red;
 	xft_detail.color.green = text_col.green;
 	xft_detail.color.blue = text_col.blue;
@@ -187,14 +181,6 @@ static void setup_display(void)
 		err("font '%s' not found", opt_font);
 		exit(1);
 	}
-#else
-	font = XLoadQueryFont(dsply, opt_font);
-	if (!font)
-	{
-		err("XLoadQueryFont(): font '%s' not found", opt_font);
-		exit(1);
-	}
-#endif
 
 #ifdef SHAPE
 	shape = XShapeQueryExtension(dsply, &shape_event, &dummy);
@@ -228,12 +214,7 @@ static void setup_display(void)
 	gv.foreground = text_col.pixel;
 	gv.line_width = 1;
 
-#ifdef XFT
 	text_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
-#else
-	gv.font = font->fid;
-	text_gc = XCreateGC(dsply, root, GCFunction|GCForeground|GCFont, &gv);
-#endif
 
 	gv.foreground = active_col.pixel;
 	active_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
@@ -262,9 +243,5 @@ static void setup_display(void)
 	grab_keysym(root, MODIFIER, KEY_TOGGLEZ);
 }
 int BARHEIGHT() noexcept {
-#ifdef XFT
     return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
-#else
-    return (font->ascent + font->descent + 2*SPACE + 2);
-#endif
 }

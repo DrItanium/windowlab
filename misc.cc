@@ -358,11 +358,9 @@ static void quit_nicely(void)
 	if (font) {
 		XFreeFont(dsply, font);
 	}
-#ifdef XFT
 	if (xftfont) {
 		XftFontClose(dsply, xftfont);
 	}
-#endif
 	XFreeCursor(dsply, resize_curs);
 	XFreeGC(dsply, border_gc);
 	XFreeGC(dsply, text_gc);
@@ -376,4 +374,10 @@ static void quit_nicely(void)
 
 Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept {
     return XCreateWindow(disp, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, attributes);
+}
+
+void drawString(XftDraw* d, XRenderColor* color, XftFont* font, int x, int y, const std::string& string) {
+    auto ptr = string.data();
+    auto length = string.length();
+    XftDrawString8(d, color, font, x, y, static_cast<unsigned char*>(ptr), length);
 }

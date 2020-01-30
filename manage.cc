@@ -283,10 +283,8 @@ void resize(ClientPointer c, int x, int y)
 	resizebar_win = XCreateWindow(dsply, resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resizebar_pattr);
 	XMapRaised(dsply, resizebar_win);
 
-#ifdef XFT
 	// temporarily swap drawables in order to draw on the resize window's XFT context
 	XftDrawChange(c->xftdraw, (Drawable) resizebar_win);
-#endif
 
 	// hide real window's frame
 	XUnmapWindow(dsply, c->frame);
@@ -454,10 +452,8 @@ void resize(ClientPointer c, int x, int y)
 	send_config(c);
 	XDestroyWindow(dsply, constraint_win);
 
-#ifdef XFT
 	// reset the drawable
 	XftDrawChange(c->xftdraw, (Drawable) c->frame);
-#endif
 	
 	XDestroyWindow(dsply, resizebar_win);
 	XDestroyWindow(dsply, resize_win);
@@ -528,11 +524,9 @@ void write_titletext(ClientPointer c, Window bar_win)
 {
 	if (!c->trans && c->name )
 	{
-#ifdef XFT
+        auto strLength = c->name->length();
+        auto strPtr = c->name->data();
 		(void) bar_win; // fixes a warning
-		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
-#else
-		XDrawString(dsply, bar_win, text_gc, SPACE, SPACE + font->ascent, c->name, strlen(c->name));
-#endif
+		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)strPtr, strLength);
 	}
 }
