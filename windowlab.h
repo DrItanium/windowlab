@@ -296,7 +296,8 @@ inline bool removeClientFromList(ClientPointer p) {
     }
 }
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
-extern unsigned int in_taskbar, showing_taskbar, focus_count;
+extern bool in_taskbar, showing_taskbar;
+extern unsigned int focus_count;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
 #ifdef XFT
