@@ -283,11 +283,11 @@ extern Window root;
 extern int screen;
 using ClientPointer = typename Client::Ptr;
 extern std::vector<typename Client::Ptr> clients;
-decltype(clients)::const_iterator findClient(ClientPointer p) {
+inline decltype(clients)::const_iterator findClient(ClientPointer p) {
     return std::find(clients.begin(), clients.end(), p);
 }
 
-bool removeClientFromList(ClientPointer p) {
+inline bool removeClientFromList(ClientPointer p) {
     if (auto loc = findClient(p); loc != clients.end()) {
         clients.erase(loc);
         return true;

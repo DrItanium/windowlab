@@ -55,24 +55,18 @@ Taskbar::make() noexcept {
 
 void remember_hidden(void)
 {
-	ClientPointer c;
-	for (c = head_client; c; c = c->next)
-	{
-		c->was_hidden = c->hidden;
-	}
+    for (auto& c : clients) {
+        c->was_hidden = c->hidden;
+    }
 }
 
 void forget_hidden(void)
 {
 	ClientPointer c;
-	for (c = head_client; c; c = c->next)
-	{
-		if (c == focused_client)
-		{
+    for (auto& c : clients) {
+		if (c == focused_client) {
 			c->was_hidden = c->hidden;
-		}
-		else
-		{
+		} else {
 			c->was_hidden = 0;
 		}
 	}
@@ -107,7 +101,7 @@ Taskbar::leftClick(int x)
 
 	unsigned int button_clicked, old_button_clicked, i;
 	ClientPointer c, exposed_c, old_c;
-	if (head_client) {
+	if (!clients.empty()) {
 		remember_hidden();
 
         // unused?
@@ -125,9 +119,7 @@ Taskbar::leftClick(int x)
         auto buttonWidth = getButtonWidth();
 
 		button_clicked = (unsigned int)(x / buttonWidth);
-		for (i = 0, c = head_client; i < button_clicked; i++) {
-			c = c->next;
-		}
+        c = clients[button_clicked];
 
 		lclick_taskbutton(nullptr, c);
 
@@ -146,9 +138,7 @@ Taskbar::leftClick(int x)
 					button_clicked = (unsigned int)(ev.xmotion.x / buttonWidth);
 					if (button_clicked != old_button_clicked) {
 						old_c = c;
-						for (i = 0, c = head_client; i < button_clicked; i++) {
-							c = c->next;
-						}
+                        c = clients[button_clicked];
 						lclick_taskbutton(old_c, c);
 					}
 					break;
@@ -250,9 +240,6 @@ Taskbar::rightClickRoot()
 void
 Taskbar::redraw() 
 {
-	unsigned int i;
-	ClientPointer c;
-
 	auto buttonWidth = getButtonWidth();
 	XClearWindow(dsply, _taskbar);
 
@@ -261,8 +248,8 @@ Taskbar::redraw()
 		return;
 	}
 
-	for (c = head_client, i = 0; c ; c = c->next, i++)
-	{
+	unsigned int i = 0;
+    for (auto & c : clients) {
 		auto button_startx = static_cast<int>(i * buttonWidth);
 		auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
 		if (button_startx != 0)
@@ -285,6 +272,7 @@ Taskbar::redraw()
 			XDrawString(dsply, _taskbar, text_gc, button_startx + SPACE, SPACE + font->ascent, c->name, strlen(c->name));
 #endif
 		}
+        ++i;
 	}
 
 }
