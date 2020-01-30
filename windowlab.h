@@ -177,7 +177,7 @@ constexpr auto REMAP = 1;
 struct Client
 {
     using Ptr = std::shared_ptr<Client>;
-    Ptr next;
+    //Ptr next;
 	char *name;
 	XSizeHints *size;
 	Window window, frame, trans;
@@ -282,8 +282,9 @@ struct MenuItem final
 extern Display *dsply;
 extern Window root;
 extern int screen;
-using ClientPointer = std::shared_ptr<Client>;
-extern ClientPointer head_client, focused_client, topmost_client, fullscreen_client;
+using ClientPointer = typename Client::Ptr;
+extern std::list<typename Client::Ptr> clients;
+extern ClientPointer focused_client, topmost_client, fullscreen_client;
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;
 extern XFontStruct *font;

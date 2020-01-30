@@ -21,30 +21,24 @@
 
 #include "windowlab.h"
 
+std::list<typename Client::Ptr> clients;
+
 ClientPointer find_client(Window w, int mode)
 {
     auto c = head_client;
 	if (mode == FRAME)
 	{
-		while (c)
-		{
-			if (c->frame == w)
-			{
-				return c;
-			}
-			c = c->next;
-		}
-	}
-	else // WINDOW
-	{
-		while (c)
-		{
-			if (c->window == w)
-			{
-				return c;
-			}
-			c = c->next;
-		}
+        for (auto& client : clients) {
+            if (client->frame == w) {
+                return c;
+            }
+        }
+	} else { // WINDOW
+        for (auto& client : clients) {
+            if (client->window == w) {
+                return c;
+            }
+        }
 	}
 	return nullptr;
 }
