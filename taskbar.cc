@@ -272,8 +272,8 @@ Taskbar::drawMenubar()
 	XFillRectangle(dsply, _taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : Menu::instance()) {
-		if (!menuItem->label.empty() && !menuItem->command.empty()) {
-            drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->x + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
+        if (!menuItem->isEmpty()) {
+            drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
 		}
 	}
 }
@@ -289,7 +289,7 @@ Taskbar::updateMenuItem (int mousex)
 		return UINT_MAX;
 	}
     for (const auto& menuItem : Menu::instance()) {
-		if ((mousex >= menuItem->x) && (mousex <= (menuItem->x + menuItem->width))) {
+		if ((mousex >= menuItem->getX()) && (mousex <= (menuItem->getX() + menuItem->getWidth()))) {
 			break;
 		}
         ++i;

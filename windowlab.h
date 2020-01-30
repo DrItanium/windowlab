@@ -254,16 +254,21 @@ struct MenuItem final
 {
     public:
         MenuItem() = default;
-        MenuItem(const std::string& lbl, const std::string& cmd, int __x = 0, int w = 0) noexcept : command(cmd), label(lbl), x(__x), width(w) { }
-        const std::string& getCommand() const noexcept { return command; }
-        const std::string& getLabel() const noexcept { return label; }
-        constexpr auto getX() const noexcept { return x; }
-        constexpr auto getWidth() const noexcept { return width; }
-        void setX(int value) noexcept { x = value; }
-        void setWidth(int value) noexcept { width = value; }
-        std::string command, label;
-        int x = 0;
-        int width = 0;
+        MenuItem(const std::string& lbl, const std::string& cmd, int __x = 0, int w = 0) noexcept : _command(cmd), _label(lbl), _x(__x), _width(w) { }
+        const std::string& getCommand() const noexcept { return _command; }
+        const std::string& getLabel() const noexcept { return _label; }
+        constexpr auto getX() const noexcept { return _x; }
+        constexpr auto getWidth() const noexcept { return _width; }
+        void setX(int value) noexcept { _x = value; }
+        void setWidth(int value) noexcept { _width = value; }
+        bool isEmpty() const noexcept { return _command.empty() && _label.empty(); }
+        bool labelIsEmpty() const noexcept { return _label.empty(); }
+        bool commandIsEmpty() const noexcept { return _command.empty(); }
+    private:
+        std::string _command;
+        std::string _label;
+        int _x = 0;
+        int _width = 0;
 };
 
 // Below here are (mainly generated with cproto) declarations and prototypes for each file.
