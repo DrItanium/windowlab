@@ -21,8 +21,8 @@
 
 #include "windowlab.h"
 
-static void init_position(Client *);
-static void reparent(Client *);
+static void init_position(ClientPointer );
+static void reparent(ClientPointer );
 
 /* Set up a client structure for the new (not-yet-mapped) window. The
  * confusing bit is that we have to ignore 2 unmap events if the
@@ -33,11 +33,11 @@ static void reparent(Client *);
 
 void makeNewClient(Window w)
 {
-	Client *p = nullptr;
+	ClientPointer p = nullptr;
 	XWindowAttributes attr;
 	XWMHints *hints = nullptr;
 	long dummy = 0;
-	Client* c = (Client *)malloc(sizeof *c);
+    ClientPointer c = std::make_shared<Client>();
 	if (!head_client)
 	{
 		head_client = c;
@@ -148,7 +148,7 @@ void makeNewClient(Window w)
  * calculation and then degravitate. Don't think about it too hard, or
  * your head will explode. */
 
-static void init_position(Client *c)
+static void init_position(ClientPointer c)
 {
 	// make sure it's big enough for the 3 buttons and a bit of bar
 	if (c->width < 4 * BARHEIGHT())
@@ -169,7 +169,7 @@ static void init_position(Client *c)
 	}
 }
 
-static void reparent(Client *c)
+static void reparent(ClientPointer c)
 {
 	XSetWindowAttributes pattr;
 

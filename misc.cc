@@ -101,7 +101,7 @@ void sig_handler(int signal)
 
 int handle_xerror(Display *dsply, XErrorEvent *e)
 {
-	Client *c = find_client(e->resourceid, WINDOW);
+	ClientPointer c = find_client(e->resourceid, WINDOW);
 
 	if (e->error_code == BadAccess && e->resourceid == root) {
 		err("root window unavailable (maybe another wm is running?)");
@@ -156,7 +156,7 @@ getMousePosition() {
 /* If this is the fullscreen client we don't take BARHEIGHT() into account
  * because the titlebar isn't being drawn on the window. */
 
-void fix_position(Client *c)
+void fix_position(ClientPointer c)
 {
 	int xmax = DisplayWidth(dsply, screen);
 	int ymax = DisplayHeight(dsply, screen);
@@ -204,7 +204,7 @@ void fix_position(Client *c)
 	c->y -= BORDERWIDTH(c);
 }
 
-void refix_position(Client *c, XConfigureRequestEvent *e)
+void refix_position(ClientPointer c, XConfigureRequestEvent *e)
 {
 	Rect olddims { c->x - BORDERWIDTH(c),
                    c->y - BORDERWIDTH(c),
@@ -246,7 +246,7 @@ void show_event(XEvent e)
 {
 	char *s, buf[20];
 	Window w;
-	Client *c;
+	ClientPointer c;
 
 	switch (e.type)
 	{
@@ -284,7 +284,7 @@ void show_event(XEvent e)
 	err("%#-10lx: %-20s: %s", w, buf, s);
 }
 
-static const char *show_state(Client *c)
+static const char *show_state(ClientPointer c)
 {
 	switch (c->getWMState()) 
 	{
@@ -295,7 +295,7 @@ static const char *show_state(Client *c)
 	}
 }
 
-static const char *show_grav(Client *c)
+static const char *show_grav(ClientPointer c)
 {
 	if (!c->size || !(c->size->flags & PWinGravity))
 	{
@@ -319,7 +319,7 @@ static const char *show_grav(Client *c)
 	}
 }
 
-void dump(Client *c) {
+void dump(ClientPointer c) {
 	if (c ) {
 		err("%s\n\t%s, %s, ignore %d, was_hidden %d\n\tframe %#lx, win %#lx, geom %dx%d+%d+%d", c->name, show_state(c), show_grav(c), c->ignore_unmap, c->was_hidden, c->frame, c->window, c->width, c->height, c->x, c->y);
 	}
@@ -327,7 +327,7 @@ void dump(Client *c) {
 
 void dump_clients(void)
 {
-	Client *c = head_client;
+	ClientPointer c = head_client;
 	while (c) {
 		dump(c);
 		c = c->next;
@@ -342,7 +342,7 @@ static void quit_nicely(void)
 {
 	unsigned int nwins, i;
 	Window dummyw1, dummyw2, *wins;
-	Client *c;
+	ClientPointer c;
 
     Menu::instance().clear();
 

@@ -176,7 +176,8 @@ constexpr auto REMAP = 1;
 
 struct Client
 {
-	struct Client *next;
+    using Ptr = std::shared_ptr<Client>;
+    Ptr next;
 	char *name;
 	XSizeHints *size;
 	Window window, frame, trans;
@@ -281,7 +282,8 @@ struct MenuItem final
 extern Display *dsply;
 extern Window root;
 extern int screen;
-extern Client *head_client, *focused_client, *topmost_client, *fullscreen_client;
+using ClientPointer = std::shared_ptr<Client>;
+extern ClientPointer head_client, focused_client, topmost_client, fullscreen_client;
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
@@ -303,32 +305,32 @@ extern unsigned int numlockmask;
 void doEventLoop();
 
 // client.c
-Client *find_client(Window, int);
-void send_config(Client *);
-void remove_client(Client *, int);
-void redraw(Client *);
-void gravitate(Client *, int);
+ClientPointer find_client(Window, int);
+void send_config(ClientPointer);
+void remove_client(ClientPointer, int);
+void redraw(ClientPointer);
+void gravitate(ClientPointer, int);
 #ifdef SHAPE
-void set_shape(Client *);
+void set_shape(ClientPointer);
 #endif
-void check_focus(Client *);
-Client *get_prev_focused(void);
-void draw_hide_button(Client *, GC *, GC *);
-void draw_toggledepth_button(Client *, GC *, GC *);
-void draw_close_button(Client *, GC *, GC *);
+void check_focus(ClientPointer);
+ClientPointer get_prev_focused();
+void draw_hide_button(ClientPointer, GC *, GC *);
+void draw_toggledepth_button(ClientPointer, GC *, GC *);
+void draw_close_button(ClientPointer, GC *, GC *);
 
 // new.c
 void makeNewClient(Window);
 
 // manage.c
-void move(Client *);
-void raise_lower(Client *);
-void resize(Client *, int, int);
-void hide(Client *);
-void unhide(Client *);
-void toggle_fullscreen(Client *);
-void send_wm_delete(Client *);
-void write_titletext(Client *, Window);
+void move(ClientPointer);
+void raise_lower(ClientPointer);
+void resize(ClientPointer, int, int);
+void hide(ClientPointer);
+void unhide(ClientPointer);
+void toggle_fullscreen(ClientPointer);
+void send_wm_delete(ClientPointer);
+void write_titletext(ClientPointer, Window);
 
 // misc.c
 template<typename ... Args>
@@ -348,11 +350,11 @@ int handle_xerror(Display *, XErrorEvent *);
 int ignore_xerror(Display *, XErrorEvent *);
 int send_xmessage(Window, Atom, long);
 std::tuple<int, int> getMousePosition();
-void fix_position(Client *);
-void refix_position(Client *, XConfigureRequestEvent *);
+void fix_position(ClientPointer);
+void refix_position(ClientPointer, XConfigureRequestEvent *);
 #ifdef DEBUG
 void show_event(XEvent);
-void dump(Client *);
+void dump(ClientPointer);
 void dump_clients(void);
 #endif
 

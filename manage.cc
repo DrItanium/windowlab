@@ -21,10 +21,10 @@
 
 #include "windowlab.h"
 
-static void limit_size(Client *, Rect *);
-static int get_incsize(Client *, unsigned int *, unsigned int *, Rect *, int);
+static void limit_size(ClientPointer , Rect *);
+static int get_incsize(ClientPointer , unsigned int *, unsigned int *, Rect *, int);
 
-void raise_lower(Client *c)
+void raise_lower(ClientPointer c)
 {
 	if (c )
 	{
@@ -43,7 +43,7 @@ void raise_lower(Client *c)
 
 /* increment ignore_unmap here and decrement it in handle_unmap_event in events.c */
 
-void hide(Client *c)
+void hide(ClientPointer c)
 {
 	if (c )
 	{
@@ -63,7 +63,7 @@ void hide(Client *c)
 	}
 }
 
-void unhide(Client *c)
+void unhide(ClientPointer c)
 {
 	if (c )
 	{
@@ -78,7 +78,7 @@ void unhide(Client *c)
 	}
 }
 
-void toggle_fullscreen(Client *c)
+void toggle_fullscreen(ClientPointer c)
 {
 	int xoffset, yoffset, maxwinwidth, maxwinheight;
 	if (c  && !c->trans)
@@ -147,7 +147,7 @@ void toggle_fullscreen(Client *c)
  * doesn't listen to WM_DELETE then we just terminate it with extreme
  * prejudice. */
 
-void send_wm_delete(Client *c)
+void send_wm_delete(ClientPointer c)
 {
 	int i, n, found = 0;
 	Atom *protocols;
@@ -173,12 +173,12 @@ void send_wm_delete(Client *c)
 	}
 }
 
-void move(Client *c)
+void move(ClientPointer c)
 {
 	XEvent ev;
 	int old_cx = c->x;
 	int old_cy = c->y;
-	Client *exposed_c;
+	ClientPointer exposed_c;
 	Rect bounddims;
 	XSetWindowAttributes pattr;
 
@@ -231,10 +231,10 @@ void move(Client *c)
 	XDestroyWindow(dsply, constraint_win);
 }
 
-void resize(Client *c, int x, int y)
+void resize(ClientPointer c, int x, int y)
 {
 	XEvent ev;
-	Client *exposed_c;
+	ClientPointer exposed_c;
 	Rect recalceddims;
 	unsigned int dragging_outwards, dw, dh;
 	Window resize_win, resizebar_win;
@@ -463,7 +463,7 @@ void resize(Client *c, int x, int y)
 	XDestroyWindow(dsply, resize_win);
 }
 
-static void limit_size(Client *c, Rect *newdims)
+static void limit_size(ClientPointer c, Rect *newdims)
 {
 	auto dw = DisplayWidth(dsply, screen);
 	auto dh = DisplayHeight(dsply, screen);
@@ -490,7 +490,7 @@ static void limit_size(Client *c, Rect *newdims)
  * the number of multiples (if mode == INCREMENTS) or the correct size
  * in pixels for said multiples (if mode == PIXELS). */
 
-static int get_incsize(Client *c, unsigned int *x_ret, unsigned int *y_ret, Rect *newdims, int mode)
+static int get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_ret, Rect *newdims, int mode)
 {
 	if (c->size->flags & PResizeInc)
 	{
@@ -524,7 +524,7 @@ static int get_incsize(Client *c, unsigned int *x_ret, unsigned int *y_ret, Rect
 	return 0;
 }
 
-void write_titletext(Client *c, Window bar_win)
+void write_titletext(ClientPointer c, Window bar_win)
 {
 	if (!c->trans && c->name )
 	{

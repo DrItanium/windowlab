@@ -39,7 +39,7 @@ Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
 #ifdef MWM_HINTS
 Atom mwm_hints;
 #endif
-Client *head_client = nullptr, *focused_client = nullptr, *topmost_client = nullptr, *fullscreen_client = nullptr;
+ClientPointer head_client, focused_client, topmost_client, fullscreen_client;
 unsigned int in_taskbar = 0; // actually, we don't know yet
 unsigned int showing_taskbar = 1;
 unsigned int focus_count = 0;

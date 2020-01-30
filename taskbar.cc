@@ -55,7 +55,7 @@ Taskbar::make() noexcept {
 
 void remember_hidden(void)
 {
-	Client *c;
+	ClientPointer c;
 	for (c = head_client; c; c = c->next)
 	{
 		c->was_hidden = c->hidden;
@@ -64,7 +64,7 @@ void remember_hidden(void)
 
 void forget_hidden(void)
 {
-	Client *c;
+	ClientPointer c;
 	for (c = head_client; c; c = c->next)
 	{
 		if (c == focused_client)
@@ -78,7 +78,7 @@ void forget_hidden(void)
 	}
 }
 
-void lclick_taskbutton(Client *old_c, Client *c)
+void lclick_taskbutton(ClientPointer old_c, ClientPointer c)
 {
 	if (old_c) {
 		if (old_c->was_hidden) {
@@ -106,7 +106,7 @@ Taskbar::leftClick(int x)
 	XSetWindowAttributes pattr;
 
 	unsigned int button_clicked, old_button_clicked, i;
-	Client *c, *exposed_c, *old_c;
+	ClientPointer c, exposed_c, old_c;
 	if (head_client) {
 		remember_hidden();
 
@@ -251,7 +251,7 @@ void
 Taskbar::redraw() 
 {
 	unsigned int i;
-	Client *c;
+	ClientPointer c;
 
 	auto buttonWidth = getButtonWidth();
 	XClearWindow(dsply, _taskbar);
@@ -364,7 +364,7 @@ float
 Taskbar::getButtonWidth()
 {
     unsigned int nwins = 0;
-    Client *c = head_client;
+    ClientPointer c = head_client;
     while (c)
     {
         nwins++;
@@ -374,8 +374,8 @@ Taskbar::getButtonWidth()
 }
 void 
 Taskbar::cyclePrevious() {
-	Client *c = focused_client;
-	Client *original_c = c;
+	ClientPointer c = focused_client;
+	ClientPointer original_c = c;
 	if (head_client && head_client->next) // at least 2 windows exist
 	{
 		if (!c)
@@ -409,7 +409,7 @@ void cycle_previous(void)
 void
 Taskbar::cycleNext()
 {
-	Client *c = focused_client;
+	ClientPointer c = focused_client;
 	if (head_client && head_client->next) // at least 2 windows exist
 	{
 		if (!c || !c->next)

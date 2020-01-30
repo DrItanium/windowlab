@@ -24,9 +24,9 @@
 
 static void handle_key_press(XKeyEvent *);
 static void handle_button_press(XButtonEvent *);
-static void handle_windowbar_click(XButtonEvent *, Client *);
-static unsigned int box_clicked(Client *, int);
-static void draw_button(Client *, GC *, GC *, unsigned int);
+static void handle_windowbar_click(XButtonEvent *, ClientPointer );
+static unsigned int box_clicked(ClientPointer , int);
+static void draw_button(ClientPointer , GC *, GC *, unsigned int);
 static void handle_configure_request(XConfigureRequestEvent *);
 static void handle_map_request(XMapRequestEvent *);
 static void handle_unmap_event(XUnmapEvent *);
@@ -133,7 +133,7 @@ static void handle_key_press(XKeyEvent *e)
 
 static void handle_button_press(XButtonEvent *e)
 {
-	Client *c;
+	ClientPointer c;
 
 	if (e->state & MODIFIER)
 	{
@@ -199,9 +199,9 @@ static void handle_button_press(XButtonEvent *e)
 	}
 }
 
-static void handle_windowbar_click(XButtonEvent *e, Client *c)
+static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 {
-	static Client * first_click_c;
+	static ClientPointer  first_click_c;
 	static Time first_click_time;
 	unsigned int in_box, in_box_down, in_box_up;
 	int win_ypos;
@@ -280,7 +280,7 @@ static void handle_windowbar_click(XButtonEvent *e, Client *c)
 /* Return which button was clicked - this is a multiple of BARHEIGHT()
  * from the right hand side. We only care about 0, 1 and 2. */
 
-static unsigned int box_clicked(Client *c, int x)
+static unsigned int box_clicked(ClientPointer c, int x)
 {
 	int pix_from_right = c->width - x;
 	if (pix_from_right < 0)
@@ -293,7 +293,7 @@ static unsigned int box_clicked(Client *c, int x)
 	}
 }
 
-static void draw_button(Client *c, GC *detail_gc, GC *background_gc, unsigned int which_box)
+static void draw_button(ClientPointer c, GC *detail_gc, GC *background_gc, unsigned int which_box)
 {
 	switch (which_box)
 	{
@@ -330,7 +330,7 @@ static void draw_button(Client *c, GC *detail_gc, GC *background_gc, unsigned in
 
 static void handle_configure_request(XConfigureRequestEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	XWindowChanges wc;
 
 	if (fullscreen_client  && c == fullscreen_client)
@@ -403,14 +403,14 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 
 static void handle_map_request(XMapRequestEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	if (c )
 	{
 		unhide(c);
 	}
 	else
 	{
-		make_new_client(e->window);
+		makeNewClient(e->window);
 	}
 }
 
@@ -430,7 +430,7 @@ static void handle_map_request(XMapRequestEvent *e)
 
 static void handle_unmap_event(XUnmapEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 
 	if (c )
 	{
@@ -451,7 +451,7 @@ static void handle_unmap_event(XUnmapEvent *e)
 
 static void handle_destroy_event(XDestroyWindowEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	if (c )
 	{
 		remove_client(c, WITHDRAW);
@@ -464,7 +464,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e)
 
 static void handle_client_message(XClientMessageEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	if (c  && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState)
 	{
 		hide(c);
@@ -478,7 +478,7 @@ static void handle_client_message(XClientMessageEvent *e)
 
 static void handle_property_change(XPropertyEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	long dummy;
 
 	if (c )
@@ -514,7 +514,7 @@ static void handle_property_change(XPropertyEvent *e)
 
 static void handle_enter_event(XCrossingEvent *e)
 {
-	Client *c = nullptr;
+	ClientPointer c = nullptr;
 	if (e->window == Taskbar::instance().getWindow())
 	{
 		in_taskbar = 1;
@@ -563,7 +563,7 @@ static void handle_enter_event(XCrossingEvent *e)
 
 static void handle_colormap_change(XColormapEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	if (c  && e->c_new) // use c_new for c++
 	{
 		c->cmap = e->colormap;
@@ -586,7 +586,7 @@ static void handle_expose_event(XExposeEvent *e)
 	}
 	else
 	{
-		Client *c = find_client(e->window, FRAME);
+		ClientPointer c = find_client(e->window, FRAME);
 		if (c  && e->count == 0)
 		{
 			redraw(c);
@@ -597,7 +597,7 @@ static void handle_expose_event(XExposeEvent *e)
 #ifdef SHAPE
 static void handle_shape_change(XShapeEvent *e)
 {
-	Client *c = find_client(e->window, WINDOW);
+	ClientPointer c = find_client(e->window, WINDOW);
 	if (c )
 	{
 		set_shape(c);

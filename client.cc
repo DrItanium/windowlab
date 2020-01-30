@@ -21,9 +21,9 @@
 
 #include "windowlab.h"
 
-Client *find_client(Window w, int mode)
+ClientPointer find_client(Window w, int mode)
 {
-	Client *c = head_client;
+    auto c = head_client;
 	if (mode == FRAME)
 	{
 		while (c)
@@ -52,7 +52,7 @@ Client *find_client(Window w, int mode)
 /* Attempt to follow the ICCCM by explicitly specifying 32 bits for
  * this property. Does this goof up on 64 bit systems? */
 
-void set_wm_state(Client *c, int state)
+void set_wm_state(ClientPointer c, int state)
 {
     c->setWMState(state);
 }
@@ -74,7 +74,7 @@ Client::setWMState(int state) noexcept
  * state was explicitly removed (Clients are allowed to either set the
  * atom to Withdrawn or just remove it... yuck.) */
 
-long get_wm_state(Client *c)
+long get_wm_state(ClientPointer c)
 {
     return c->getWMState();
 }
@@ -100,7 +100,7 @@ Client::getWMState() const noexcept
 /* This will need to be called whenever we update our Client stuff.
  * Yeah, yeah, stop yelling at me about OO. */
 
-void send_config(Client *c)
+void send_config(ClientPointer c)
 {
 	XConfigureEvent ce;
 
@@ -129,9 +129,9 @@ void send_config(Client *c)
  * (destroying itself||being destroyed by us) or if we are merely
  * cleaning up its data structures when we exit mid-session. */
 
-void remove_client(Client *c, int mode)
+void remove_client(ClientPointer c, int mode)
 {
-	Client *p;
+	ClientPointer p;
 
 	XGrabServer(dsply);
 	XSetErrorHandler(ignore_xerror);
@@ -188,7 +188,7 @@ void remove_client(Client *c, int mode)
 		focused_client = nullptr;
 		check_focus(get_prev_focused());
 	}
-	free(c);
+	//free(c);
 
 	XSync(dsply, False);
 	XSetErrorHandler(handle_xerror);
@@ -197,7 +197,7 @@ void remove_client(Client *c, int mode)
     Taskbar::instance().redraw();
 }
 
-void redraw(Client *c)
+void redraw(ClientPointer c)
 {
 	if (c == fullscreen_client)
 	{
@@ -243,7 +243,7 @@ void redraw(Client *c)
  * use, but the others should be obvious). Our titlebar is on the top
  * so we only have to adjust in the first case. */
 
-void gravitate(Client *c, int multiplier)
+void gravitate(ClientPointer c, int multiplier)
 {
 	int dy = 0;
 	int gravity = (c->size->flags & PWinGravity) ? c->size->win_gravity : NorthWestGravity;
@@ -272,7 +272,7 @@ void gravitate(Client *c, int multiplier)
  * that using X borders would get me eventually... ;-)) */
 
 #ifdef SHAPE
-void set_shape(Client *c)
+void set_shape(ClientPointer c)
 {
 	int n, order;
 	XRectangle temp, *dummy;
@@ -309,7 +309,7 @@ void set_shape(Client *c)
 }
 #endif
 
-void check_focus(Client *c)
+void check_focus(ClientPointer c)
 {
 	if (c)
 	{
@@ -318,7 +318,7 @@ void check_focus(Client *c)
 	}
 	if (c != focused_client)
 	{
-		Client *old_focused = focused_client;
+		ClientPointer old_focused = focused_client;
 		focused_client = c;
 		focus_count++;
 		if (c)
@@ -334,10 +334,10 @@ void check_focus(Client *c)
 	}
 }
 
-Client *get_prev_focused(void)
+ClientPointer get_prev_focused(void)
 {
-	Client *c = head_client;
-	Client *prev_focused = nullptr;
+	ClientPointer c = head_client;
+	ClientPointer prev_focused = nullptr;
 	unsigned int highest = 0;
 
 	while (c)
@@ -352,7 +352,7 @@ Client *get_prev_focused(void)
 	return prev_focused;
 }
 
-void draw_hide_button(Client *c, GC *detail_gc, GC *background_gc)
+void draw_hide_button(ClientPointer c, GC *detail_gc, GC *background_gc)
 {
 	int x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
@@ -368,7 +368,7 @@ void draw_hide_button(Client *c, GC *detail_gc, GC *background_gc)
 	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
 }
 
-void draw_toggledepth_button(Client *c, GC *detail_gc, GC *background_gc)
+void draw_toggledepth_button(ClientPointer c, GC *detail_gc, GC *background_gc)
 {
 	int x, topleft_offset;
 	x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
@@ -379,7 +379,7 @@ void draw_toggledepth_button(Client *c, GC *detail_gc, GC *background_gc)
 	XDrawRectangle(dsply, c->frame, *detail_gc, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
 }
 
-void draw_close_button(Client *c, GC *detail_gc, GC *background_gc)
+void draw_close_button(ClientPointer c, GC *detail_gc, GC *background_gc)
 {
 	int x, topleft_offset;
 	x = c->width - (BARHEIGHT() - DEF_BORDERWIDTH);
