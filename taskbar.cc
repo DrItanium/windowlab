@@ -373,10 +373,19 @@ Taskbar::getButtonWidth()
 }
 void 
 Taskbar::cyclePrevious() {
+    if (clients.size() >= 2) { // at least 2 windows exist
+        ClientPointer c = focused_client;
+        ClientPointer original_c = c;
+        if (!c) {
+            c = clients.front();
+        }
+        if (c == clients.front()) {
+            original_c = nullptr;
+        }
+    }
 	ClientPointer c = focused_client;
 	ClientPointer original_c = c;
-	if (head_client && head_client->next) // at least 2 windows exist
-	{
+    if (clients.size() >= 2) {
 		if (!c)
 		{
 			c = head_client;
@@ -409,8 +418,7 @@ void
 Taskbar::cycleNext()
 {
 	ClientPointer c = focused_client;
-	if (head_client && head_client->next) // at least 2 windows exist
-	{
+    if (clients.size() >= 2) {
 		if (!c || !c->next)
 		{
 			c = head_client;

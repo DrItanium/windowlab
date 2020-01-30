@@ -37,22 +37,8 @@ void makeNewClient(Window w)
 	XWindowAttributes attr;
 	XWMHints *hints = nullptr;
 	long dummy = 0;
-    ClientPointer c = std::make_shared<Client>();
-	if (!head_client)
-	{
-		head_client = c;
-	}
-	else
-	{
-		p = head_client;
-		while (p->next )
-		{
-			p = p->next;
-		}
-		p->next = c;
-	}
-	c->next = nullptr;
-
+    clients.emplace_back(std::make_shared<Client>());
+    auto& c = clients.back();
 	XGrabServer(dsply);
 
 	XGetTransientForHint(dsply, w, &c->trans);

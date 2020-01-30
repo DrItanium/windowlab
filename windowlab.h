@@ -42,7 +42,6 @@
 #include <filesystem>
 #include <iostream>
 #include <functional>
-#include <list>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -283,7 +282,8 @@ extern Display *dsply;
 extern Window root;
 extern int screen;
 using ClientPointer = typename Client::Ptr;
-extern std::list<typename Client::Ptr> clients;
+extern std::vector<typename Client::Ptr> clients;
+std::size_t indexOfClient(ClientPointer);
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
 extern unsigned int in_taskbar, showing_taskbar, focus_count;
 extern Rect fs_prevdims;

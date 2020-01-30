@@ -21,22 +21,19 @@
 
 #include "windowlab.h"
 
-std::list<typename Client::Ptr> clients;
+std::vector<typename Client::Ptr> clients;
 
-ClientPointer find_client(Window w, int mode)
-{
-    auto c = head_client;
-	if (mode == FRAME)
-	{
+ClientPointer find_client(Window w, int mode) {
+	if (mode == FRAME) {
         for (auto& client : clients) {
             if (client->frame == w) {
-                return c;
+                return client;
             }
         }
 	} else { // WINDOW
         for (auto& client : clients) {
             if (client->window == w) {
-                return c;
+                return client;
             }
         }
 	}
@@ -151,20 +148,7 @@ void remove_client(ClientPointer c, int mode)
 	XRemoveFromSaveSet(dsply, c->window);
 	XDestroyWindow(dsply, c->frame);
 
-	if (head_client == c)
-	{
-		head_client = c->next;
-	}
-	else
-	{
-		for (p = head_client; p && p->next; p = p->next)
-		{
-			if (p->next == c)
-			{
-				p->next = c->next;
-			}
-		}
-	}
+    clients.remove(c);
 	if (c->name)
 	{
 		XFree(c->name);
@@ -330,18 +314,15 @@ void check_focus(ClientPointer c)
 
 ClientPointer get_prev_focused(void)
 {
-	ClientPointer c = head_client;
-	ClientPointer prev_focused = nullptr;
+	ClientPointer prev_focused;
 	unsigned int highest = 0;
 
-	while (c)
-	{
+    for (auto& c : clients) {
 		if (!c->hidden && c->focus_order > highest)
 		{
 			highest = c->focus_order;
 			prev_focused = c;
 		}
-		c = c->next;
 	}
 	return prev_focused;
 }
