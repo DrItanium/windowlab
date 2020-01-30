@@ -135,32 +135,22 @@ static void handle_button_press(XButtonEvent *e)
 {
 	ClientPointer c;
 
-	if (e->state & MODIFIER)
-	{
-		if (focused_client  && focused_client != fullscreen_client)
-		{
+	if (e->state & MODIFIER) {
+		if (focused_client  && focused_client != fullscreen_client) {
 			resize(focused_client, e->x_root, e->y_root);
-		}
-		else
-		{
+		} else {
 			// pass event on
 			XAllowEvents(dsply, ReplayPointer, CurrentTime);
 		}
-	}
-	else if (e->window == root)
-	{
+	} else if (e->window == root) {
 #ifdef DEBUG
 		dump_clients();
 #endif
-		if (e->button == Button3)
-		{
+		if (e->button == Button3) {
             Taskbar::instance().rightClickRoot();
 		}
-	}
-	else if (e->window == Taskbar::instance().getWindow())
-	{
-		switch (e->button)
-		{
+	} else if (e->window == Taskbar::instance().getWindow()) {
+		switch (e->button) {
 			case Button1: // left mouse button
                 Taskbar::instance().leftClick(e->x);
 				break;
@@ -174,26 +164,19 @@ static void handle_button_press(XButtonEvent *e)
                 Taskbar::instance().cycleNext();
 				break;
 		}
-	}
-	else
-	{
+	} else {
 		// pass event on
 		XAllowEvents(dsply, ReplayPointer, CurrentTime);
-		if (e->button == Button1)
-		{
+		if (e->button == Button1) {
 			c = find_client(e->window, FRAME);
-			if (c )
-			{
+			if (c) {
 				// click-to-focus
 				check_focus(c);
-				if (e->y < BARHEIGHT() && c != fullscreen_client)
-				{
+				if (e->y < BARHEIGHT() && c != fullscreen_client) {
 					handle_windowbar_click(e, c);
 				}
 			}
-		}
-		else if (e->button == Button3)
-		{
+		} else if (e->button == Button3) {
             Taskbar::instance().rightClickRoot();
 		}
 	}
@@ -208,10 +191,8 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 	XEvent ev;
 
 	in_box_down = box_clicked(c, e->x);
-	if (in_box_down <= 2)
-	{
-		if (!grab(root, MouseMask, None))
-		{
+	if (in_box_down <= 2) {
+		if (!grab(root, MouseMask, None)) {
 			return;
 		}
 
@@ -226,15 +207,11 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 			XMaskEvent(dsply, MouseMask, &ev);
 			in_box_up = box_clicked(c, ev.xbutton.x - (c->x + DEF_BORDERWIDTH));
 			win_ypos = (ev.xbutton.y - c->y) + BARHEIGHT();
-			if (ev.type == MotionNotify)
-			{
-				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down))
-				{
+			if (ev.type == MotionNotify) {
+				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
 					in_box = 1;
 					draw_button(c, &text_gc, &depressed_gc, in_box_down);
-				}
-				else
-				{
+				} else {
 					in_box = 0;
 					draw_button(c, &text_gc, &active_gc, in_box_down);
 				}
@@ -245,10 +222,8 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 
 		XUngrabServer(dsply);
 		ungrab();
-		if (in_box)
-		{
-			switch (in_box_up)
-			{
+		if (in_box) {
+			switch (in_box_up) {
 				case 0:
 					send_wm_delete(c);
 					break;
@@ -260,16 +235,11 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 					break;
 			}
 		}
-	}
-	else if (in_box_down != UINT_MAX)
-	{
-		if (first_click_c == c && (e->time - first_click_time) < DEF_DBLCLKTIME)
-		{
+	} else if (in_box_down != UINT_MAX) {
+		if (first_click_c == c && (e->time - first_click_time) < DEF_DBLCLKTIME) {
 			raise_lower(c);
 			first_click_c = nullptr; // prevent 3rd clicks counting as double clicks
-		}
-		else
-		{
+		} else {
 			first_click_c = c;
 		}
 		first_click_time = e->time;
@@ -283,20 +253,16 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 static unsigned int box_clicked(ClientPointer c, int x)
 {
 	int pix_from_right = c->width - x;
-	if (pix_from_right < 0)
-	{
+	if (pix_from_right < 0) {
 		return UINT_MAX; // outside window
-	}
-	else
-	{
+	} else {
 		return (pix_from_right / (BARHEIGHT() - DEF_BORDERWIDTH));
 	}
 }
 
 static void draw_button(ClientPointer c, GC *detail_gc, GC *background_gc, unsigned int which_box)
 {
-	switch (which_box)
-	{
+	switch (which_box) {
 		case 0:
 			draw_close_button(c, detail_gc, background_gc);
 			break;
@@ -333,8 +299,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 	ClientPointer c = find_client(e->window, WINDOW);
 	XWindowChanges wc;
 
-	if (fullscreen_client  && c == fullscreen_client)
-	{
+	if (fullscreen_client  && c == fullscreen_client) {
         fs_prevdims.setX(e->x, [e](int) { return e->value_mask & CWX; });
         fs_prevdims.setY(e->y, [e](int) { return e->value_mask & CWY; });
         fs_prevdims.setWidth(e->width, [e](int) { return e->value_mask & CWWidth; });
@@ -342,23 +307,18 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 		return;
 	}
 
-	if (c)
-	{
+	if (c) {
 		gravitate(c, REMOVE_GRAVITY);
-		if (e->value_mask & CWX)
-		{
+		if (e->value_mask & CWX) {
 			c->x = e->x;
 		}
-		if (e->value_mask & CWY)
-		{
+		if (e->value_mask & CWY) {
 			c->y = e->y;
 		}
-		if (e->value_mask & CWWidth)
-		{
+		if (e->value_mask & CWWidth) {
 			c->width = e->width;
 		}
-		if (e->value_mask & CWHeight)
-		{
+		if (e->value_mask & CWHeight) {
 			c->height = e->height;
 		}
 		refix_position(c, e);
@@ -373,8 +333,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 		//wc.stack_mode = e->detail;
 		XConfigureWindow(dsply, c->frame, e->value_mask, &wc);
 #ifdef SHAPE
-		if (e->value_mask & (CWWidth|CWHeight))
-		{
+		if (e->value_mask & (CWWidth|CWHeight)) {
 			set_shape(c);
 		}
 #endif
@@ -382,9 +341,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 		// start setting up the next call
 		wc.x = 0;
 		wc.y = BARHEIGHT();
-	}
-	else
-	{
+	} else {
 		wc.x = e->x;
 		wc.y = e->y;
 	}
@@ -515,36 +472,30 @@ static void handle_enter_event(XCrossingEvent *e)
 	ClientPointer c = nullptr;
 	if (e->window == Taskbar::instance().getWindow())
 	{
-		in_taskbar = 1;
-		if (showing_taskbar == 0)
+		in_taskbar = true;
+		if (!showing_taskbar)
 		{
-			showing_taskbar = 1;
+			showing_taskbar = true;
             Taskbar::instance().redraw();
 		}
 	}
 	else
 	{
-		in_taskbar = 0;
-		if (fullscreen_client )
-		{
-			if (showing_taskbar == 1)
-			{
-				showing_taskbar = 0;
+		in_taskbar = false;
+		if (fullscreen_client ) {
+			if (showing_taskbar) {
+				showing_taskbar = false;
                 Taskbar::instance().redraw();
 			}
-		}
-		else // no fullscreen client
-		{
-			if (showing_taskbar == 0)
-			{
-				showing_taskbar = 1;
+		} else { // no fullscreen client
+			if (!showing_taskbar) {
+				showing_taskbar = true;
                 Taskbar::instance().redraw();
 			}
 		}
 
 		c = find_client(e->window, FRAME);
-		if (c )
-		{
+		if (c) {
 			XGrabButton(dsply, AnyButton, AnyModifier, c->frame, False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
 	}
@@ -575,18 +526,13 @@ static void handle_colormap_change(XColormapEvent *e)
 
 static void handle_expose_event(XExposeEvent *e)
 {
-	if (e->window == Taskbar::instance().getWindow())
-	{
-		if (e->count == 0)
-		{
+	if (e->window == Taskbar::instance().getWindow()) {
+		if (e->count == 0) {
             Taskbar::instance().redraw();
 		}
-	}
-	else
-	{
+	} else {
 		ClientPointer c = find_client(e->window, FRAME);
-		if (c  && e->count == 0)
-		{
+		if (c  && e->count == 0) {
 			redraw(c);
 		}
 	}
@@ -596,8 +542,7 @@ static void handle_expose_event(XExposeEvent *e)
 static void handle_shape_change(XShapeEvent *e)
 {
 	ClientPointer c = find_client(e->window, WINDOW);
-	if (c )
-	{
+	if (c) {
 		set_shape(c);
 	}
 }
@@ -620,20 +565,16 @@ static int interruptible_XNextEvent(XEvent *event)
 	fd_set fds;
 	int rc;
 	int dsply_fd = ConnectionNumber(dsply);
-	for (;;)
-	{
-		if (XPending(dsply))
-		{
+	for (;;) {
+		if (XPending(dsply)) {
 			XNextEvent(dsply, event);
 			return 1;
 		}
 		FD_ZERO(&fds);
 		FD_SET(dsply_fd, &fds);
 		rc = select(dsply_fd + 1, &fds, nullptr, nullptr, nullptr);
-		if (rc < 0)
-		{
-			if (errno == EINTR)
-			{
+		if (rc < 0) {
+			if (errno == EINTR) {
 				return 0;
 			}
 			return 1;
