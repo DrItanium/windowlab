@@ -295,10 +295,9 @@ static const char *show_state(ClientPointer c)
 	}
 }
 
-static const char *show_grav(ClientPointer c)
+static std::string show_grav(ClientPointer c)
 {
-	if (!c->size || !(c->size->flags & PWinGravity))
-	{
+	if (!c->size || !(c->size->flags & PWinGravity)) {
 		return "no grav (NW)";
 	}
 
@@ -321,7 +320,7 @@ static const char *show_grav(ClientPointer c)
 
 void dump(ClientPointer c) {
 	if (c ) {
-		err("%s\n\t%s, %s, ignore %d, was_hidden %d\n\tframe %#lx, win %#lx, geom %dx%d+%d+%d", c->name, show_state(c), show_grav(c), c->ignore_unmap, c->was_hidden, c->frame, c->window, c->width, c->height, c->x, c->y);
+        err(c->name, "\n\t", show_state(c), ",", show_grav(c), ", ignore ", c->ignore_unmap, ", was_hidden ", c->was_hidden, "\n\tframe ", c->frame, ", win ", c->window, ", geom ", c->width, "x", c->height, "+", c->x, "+", c->y);
 	}
 }
 
