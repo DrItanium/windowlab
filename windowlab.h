@@ -342,6 +342,12 @@ void err(Args&& ... parts) noexcept {
     std::cerr << std::endl;
 }
 
+template<typename ... Args>
+void printToStderr(Args&& ... parts) noexcept {
+    (std::cerr << ... << parts);
+    std::cerr << std::endl;
+}
+
 std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
 std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
 void forkExec(const std::string&);

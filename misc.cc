@@ -109,7 +109,7 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 	} else {
 		char msg[255];
 		XGetErrorText(dsply, e->error_code, msg, sizeof msg);
-		err("X error (%#lx): %s", e->resourceid, msg);
+        err("X error (", e->resourceid, "): ", msg);
 	}
 
 	if (c) {
@@ -163,7 +163,7 @@ void fix_position(ClientPointer c)
 	int titlebarheight;
 
 #ifdef DEBUG
-	fprintf(stderr, "fix_position(): client was (%d, %d)-(%d, %d)\n", c->x, c->y, c->x + c->width, c->y + c->height);
+    printToStderr("fix_position(): client was (", c->x, ", ", c->y, ")-(", c->x + c->width, ", ", c->y + c->height, ")");
 #endif
 	
 	titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
@@ -197,7 +197,7 @@ void fix_position(ClientPointer c)
 	}
 
 #ifdef DEBUG
-	fprintf(stderr, "fix_position(): client is (%d, %d)-(%d, %d)\n", c->x, c->y, c->x + c->width, c->y + c->height);
+    printToStderr("fix_position(): client is (", c->x, ", ", c->y, ")-(", c->x + c->width, ", ", c->y + c->height, ")");
 #endif
 
 	c->x -= BORDERWIDTH(c);
@@ -280,8 +280,7 @@ void show_event(XEvent e)
 	}
 
 	c = find_client(w, WINDOW);
-	snprintf(buf, sizeof buf, c  ? c->name : "(none)");
-	err("%#-10lx: %-20s: %s", w, buf, s);
+    err(w, ": ", ((c && c->name) ? *(c->name) : "(none)"), ": ", s);
 }
 
 static const char *show_state(ClientPointer c)
