@@ -376,8 +376,8 @@ Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int
     return XCreateWindow(disp, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, attributes);
 }
 
-void drawString(XftDraw* d, XRenderColor* color, XftFont* font, int x, int y, const std::string& string) {
-    auto ptr = string.data();
+void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string) {
+    auto ptr = string.c_str();
     auto length = string.length();
-    XftDrawString8(d, color, font, x, y, static_cast<unsigned char*>(ptr), length);
+    XftDrawString8(d, color, font, x, y, (unsigned char*)ptr, length);
 }

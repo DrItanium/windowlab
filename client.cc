@@ -183,20 +183,14 @@ void redraw(ClientPointer c)
 	{
 		XFillRectangle(dsply, c->frame, inactive_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-	if (!c->trans && c->name)
-	{
-        auto strPtr = c->name->data();
-        auto strLength = c->name->size();
-		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)strPtr, strLength);
+	if (!c->trans && c->name) {
+        drawString(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(c->name));
 	}
-	if (c == focused_client)
-	{
+	if (c == focused_client) {
 		draw_hide_button(c, &text_gc, &active_gc);
 		draw_toggledepth_button(c, &text_gc, &active_gc);
 		draw_close_button(c, &text_gc, &active_gc);
-	}
-	else
-	{
+	} else {
 		draw_hide_button(c, &text_gc, &inactive_gc);
 		draw_toggledepth_button(c, &text_gc, &inactive_gc);
 		draw_close_button(c, &text_gc, &inactive_gc);

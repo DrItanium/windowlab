@@ -520,13 +520,9 @@ static int get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_ret
 	return 0;
 }
 
-void write_titletext(ClientPointer c, Window bar_win)
+void write_titletext(ClientPointer c, Window /* bar_win */)
 {
-	if (!c->trans && c->name )
-	{
-        auto strLength = c->name->length();
-        auto strPtr = c->name->data();
-		(void) bar_win; // fixes a warning
-		XftDrawString8(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, (unsigned char *)strPtr, strLength);
+	if (!c->trans && c->name ) {
+		drawString(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(c->name));
 	}
 }

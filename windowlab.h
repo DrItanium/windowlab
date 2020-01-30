@@ -361,7 +361,7 @@ void dump_clients(void);
 #endif
 
 Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
-void drawString(XftDraw* d, XRenderColor* color, XftFont* font, int x, int y, const std::string& string);
+void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string);
 
 // taskbar.c
 class Taskbar final {

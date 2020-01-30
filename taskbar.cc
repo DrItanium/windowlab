@@ -250,21 +250,16 @@ Taskbar::redraw()
     for (auto & c : clients) {
 		auto button_startx = static_cast<int>(i * buttonWidth);
 		auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
-		if (button_startx != 0)
-		{
+		if (button_startx != 0) {
 			XDrawLine(dsply, _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
-		if (c == focused_client)
-		{
+		if (c == focused_client) {
 			XFillRectangle(dsply, _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
-		}
-		else
-		{
+		} else {
 			XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
-		if (!c->trans && c->name)
-		{
-            XftDrawString8(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, (unsigned char *)c->name, strlen(c->name));
+		if (!c->trans && c->name) {
+            drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->name));
 		}
         ++i;
 	}
@@ -277,9 +272,8 @@ Taskbar::drawMenubar()
 	XFillRectangle(dsply, _taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : Menu::instance()) {
-		if (!menuItem->label.empty() && !menuItem->command.empty())
-		{
-			XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem->x + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem->label.data(), menuItem->label.size());
+		if (!menuItem->label.empty() && !menuItem->command.empty()) {
+            drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->x + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
 		}
 	}
 }
@@ -330,7 +324,7 @@ Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 	} else {
 		XFillRectangle(dsply, _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-	XftDrawString8(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, (unsigned char *)menuItem->getLabel().data(), menuItem->getLabel().size());
+	drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
 }
 
 float
