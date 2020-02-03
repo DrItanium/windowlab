@@ -224,33 +224,33 @@ void gravitate(ClientPointer c, int multiplier)
  * that using X borders would get me eventually... ;-)) */
 
 #ifdef SHAPE
-void set_shape(ClientPointer c)
-{
+void
+Client::setShape() noexcept {
 	int n, order;
 	XRectangle temp, *dummy;
 
-	dummy = XShapeGetRectangles(dsply, c->window, ShapeBounding, &n, &order);
+	dummy = XShapeGetRectangles(dsply, window, ShapeBounding, &n, &order);
 	if (n > 1) {
-		XShapeCombineShape(dsply, c->frame, ShapeBounding, 0, BARHEIGHT(), c->window, ShapeBounding, ShapeSet);
-		temp.x = -BORDERWIDTH(c);
-		temp.y = -BORDERWIDTH(c);
-		temp.width = c->width + (2 * BORDERWIDTH(c));
-		temp.height = BARHEIGHT() + BORDERWIDTH(c);
-		XShapeCombineRectangles(dsply, c->frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
+		XShapeCombineShape(dsply, frame, ShapeBounding, 0, BARHEIGHT(), window, ShapeBounding, ShapeSet);
+		temp.x = -BORDERWIDTH(this);
+		temp.y = -BORDERWIDTH(this);
+		temp.width = width + (2 * BORDERWIDTH(this));
+		temp.height = BARHEIGHT() + BORDERWIDTH(this);
+		XShapeCombineRectangles(dsply, frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
 		temp.x = 0;
 		temp.y = 0;
-		temp.width = c->width;
-		temp.height = BARHEIGHT() - BORDERWIDTH(c);
-		XShapeCombineRectangles(dsply, c->frame, ShapeClip, 0, BARHEIGHT(), &temp, 1, ShapeUnion, YXBanded);
-		c->has_been_shaped = 1;
+		temp.width = width;
+		temp.height = BARHEIGHT() - BORDERWIDTH(this);
+		XShapeCombineRectangles(dsply, frame, ShapeClip, 0, BARHEIGHT(), &temp, 1, ShapeUnion, YXBanded);
+		has_been_shaped = 1;
 	} else {
-		if (c->has_been_shaped) {
+		if (has_been_shaped) {
 			// I can't find a 'remove all shaping' function...
-			temp.x = -BORDERWIDTH(c);
-			temp.y = -BORDERWIDTH(c);
-			temp.width = c->width + (2 * BORDERWIDTH(c));
-			temp.height = c->height + BARHEIGHT() + (2 * BORDERWIDTH(c));
-			XShapeCombineRectangles(dsply, c->frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
+			temp.x = -BORDERWIDTH(this);
+			temp.y = -BORDERWIDTH(this);
+			temp.width = width + (2 * BORDERWIDTH(this));
+			temp.height = height + BARHEIGHT() + (2 * BORDERWIDTH(this));
+			XShapeCombineRectangles(dsply, frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}
 	XFree(dummy);

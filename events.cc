@@ -323,7 +323,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 		XConfigureWindow(dsply, c->frame, e->value_mask, &wc);
 #ifdef SHAPE
 		if (e->value_mask & (CWWidth|CWHeight)) {
-			set_shape(c);
+            c->setShape();
 		}
 #endif
 		c->sendConfig();
@@ -516,7 +516,7 @@ static void handle_shape_change(XShapeEvent *e)
 {
 	ClientPointer c = find_client(e->window, WINDOW);
 	if (c) {
-		set_shape(c);
+        c->setShape();
 	}
 }
 #endif

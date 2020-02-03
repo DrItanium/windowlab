@@ -184,6 +184,10 @@ struct Client {
     void lowerWindow() noexcept;
     void raiseWindow() noexcept;
     void sendConfig() noexcept;
+    void reparent() noexcept;
+#ifdef SHAPE
+    void setShape() noexcept;
+#endif
 };
 
 struct Rect final {
@@ -314,9 +318,6 @@ ClientPointer find_client(Window, int);
 void remove_client(ClientPointer, int);
 void redraw(ClientPointer);
 void gravitate(ClientPointer, int);
-#ifdef SHAPE
-void set_shape(ClientPointer);
-#endif
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
 void draw_close_button(ClientPointer, GC *, GC *);

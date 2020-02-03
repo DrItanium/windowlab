@@ -22,7 +22,6 @@
 #include "windowlab.h"
 
 static void init_position(ClientPointer );
-static void reparent(ClientPointer );
 
 /* Set up a client structure for the new (not-yet-mapped) window. The
  * confusing bit is that we have to ignore 2 unmap events if the
@@ -80,7 +79,7 @@ void makeNewClient(Window w)
 
 	fix_position(c);
 	gravitate(c, APPLY_GRAVITY);
-	reparent(c);
+    c->reparent();
 
 	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 
@@ -154,7 +153,8 @@ static void init_position(ClientPointer c)
 	}
 }
 
-static void reparent(ClientPointer c)
+void
+Client::reparent() noexcept
 {
 	XSetWindowAttributes pattr;
 
@@ -162,21 +162,20 @@ static void reparent(ClientPointer c)
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	c->frame = XCreateWindow(dsply, root, c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT(), BORDERWIDTH(c), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	frame = XCreateWindow(dsply, root, x, y - BARHEIGHT(), width, height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
 #ifdef SHAPE
-	if (shape)
-	{
-		XShapeSelectInput(dsply, c->window, ShapeNotifyMask);
-		set_shape(c);
+	if (shape) {
+		XShapeSelectInput(dsply, window, ShapeNotifyMask);
+        setShape();
 	}
 #endif
 
-	XAddToSaveSet(dsply, c->window);
-	XSelectInput(dsply, c->window, ColormapChangeMask|PropertyChangeMask);
-	XSetWindowBorderWidth(dsply, c->window, 0);
-	XResizeWindow(dsply, c->window, c->width, c->height);
-	XReparentWindow(dsply, c->window, c->frame, 0, BARHEIGHT());
+	XAddToSaveSet(dsply, window);
+	XSelectInput(dsply, window, ColormapChangeMask|PropertyChangeMask);
+	XSetWindowBorderWidth(dsply, window, 0);
+	XResizeWindow(dsply, window, width, height);
+	XReparentWindow(dsply, window, frame, 0, BARHEIGHT());
 
-    c->sendConfig();
+    sendConfig();
 }
