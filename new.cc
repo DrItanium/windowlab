@@ -41,11 +41,9 @@ Client::setWindowAttributes(XWindowAttributes& attr) noexcept {
 
 void
 Client::makeNew(Window w) noexcept {
-	ClientPointer p = nullptr;
 	XWindowAttributes attr;
-	XWMHints *hints = nullptr;
 	long dummy = 0;
-    clients.emplace_back(std::shared_ptr<Client>(new Client(w)));
+    clients.emplace_back(ClientPointer(new Client(w)));
     auto& c = clients.back();
 	XGrabServer(dsply);
 
@@ -61,14 +59,11 @@ Client::makeNew(Window w) noexcept {
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	c->ignore_unmap++;
 	
-	if (attr.map_state != IsViewable)
-	{
+	if (attr.map_state != IsViewable) {
 		init_position(c);
         c->setWMState(NormalState);
-		if ((hints = XGetWMHints(dsply, w)))
-		{
-			if (hints->flags & StateHint)
-			{
+		if (XWMHints* hints = XGetWMHints(dsply, w); hints) {
+			if (hints->flags & StateHint) {
                 c->setWMState(hints->initial_state);
 			}
 			XFree(hints);
@@ -81,26 +76,21 @@ Client::makeNew(Window w) noexcept {
 
 	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 
-	if (c->getWMState() != IconicState)
-	{
+	if (c->getWMState() != IconicState) {
 		XMapWindow(dsply, c->window);
 		XMapRaised(dsply, c->frame);
 
 		topmost_client = c;
-	}
-	else
-	{
+	} else {
 		c->hidden = 1;
-		if(attr.map_state == IsViewable)
-		{
+		if(attr.map_state == IsViewable) {
 			c->ignore_unmap++;
 			XUnmapWindow(dsply, c->window);
 		}
 	}
 
 	// if no client has focus give focus to the new client
-	if (!focused_client)
-	{
+	if (!focused_client) {
 		check_focus(c);
 		focused_client = c;
 	}
@@ -130,20 +120,16 @@ Client::makeNew(Window w) noexcept {
  * calculation and then degravitate. Don't think about it too hard, or
  * your head will explode. */
 
-static void init_position(ClientPointer c)
-{
+static void init_position(ClientPointer c) {
 	// make sure it's big enough for the 3 buttons and a bit of bar
-	if (c->width < 4 * BARHEIGHT())
-	{
+	if (c->width < 4 * BARHEIGHT()) {
 		c->width = 4 * BARHEIGHT();
 	}
-	if (c->height < BARHEIGHT())
-	{
+	if (c->height < BARHEIGHT()) {
 		c->height = BARHEIGHT();
 	}
 
-	if (c->x == 0 && c->y == 0)
-	{
+	if (c->x == 0 && c->y == 0) {
         auto [mousex, mousey] = getMousePosition();
 		c->x = mousex;
 		c->y = mousey + BARHEIGHT();
@@ -152,8 +138,7 @@ static void init_position(ClientPointer c)
 }
 
 void
-Client::reparent() noexcept
-{
+Client::reparent() noexcept {
 	XSetWindowAttributes pattr;
 
 	pattr.override_redirect = True;
