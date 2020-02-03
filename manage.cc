@@ -80,7 +80,7 @@ void toggle_fullscreen(ClientPointer c)
 			c->height = fs_prevdims.getHeight();
 			XMoveResizeWindow(dsply, c->frame, c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT());
 			XMoveResizeWindow(dsply, c->window, 0, BARHEIGHT(), c->width, c->height);
-			send_config(c);
+            c->sendConfig();
 			fullscreen_client = nullptr;
 			showing_taskbar = 1;
 		} else { // make fullscreen
@@ -94,7 +94,7 @@ void toggle_fullscreen(ClientPointer c)
 				fullscreen_client->height = fs_prevdims.getHeight();
 				XMoveResizeWindow(dsply, fullscreen_client->frame, fullscreen_client->x, fullscreen_client->y - BARHEIGHT(), fullscreen_client->width, fullscreen_client->height + BARHEIGHT());
 				XMoveResizeWindow(dsply, fullscreen_client->window, 0, BARHEIGHT(), fullscreen_client->width, fullscreen_client->height);
-				send_config(fullscreen_client);
+                fullscreen_client->sendConfig();
 			}
             fs_prevdims.become(c->x, c->y, c->width, c->height);
 			c->x = 0 - BORDERWIDTH(c);
@@ -117,7 +117,7 @@ void toggle_fullscreen(ClientPointer c)
 			}
 			XMoveResizeWindow(dsply, c->frame, c->x, c->y, maxwinwidth, maxwinheight);
 			XMoveResizeWindow(dsply, c->window, xoffset, yoffset, c->width, c->height);
-			send_config(c);
+            c->sendConfig();
 			fullscreen_client = c;
 			showing_taskbar = in_taskbar;
 		}
@@ -193,7 +193,7 @@ void move(ClientPointer c)
 				c->x = old_cx + (ev.xmotion.x - mousex);
 				c->y = old_cy + (ev.xmotion.y - mousey);
 				XMoveWindow(dsply, c->frame, c->x, c->y - BARHEIGHT());
-				send_config(c);
+                c->sendConfig();
 				break;
 		}
 	} while (ev.type != ButtonRelease);
@@ -373,7 +373,7 @@ void resize(ClientPointer c, int x, int y)
 
 	XSetInputFocus(dsply, c->window, RevertToNone, CurrentTime);
 
-	send_config(c);
+    c->sendConfig();
 	XDestroyWindow(dsply, constraint_win);
 
 	// reset the drawable

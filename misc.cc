@@ -50,8 +50,7 @@ getEnvironmentVariable(const std::string& varName, const std::string& defaultVal
 void forkExec(const std::string& cmd) {
 	pid_t pid = fork();
 
-	switch (pid)
-	{
+	switch (pid) {
   		case 0:
             {
                 setsid();

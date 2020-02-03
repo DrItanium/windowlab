@@ -326,7 +326,7 @@ static void handle_configure_request(XConfigureRequestEvent *e)
 			set_shape(c);
 		}
 #endif
-		send_config(c);
+		c->sendConfig();
 		// start setting up the next call
 		wc.x = 0;
 		wc.y = BARHEIGHT();

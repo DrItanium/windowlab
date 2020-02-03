@@ -87,25 +87,21 @@ Client::getWMState() const noexcept
 
 }
 
-/* This will need to be called whenever we update our Client stuff.
- * Yeah, yeah, stop yelling at me about OO. */
+void
+Client::sendConfig() noexcept {
+    XConfigureEvent ce;
+    ce.type = ConfigureNotify;
+    ce.event = window;
+    ce.window = window;
+    ce.x = x;
+    ce.y = y;
+    ce.width = width;
+    ce.height = height;
+    ce.border_width = 0;
+    ce.above = None;
+    ce.override_redirect = 0;
 
-void send_config(ClientPointer c)
-{
-	XConfigureEvent ce;
-
-	ce.type = ConfigureNotify;
-	ce.event = c->window;
-	ce.window = c->window;
-	ce.x = c->x;
-	ce.y = c->y;
-	ce.width = c->width;
-	ce.height = c->height;
-	ce.border_width = 0;
-	ce.above = None;
-	ce.override_redirect = 0;
-
-	XSendEvent(dsply, c->window, False, StructureNotifyMask, (XEvent *)&ce);
+    XSendEvent(dsply, window, False, StructureNotifyMask, (XEvent*)&ce);
 }
 
 

@@ -178,5 +178,5 @@ static void reparent(ClientPointer c)
 	XResizeWindow(dsply, c->window, c->width, c->height);
 	XReparentWindow(dsply, c->window, c->frame, 0, BARHEIGHT());
 
-	send_config(c);
+    c->sendConfig();
 }

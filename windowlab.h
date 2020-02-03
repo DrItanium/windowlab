@@ -183,6 +183,7 @@ struct Client {
     void drawButton(GC* detail, GC* background, unsigned int whichBox) noexcept;
     void lowerWindow() noexcept;
     void raiseWindow() noexcept;
+    void sendConfig() noexcept;
 };
 
 struct Rect final {
@@ -310,7 +311,6 @@ void doEventLoop();
 
 // client.c
 ClientPointer find_client(Window, int);
-void send_config(ClientPointer);
 void remove_client(ClientPointer, int);
 void redraw(ClientPointer);
 void gravitate(ClientPointer, int);
