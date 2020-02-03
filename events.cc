@@ -387,10 +387,8 @@ static void handle_unmap_event(XUnmapEvent *e)
  * Unmap event wouldn't happen in that case because the window is
  * already unmapped. */
 
-static void handle_destroy_event(XDestroyWindowEvent *e)
-{
-	ClientPointer c = find_client(e->window, WINDOW);
-	if (c) {
+static void handle_destroy_event(XDestroyWindowEvent *e) {
+	if (ClientPointer c = find_client(e->window, WINDOW); c) {
 		remove_client(c, WITHDRAW);
 	}
 }
@@ -399,10 +397,8 @@ static void handle_destroy_event(XDestroyWindowEvent *e)
  * special kind of ClientMessage. We might set up other handlers here
  * but there's nothing else required by the ICCCM. */
 
-static void handle_client_message(XClientMessageEvent *e)
-{
-	ClientPointer c = find_client(e->window, WINDOW);
-	if (c  && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
+static void handle_client_message(XClientMessageEvent *e) {
+	if (ClientPointer c = find_client(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
 		hide(c);
 	}
 }
@@ -412,12 +408,10 @@ static void handle_client_message(XClientMessageEvent *e)
  * immediately wipe out the old name and redraw; size hints only get
  * used when we need them. */
 
-static void handle_property_change(XPropertyEvent *e)
-{
+static void handle_property_change(XPropertyEvent *e) {
 	ClientPointer c = find_client(e->window, WINDOW);
-	long dummy;
 
-	if (c ) {
+	if (ClientPointer c = find_client(e->window, WINDOW); c) {
 		switch (e->atom) {
             case XA_WM_NAME: {
                                  auto [ status, opt ] = fetchName(dsply, c->window);
@@ -427,9 +421,11 @@ static void handle_property_change(XPropertyEvent *e)
                                  Taskbar::instance().redraw();
                                  break;
                              }
-			case XA_WM_NORMAL_HINTS:
-				XGetWMNormalHints(dsply, c->window, c->size, &dummy);
-				break;
+            case XA_WM_NORMAL_HINTS: {
+                                         long dummy = 0;
+                                         XGetWMNormalHints(dsply, c->window, c->size, &dummy);
+                                         break;
+                                     }
 		}
 	}
 }
@@ -444,31 +440,28 @@ static void handle_property_change(XPropertyEvent *e)
  * We also implement a colormap-follows-mouse policy here. That, on
  * the third hand, is *not* X's default. */
 
-static void handle_enter_event(XCrossingEvent *e)
-{
-	ClientPointer c = nullptr;
-	if (e->window == Taskbar::instance().getWindow()) {
+static void handle_enter_event(XCrossingEvent *e) {
+	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
 		in_taskbar = true;
 		if (!showing_taskbar) {
 			showing_taskbar = true;
-            Taskbar::instance().redraw();
+            taskbar.redraw();
 		}
 	} else {
 		in_taskbar = false;
 		if (fullscreen_client ) {
 			if (showing_taskbar) {
 				showing_taskbar = false;
-                Taskbar::instance().redraw();
+                taskbar.redraw();
 			}
 		} else { // no fullscreen client
 			if (!showing_taskbar) {
 				showing_taskbar = true;
-                Taskbar::instance().redraw();
+                taskbar.redraw();
 			}
 		}
 
-		c = find_client(e->window, FRAME);
-		if (c) {
+		if (ClientPointer c = find_client(e->window, FRAME); c) {
 			XGrabButton(dsply, AnyButton, AnyModifier, c->frame, False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
 	}
@@ -483,11 +476,8 @@ static void handle_enter_event(XCrossingEvent *e)
  * by all means yell at me, but very few people have 8-bit displays
  * these days. */
 
-static void handle_colormap_change(XColormapEvent *e)
-{
-	ClientPointer c = find_client(e->window, WINDOW);
-	if (c  && e->c_new) // use c_new for c++
-	{
+static void handle_colormap_change(XColormapEvent *e) {
+	if (ClientPointer c = find_client(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
 		c->cmap = e->colormap;
 		XInstallColormap(dsply, c->cmap);
 	}
@@ -497,25 +487,21 @@ static void handle_colormap_change(XColormapEvent *e)
  * multiple expose events, so ignore them unless e->count (the number
  * of outstanding exposes) is zero. */
 
-static void handle_expose_event(XExposeEvent *e)
-{
-	if (e->window == Taskbar::instance().getWindow()) {
+static void handle_expose_event(XExposeEvent *e) {
+	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
 		if (e->count == 0) {
-            Taskbar::instance().redraw();
+            taskbar.redraw();
 		}
 	} else {
-		ClientPointer c = find_client(e->window, FRAME);
-		if (c  && e->count == 0) {
+		if (ClientPointer c = find_client(e->window, FRAME); c  && e->count == 0) {
 			redraw(c);
 		}
 	}
 }
 
 #ifdef SHAPE
-static void handle_shape_change(XShapeEvent *e)
-{
-	ClientPointer c = find_client(e->window, WINDOW);
-	if (c) {
+static void handle_shape_change(XShapeEvent *e) {
+	if (ClientPointer c = find_client(e->window, WINDOW); c) {
         c->setShape();
 	}
 }
@@ -533,20 +519,16 @@ static void handle_shape_change(XShapeEvent *e)
 /* Unlike XNextEvent, if a signal arrives, interruptibleXNextEvent will
  * return zero. */
 
-static int interruptible_XNextEvent(XEvent *event)
-{
+static int interruptible_XNextEvent(XEvent *event) {
 	fd_set fds;
-	int rc;
-	int dsply_fd = ConnectionNumber(dsply);
-	for (;;) {
+	for (int dsply_fd = ConnectionNumber(dsply);;) {
 		if (XPending(dsply)) {
 			XNextEvent(dsply, event);
 			return 1;
 		}
 		FD_ZERO(&fds);
 		FD_SET(dsply_fd, &fds);
-		rc = select(dsply_fd + 1, &fds, nullptr, nullptr, nullptr);
-		if (rc < 0) {
+		if (int rc = select(dsply_fd + 1, &fds, nullptr, nullptr, nullptr); rc < 0) {
 			if (errno == EINTR) {
 				return 0;
 			}
