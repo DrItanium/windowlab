@@ -40,17 +40,11 @@ ClientPointer find_client(Window w, int mode) {
 	return nullptr;
 }
 
-/* Attempt to follow the ICCCM by explicitly specifying 32 bits for
- * this property. Does this goof up on 64 bit systems? */
-
-void set_wm_state(ClientPointer c, int state)
-{
-    c->setWMState(state);
-}
-
 void 
 Client::setWMState(int state) noexcept
 {
+    /* Attempt to follow the ICCCM by explicitly specifying 32 bits for
+     * this property. Does this goof up on 64 bit systems? */
 	CARD32 data[2];
 
 	data[0] = state;
@@ -59,20 +53,14 @@ Client::setWMState(int state) noexcept
 	XChangeProperty(dsply, window, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data, 2);
 }
 
+long 
+Client::getWMState() const noexcept
+{
 /* If we can't find a WM_STATE we're going to have to assume
  * Withdrawn. This is not exactly optimal, since we can't really
  * distinguish between the case where no WM has run yet and when the
  * state was explicitly removed (Clients are allowed to either set the
  * atom to Withdrawn or just remove it... yuck.) */
-
-long get_wm_state(ClientPointer c)
-{
-    return c->getWMState();
-}
-
-long 
-Client::getWMState() const noexcept
-{
 	Atom real_type;
 	int real_format;
 	long state = WithdrawnState;
@@ -126,12 +114,9 @@ void remove_client(ClientPointer c, int mode)
     err("removing ", (c->name ? *c->name : ""), ", ", mode, ": ", XPending(dsply), " left");
 #endif
 
-	if (mode == WITHDRAW)
-	{
-		set_wm_state(c, WithdrawnState);
-	}
-	else //REMAP
-	{
+	if (mode == WITHDRAW) {
+        c->setWMState(WithdrawnState);
+	} else { //REMAP
 		XMapWindow(dsply, c->window);
 	}
 	gravitate(c, REMOVE_GRAVITY);
