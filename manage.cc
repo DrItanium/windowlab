@@ -24,48 +24,59 @@
 static void limit_size(ClientPointer , Rect *);
 static bool get_incsize(ClientPointer , unsigned int *, unsigned int *, Rect *, int);
 
-void raise_lower(ClientPointer c)
-{
-	if (c ) {
-		if (c == topmost_client) {
-            c->lowerWindow();
-			topmost_client = nullptr; // lazy but amiwm does similar
-		} else {
-            c->raiseWindow();
-			topmost_client = c;
-		}
-	}
+void 
+Client::raiseLower() noexcept {
+    if (auto self = sharedReference(); self == topmost_client) {
+        lowerWindow();
+        topmost_client = nullptr; // lazy but amiwm does similar
+    } else {
+        raiseWindow();
+        topmost_client = self;
+    }
+}
+void raise_lower(ClientPointer c) {
+    if (c) {
+        c->raiseLower();
+    }
 }
 
 /* increment ignore_unmap here and decrement it in handle_unmap_event in events.c */
 
-void hide(ClientPointer c)
-{
+void
+Client::hide() noexcept {
+    if (!hidden) {
+        ignore_unmap++;
+        hidden = true;
+        if (sharedReference() == topmost_client) {
+            topmost_client = nullptr;
+        }
+        XUnmapWindow(dsply, frame);
+        XUnmapWindow(dsply, window);
+        setWMState(IconicState);
+        check_focus(get_prev_focused());
+    }
+}
+
+void
+Client::unhide() noexcept {
+    if (hidden) {
+        hidden = false;
+        topmost_client = sharedReference();
+        XMapWindow(dsply, window);
+        XMapRaised(dsply, frame);
+        setWMState(NormalState);
+    }
+}
+
+void hide(ClientPointer c) {
 	if (c ) {
-		if (!c->hidden) {
-			c->ignore_unmap++;
-			c->hidden = 1;
-			if (c == topmost_client) {
-				topmost_client = nullptr;
-			}
-			XUnmapWindow(dsply, c->frame);
-			XUnmapWindow(dsply, c->window);
-            c->setWMState(IconicState);
-			check_focus(get_prev_focused());
-		}
+        c->hide();
 	}
 }
 
-void unhide(ClientPointer c)
-{
+void unhide(ClientPointer c) {
 	if (c ) {
-		if (c->hidden) {
-			c->hidden = 0;
-			topmost_client = c;
-			XMapWindow(dsply, c->window);
-			XMapRaised(dsply, c->frame);
-            c->setWMState(NormalState);
-		}
+        c->unhide();
 	}
 }
 

@@ -157,7 +157,6 @@ constexpr auto REMAP = 1;
 
 struct Client {
     using Ptr = std::shared_ptr<Client>;
-    Client(Window w) noexcept : window(w) { };
     static void makeNew(Window) noexcept;
     std::optional<std::string> name;
 	XSizeHints *size = nullptr;
@@ -192,6 +191,16 @@ struct Client {
 #endif
     void setWindowAttributes(XWindowAttributes& attr) noexcept;
     void redraw() noexcept;
+    void rememberHidden() noexcept;
+    void forgetHidden() noexcept;
+    auto sharedReference() const noexcept { return _selfReference.lock(); }
+    void raiseLower() noexcept;
+    void hide() noexcept;
+    void unhide() noexcept;
+    private:
+        Client(Window w) noexcept : window(w) { };
+    private:
+        std::weak_ptr<Client> _selfReference;
 };
 
 struct Rect final {

@@ -149,12 +149,13 @@ void remove_client(ClientPointer c, int mode)
 
 void
 Client::redraw() noexcept {
-    if (this == fullscreen_client.get()) {
+    auto self = sharedReference();
+    if (self == fullscreen_client) {
         return;
     }
 	XDrawLine(dsply, frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
-	if (this == focused_client.get()) {
+	if (self == focused_client) {
 		XFillRectangle(dsply, frame, active_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
 		XFillRectangle(dsply, frame, inactive_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
@@ -162,7 +163,7 @@ Client::redraw() noexcept {
 	if (!trans && name) {
         drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(name));
 	}
-    auto background_gc = this == focused_client.get() ? &active_gc : &inactive_gc;
+    auto background_gc = self == focused_client ? &active_gc : &inactive_gc;
     drawHideButton(&text_gc, background_gc);
     drawToggleDepthButton(&text_gc, background_gc);
     drawCloseButton(&text_gc, background_gc);

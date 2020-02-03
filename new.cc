@@ -45,7 +45,7 @@ Client::makeNew(Window w) noexcept {
 	XWindowAttributes attr;
 	XWMHints *hints = nullptr;
 	long dummy = 0;
-    clients.emplace_back(std::make_shared<Client>(w));
+    clients.emplace_back(std::shared_ptr<Client>(new Client(w)));
     auto& c = clients.back();
 	XGrabServer(dsply);
 
@@ -55,6 +55,7 @@ Client::makeNew(Window w) noexcept {
 	XGetWindowAttributes(dsply, w, &attr);
     c->setWindowAttributes(attr);
 	c->size = XAllocSizeHints();
+    c->_selfReference = c;
 	XGetWMNormalHints(dsply, c->window, c->size, &dummy);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not

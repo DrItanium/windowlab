@@ -54,19 +54,29 @@ Taskbar::make() noexcept {
 void remember_hidden(void)
 {
     for (auto& c : clients) {
-        c->was_hidden = c->hidden;
+        c->rememberHidden();
     }
 }
 
-void forget_hidden(void)
-{
-	ClientPointer c;
+void
+Client::rememberHidden() noexcept {
+    was_hidden = hidden;
+}
+
+
+void
+Client::forgetHidden() noexcept {
+    if (this == focused_client.get()) {
+        was_hidden = hidden;
+    } else {
+        was_hidden = false;
+    }
+}
+
+
+void forget_hidden(void) {
     for (auto& c : clients) {
-		if (c == focused_client) {
-			c->was_hidden = c->hidden;
-		} else {
-			c->was_hidden = 0;
-		}
+        c->forgetHidden();
 	}
 }
 
