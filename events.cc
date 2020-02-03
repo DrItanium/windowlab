@@ -25,7 +25,6 @@
 static void handle_key_press(XKeyEvent *);
 static void handle_button_press(XButtonEvent *);
 static void handle_windowbar_click(XButtonEvent *, ClientPointer );
-static unsigned int box_clicked(ClientPointer , int);
 static void draw_button(ClientPointer , GC *, GC *, unsigned int);
 static void handle_configure_request(XConfigureRequestEvent *);
 static void handle_map_request(XMapRequestEvent *);
@@ -186,7 +185,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 	int win_ypos;
 	XEvent ev;
 
-	in_box_down = box_clicked(c, e->x);
+    in_box_down = c->boxClicked(e->x);
 	if (in_box_down <= 2) {
 		if (!grab(root, MouseMask, None)) {
 			return;
@@ -201,7 +200,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		do
 		{
 			XMaskEvent(dsply, MouseMask, &ev);
-			in_box_up = box_clicked(c, ev.xbutton.x - (c->x + DEF_BORDERWIDTH));
+            in_box_up = c->boxClicked(ev.xbutton.x - (c->x + DEF_BORDERWIDTH));
 			win_ypos = (ev.xbutton.y - c->y) + BARHEIGHT();
 			if (ev.type == MotionNotify) {
 				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
@@ -244,22 +243,12 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 }
 
 unsigned int
-Client::boxClicked(int x) noexcept {
+Client::boxClicked(int x) const noexcept {
     if (int pixFromRight = width - x; pixFromRight < 0) {
-        return std::numeric_limits<unsigned int>::max();
+        return std::numeric_limits<unsigned int>::max(); // outside window
     } else {
         return (pixFromRight / (BARHEIGHT() - DEF_BORDERWIDTH));
     }
-}
-/* Return which button was clicked - this is a multiple of BARHEIGHT()
- * from the right hand side. We only care about 0, 1 and 2. */
-
-static unsigned int box_clicked(ClientPointer c, int x) {
-	if (int pix_from_right = c->width - x; pix_from_right < 0) {
-		return UINT_MAX; // outside window
-	} else {
-		return (pix_from_right / (BARHEIGHT() - DEF_BORDERWIDTH));
-	}
 }
 
 static void draw_button(ClientPointer c, GC *detail_gc, GC *background_gc, unsigned int which_box)

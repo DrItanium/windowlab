@@ -188,7 +188,7 @@ struct Client {
     /** Return which button was clicked - this is a multiple of BARHEIGHT()
      * from the right hand side; We only care about 0, 1 and 2. 
      */
-    unsigned int boxClicked(int x) noexcept;
+    unsigned int boxClicked(int x) const noexcept;
 };
 
 struct Rect final {
