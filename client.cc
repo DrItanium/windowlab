@@ -79,8 +79,7 @@ Client::getWMState() const noexcept
 	unsigned long items_read, items_left;
 	unsigned char *data;
 
-	if (XGetWindowProperty(dsply, window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read)
-	{
+	if (XGetWindowProperty(dsply, window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read) {
 		state = *(long *)data;
 		XFree(data);
 	}
@@ -169,18 +168,14 @@ void remove_client(ClientPointer c, int mode)
 
 void redraw(ClientPointer c)
 {
-	if (c == fullscreen_client)
-	{
+	if (c == fullscreen_client) {
 		return;
 	}
 	XDrawLine(dsply, c->frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, c->width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
-	if (c == focused_client)
-	{
+	if (c == focused_client) {
 		XFillRectangle(dsply, c->frame, active_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
-	}
-	else
-	{
+	} else {
 		XFillRectangle(dsply, c->frame, inactive_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	if (!c->trans && c->name) {
@@ -210,8 +205,7 @@ void gravitate(ClientPointer c, int multiplier)
 	int dy = 0;
 	int gravity = (c->size->flags & PWinGravity) ? c->size->win_gravity : NorthWestGravity;
 
-	switch (gravity)
-	{
+	switch (gravity) {
 		case NorthWestGravity:
 		case NorthEastGravity:
 		case NorthGravity:
@@ -240,8 +234,7 @@ void set_shape(ClientPointer c)
 	XRectangle temp, *dummy;
 
 	dummy = XShapeGetRectangles(dsply, c->window, ShapeBounding, &n, &order);
-	if (n > 1)
-	{
+	if (n > 1) {
 		XShapeCombineShape(dsply, c->frame, ShapeBounding, 0, BARHEIGHT(), c->window, ShapeBounding, ShapeSet);
 		temp.x = -BORDERWIDTH(c);
 		temp.y = -BORDERWIDTH(c);
@@ -254,11 +247,8 @@ void set_shape(ClientPointer c)
 		temp.height = BARHEIGHT() - BORDERWIDTH(c);
 		XShapeCombineRectangles(dsply, c->frame, ShapeClip, 0, BARHEIGHT(), &temp, 1, ShapeUnion, YXBanded);
 		c->has_been_shaped = 1;
-	}
-	else
-	{
-		if (c->has_been_shaped)
-		{
+	} else {
+		if (c->has_been_shaped) {
 			// I can't find a 'remove all shaping' function...
 			temp.x = -BORDERWIDTH(c);
 			temp.y = -BORDERWIDTH(c);
@@ -273,23 +263,19 @@ void set_shape(ClientPointer c)
 
 void check_focus(ClientPointer c)
 {
-	if (c)
-	{
+	if (c) {
 		XSetInputFocus(dsply, c->window, RevertToNone, CurrentTime);
 		XInstallColormap(dsply, c->cmap);
 	}
-	if (c != focused_client)
-	{
+	if (c != focused_client) {
 		ClientPointer old_focused = focused_client;
 		focused_client = c;
 		focus_count++;
-		if (c)
-		{
+		if (c) {
 			c->focus_order = focus_count;
 			redraw(c);
 		}
-		if (old_focused)
-		{
+		if (old_focused) {
 			redraw(old_focused);
 		}
         Taskbar::instance().redraw();
@@ -302,8 +288,7 @@ ClientPointer get_prev_focused(void)
 	unsigned int highest = 0;
 
     for (auto& c : clients) {
-		if (!c->hidden && c->focus_order > highest)
-		{
+		if (!c->hidden && c->focus_order > highest) {
 			highest = c->focus_order;
 			prev_focused = c;
 		}

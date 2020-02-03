@@ -243,7 +243,6 @@ struct Rect final {
             setHeight(h);
         }
     private:
-
         int _x = 0;
         int _y = 0;
         int _width = 0;
@@ -278,7 +277,8 @@ extern Display *dsply;
 extern Window root;
 extern int screen;
 using ClientPointer = typename Client::Ptr;
-extern std::vector<typename Client::Ptr> clients;
+extern std::vector<ClientPointer> clients;
+
 inline decltype(clients)::const_iterator findClient(ClientPointer p) {
     return std::find(clients.begin(), clients.end(), p);
 }
@@ -291,6 +291,7 @@ inline bool removeClientFromList(ClientPointer p) {
         return false;
     }
 }
+
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
 extern bool in_taskbar, showing_taskbar;
 extern unsigned int focus_count;

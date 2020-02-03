@@ -119,7 +119,7 @@ Menu::populate() noexcept {
             }
         }
     } else {
-		err("can't find ~/.windowlab/windowlab.menurc, %s or %s\n", menurcpath.c_str(), getDefMenuRc().c_str());
+		err("can't find ~/.windowlab/windowlab.menurc, ", menurcpath, " or ", getDefMenuRc());
         _menuItems.emplace_back(std::make_shared<MenuItem>(NO_MENU_LABEL, NO_MENU_COMMAND));
     }
     menufile.close();

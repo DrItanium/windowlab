@@ -49,8 +49,7 @@ void doEventLoop()
 {
 	XEvent ev;
 
-	for (;;)
-	{
+	for (;;) {
 		interruptible_XNextEvent(&ev);
 #ifdef DEBUG
 		show_event(ev);
@@ -59,8 +58,7 @@ void doEventLoop()
         if (Menu::instance().shouldRepopulate()) {
             Menu::instance().populate();
         }
-		switch (ev.type)
-		{
+		switch (ev.type) {
 			case KeyPress:
 				handle_key_press(&ev.xkey);
 				break;
@@ -109,8 +107,7 @@ static void handle_key_press(XKeyEvent *e)
 {
 	KeySym key = XKeycodeToKeysym(dsply, e->keycode, 0);
     auto& taskbar = Taskbar::instance();
-	switch (key)
-	{
+	switch (key) {
 		case KEY_CYCLEPREV:
             taskbar.cyclePrevious();
 			break;
@@ -358,15 +355,11 @@ static void handle_configure_request(XConfigureRequestEvent *e)
  * list anywhere. The other is that it already exists and wants to
  * de-iconify, which is simple to take care of. */
 
-static void handle_map_request(XMapRequestEvent *e)
-{
+static void handle_map_request(XMapRequestEvent *e) {
 	ClientPointer c = find_client(e->window, WINDOW);
-	if (c )
-	{
+	if (c ) {
 		unhide(c);
-	}
-	else
-	{
+	} else {
 		makeNewClient(e->window);
 	}
 }
@@ -389,14 +382,10 @@ static void handle_unmap_event(XUnmapEvent *e)
 {
 	ClientPointer c = find_client(e->window, WINDOW);
 
-	if (c )
-	{
-		if (c->ignore_unmap)
-		{
+	if (c) {
+		if (c->ignore_unmap) {
 			c->ignore_unmap--;
-		}
-		else
-		{
+		} else {
 			remove_client(c, WITHDRAW);
 		}
 	}
@@ -409,8 +398,7 @@ static void handle_unmap_event(XUnmapEvent *e)
 static void handle_destroy_event(XDestroyWindowEvent *e)
 {
 	ClientPointer c = find_client(e->window, WINDOW);
-	if (c)
-	{
+	if (c) {
 		remove_client(c, WITHDRAW);
 	}
 }
@@ -422,8 +410,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e)
 static void handle_client_message(XClientMessageEvent *e)
 {
 	ClientPointer c = find_client(e->window, WINDOW);
-	if (c  && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState)
-	{
+	if (c  && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
 		hide(c);
 	}
 }
@@ -438,10 +425,8 @@ static void handle_property_change(XPropertyEvent *e)
 	ClientPointer c = find_client(e->window, WINDOW);
 	long dummy;
 
-	if (c )
-	{
-		switch (e->atom)
-		{
+	if (c ) {
+		switch (e->atom) {
             case XA_WM_NAME: {
                                  auto [ status, opt ] = fetchName(dsply, c->window);
                                  (void)status; // status isn't actually used but is returned in the tuple
@@ -470,17 +455,13 @@ static void handle_property_change(XPropertyEvent *e)
 static void handle_enter_event(XCrossingEvent *e)
 {
 	ClientPointer c = nullptr;
-	if (e->window == Taskbar::instance().getWindow())
-	{
+	if (e->window == Taskbar::instance().getWindow()) {
 		in_taskbar = true;
-		if (!showing_taskbar)
-		{
+		if (!showing_taskbar) {
 			showing_taskbar = true;
             Taskbar::instance().redraw();
 		}
-	}
-	else
-	{
+	} else {
 		in_taskbar = false;
 		if (fullscreen_client ) {
 			if (showing_taskbar) {

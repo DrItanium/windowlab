@@ -63,14 +63,12 @@ int main(int argc, char **argv)
 	struct sigaction act;
 
 #define OPT_STR(name, variable)	 \
-	if (strcmp(argv[i], name) == 0 && i + 1 < argc) \
-	{ \
+	if (strcmp(argv[i], name) == 0 && i + 1 < argc) { \
 		variable = argv[++i]; \
 		continue; \
 	}
 
-	for (i = 1; i < argc; i++)
-	{
+	for (i = 1; i < argc; i++) {
 		OPT_STR("-font", opt_font)
 		OPT_STR("-border", opt_border)
 		OPT_STR("-text", opt_text)
@@ -80,8 +78,7 @@ int main(int argc, char **argv)
 		OPT_STR("-selected", opt_selected)
 		OPT_STR("-empty", opt_empty)
 		OPT_STR("-display", opt_display)
-		if (strcmp(argv[i], "-about") == 0)
-		{
+		if (strcmp(argv[i], "-about") == 0) {
 			printf("WindowLab " VERSION " (" RELEASEDATE "), Copyright (c) 2001-2009 Nick Gravgaard\nWindowLab comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; view the LICENCE file for details.\n");
 			exit(0);
 		}
@@ -106,26 +103,22 @@ int main(int argc, char **argv)
 	return 1; // just another brick in the -Wall
 }
 
-static void scan_wins(void)
-{
+static void scan_wins(void) {
 	unsigned int nwins, i;
 	Window dummyw1, dummyw2, *wins;
 	XWindowAttributes attr;
 
 	XQueryTree(dsply, root, &dummyw1, &dummyw2, &wins, &nwins);
-	for (i = 0; i < nwins; i++)
-	{
+	for (i = 0; i < nwins; i++) {
 		XGetWindowAttributes(dsply, wins[i], &attr);
-		if (!attr.override_redirect && attr.map_state == IsViewable)
-		{
+		if (!attr.override_redirect && attr.map_state == IsViewable) {
 			makeNewClient(wins[i]);
 		}
 	}
 	XFree(wins);
 }
 
-static void setup_display(void)
-{
+static void setup_display(void) {
 	XColor dummyc;
 	XGCValues gv;
 	XSetWindowAttributes sattr;
@@ -137,8 +130,7 @@ static void setup_display(void)
 
 	dsply = XOpenDisplay(opt_display.c_str());
 
-	if (!dsply)
-	{
+	if (!dsply) {
 		err("can't open display! check your DISPLAY variable.");
 		exit(1);
 	}
@@ -176,9 +168,8 @@ static void setup_display(void)
 	xft_detail.pixel = text_col.pixel;
 
 	xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font.c_str());
-	if (!xftfont)
-	{
-		err("font '%s' not found", opt_font);
+	if (!xftfont) {
+        err("font '", opt_font, "' not found");
 		exit(1);
 	}
 
@@ -190,15 +181,12 @@ static void setup_display(void)
 
 	/* find out which modifier is NumLock - we'll use this when grabbing every combination of modifiers we can think of */
 	modmap = XGetModifierMapping(dsply);
-	for (i = 0; i < 8; i++)
-	{
-		for (j = 0; j < modmap->max_keypermod; j++)
-		{
-			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dsply, XK_Num_Lock))
-			{
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < modmap->max_keypermod; j++) {
+			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dsply, XK_Num_Lock)) {
 				numlockmask = (1 << i);
 #ifdef DEBUG
-				fprintf(stderr, "setup_display() : XK_Num_Lock is (1<<0x%02x)\n", i);
+                std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
 #endif
 			}
 		}

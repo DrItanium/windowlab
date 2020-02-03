@@ -194,8 +194,7 @@ Taskbar::rightClick(int x)
 				XPutBackEvent(dsply, &ev);
 				break;
 		}
-	}
-	while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
+	} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
     Taskbar::instance().redraw();
 	XUnmapWindow(dsply, constraint_win);
@@ -206,12 +205,12 @@ Taskbar::rightClick(int x)
 void
 Taskbar::rightClickRoot()
 {
-	XEvent ev;
 	if (!grab(root, MouseMask, None))
 	{
 		return;
 	}
 	drawMenubar();
+	XEvent ev;
 	do
 	{
 		XMaskEvent(dsply, MouseMask|KeyMask, &ev);
