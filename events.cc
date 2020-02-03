@@ -128,7 +128,7 @@ static void handle_key_press(XKeyEvent *e)
 static void handle_button_press(XButtonEvent *e)
 {
 	ClientPointer c;
-
+    auto& taskbar = Taskbar::instance();
 	if (e->state & MODIFIER) {
 		if (focused_client  && focused_client != fullscreen_client) {
 			resize(focused_client, e->x_root, e->y_root);
@@ -141,21 +141,21 @@ static void handle_button_press(XButtonEvent *e)
 		dump_clients();
 #endif
 		if (e->button == Button3) {
-            Taskbar::instance().rightClickRoot();
+            taskbar.rightClickRoot();
 		}
 	} else if (e->window == Taskbar::instance().getWindow()) {
 		switch (e->button) {
 			case Button1: // left mouse button
-                Taskbar::instance().leftClick(e->x);
+                taskbar.leftClick(e->x);
 				break;
 			case Button3: // right mouse button
-                Taskbar::instance().rightClick(e->x);
+                taskbar.rightClick(e->x);
 				break;
 			case Button4: // mouse wheel up
-                Taskbar::instance().cyclePrevious();
+                taskbar.cyclePrevious();
 				break;
 			case Button5: // mouse wheel down
-                Taskbar::instance().cycleNext();
+                taskbar.cycleNext();
 				break;
 		}
 	} else {
@@ -171,7 +171,7 @@ static void handle_button_press(XButtonEvent *e)
 				}
 			}
 		} else if (e->button == Button3) {
-            Taskbar::instance().rightClickRoot();
+            taskbar.rightClickRoot();
 		}
 	}
 }
