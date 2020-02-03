@@ -78,10 +78,10 @@ constexpr auto KEY_TOGGLEZ = XK_F12;
 constexpr auto DEF_DBLCLKTIME = 400;
 
 // a few useful masks made up out of X's basic ones. `ChildMask' is a silly name, but oh well.
-#define ChildMask (SubstructureRedirectMask|SubstructureNotifyMask)
-#define ButtonMask (ButtonPressMask|ButtonReleaseMask)
-#define MouseMask (ButtonMask|PointerMotionMask)
-#define KeyMask (KeyPressMask|KeyReleaseMask)
+constexpr auto ChildMask = (SubstructureRedirectMask|SubstructureNotifyMask);
+constexpr auto ButtonMask = (ButtonPressMask|ButtonReleaseMask);
+constexpr auto MouseMask = (ButtonMask|PointerMotionMask);
+constexpr auto KeyMask = (KeyPressMask|KeyReleaseMask);
 
 // false_v taken from https://quuxplusone.github.io/blog/2018/04/02/false-v/
 template<typename...>
