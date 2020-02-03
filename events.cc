@@ -352,7 +352,7 @@ static void handle_map_request(XMapRequestEvent *e) {
 	if (c ) {
 		unhide(c);
 	} else {
-		makeNewClient(e->window);
+        Client::makeNew(e->window);
 	}
 }
 

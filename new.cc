@@ -23,6 +23,15 @@
 
 static void init_position(ClientPointer );
 
+void
+Client::setWindowAttributes(XWindowAttributes& attr) noexcept {
+    x = attr.x;
+    y = attr.y;
+    width = attr.width;
+    height = attr.height;
+    cmap = attr.colormap;
+}
+
 /* Set up a client structure for the new (not-yet-mapped) window. The
  * confusing bit is that we have to ignore 2 unmap events if the
  * client was already mapped but has IconicState set (for instance,
@@ -30,13 +39,13 @@ static void init_position(ClientPointer );
  * because there's one for the reparent (which happens on all viewable
  * windows) and then another for the unmapping itself. */
 
-void makeNewClient(Window w)
-{
+void
+Client::makeNew(Window w) noexcept {
 	ClientPointer p = nullptr;
 	XWindowAttributes attr;
 	XWMHints *hints = nullptr;
 	long dummy = 0;
-    clients.emplace_back(std::make_shared<Client>());
+    clients.emplace_back(std::make_shared<Client>(w));
     auto& c = clients.back();
 	XGrabServer(dsply);
 
@@ -44,19 +53,7 @@ void makeNewClient(Window w)
     auto [ status, opt ] = fetchName(dsply, w);
     c->name = opt;
 	XGetWindowAttributes(dsply, w, &attr);
-
-	c->window = w;
-	c->ignore_unmap = 0;
-	c->hidden = 0;
-	c->was_hidden = 0;
-#ifdef SHAPE
-	c->has_been_shaped = 0;
-#endif
-	c->x = attr.x;
-	c->y = attr.y;
-	c->width = attr.width;
-	c->height = attr.height;
-	c->cmap = attr.colormap;
+    c->setWindowAttributes(attr);
 	c->size = XAllocSizeHints();
 	XGetWMNormalHints(dsply, c->window, c->size, &dummy);
 

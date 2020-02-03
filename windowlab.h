@@ -157,20 +157,22 @@ constexpr auto REMAP = 1;
 
 struct Client {
     using Ptr = std::shared_ptr<Client>;
+    Client(Window w) noexcept : window(w) { };
+    static void makeNew(Window) noexcept;
     std::optional<std::string> name;
-	XSizeHints *size;
+	XSizeHints *size = nullptr;
 	Window window, frame, trans;
 	Colormap cmap;
-	int x, y;
-	int width, height;
-	int ignore_unmap;
-	unsigned int hidden;
-	unsigned int was_hidden;
+	int x = 0, y = 0;
+	int width = 0, height = 0;
+	int ignore_unmap = 0;
+	unsigned int hidden = 0;
+	unsigned int was_hidden = 0;
 	unsigned int focus_order;
 #ifdef SHAPE
-	Bool has_been_shaped;
+	Bool has_been_shaped = 0;
 #endif
-	XftDraw *xftdraw;
+	XftDraw *xftdraw = nullptr;
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
     /** Return which button was clicked - this is a multiple of BARHEIGHT()
@@ -188,6 +190,7 @@ struct Client {
 #ifdef SHAPE
     void setShape() noexcept;
 #endif
+    void setWindowAttributes(XWindowAttributes& attr) noexcept;
 };
 
 struct Rect final {
@@ -320,10 +323,8 @@ void redraw(ClientPointer);
 void gravitate(ClientPointer, int);
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
-void draw_close_button(ClientPointer, GC *, GC *);
 
 // new.c
-void makeNewClient(Window);
 
 // manage.c
 void move(ClientPointer);
