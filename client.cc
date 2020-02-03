@@ -337,3 +337,15 @@ Client::drawCloseButton(GC* detail, GC* background) noexcept {
 	XDrawLine(dsply, frame, *detail, x + topleft_offset + 1, topleft_offset + 7, x + topleft_offset + 7, topleft_offset + 1);
 	XDrawLine(dsply, frame, *detail, x + topleft_offset + 1, topleft_offset + 8, x + topleft_offset + 8, topleft_offset + 1);
 }
+
+void
+Client::raiseWindow() noexcept {
+    // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
+    (void)XRaiseWindow(dsply, frame);
+}
+
+void 
+Client::lowerWindow() noexcept {
+    // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
+    (void)XLowerWindow(dsply, frame);
+}

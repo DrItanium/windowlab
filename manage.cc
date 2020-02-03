@@ -28,10 +28,10 @@ void raise_lower(ClientPointer c)
 {
 	if (c ) {
 		if (c == topmost_client) {
-			lower_win(c);
+            c->lowerWindow();
 			topmost_client = nullptr; // lazy but amiwm does similar
 		} else {
-			raise_win(c);
+            c->raiseWindow();
 			topmost_client = c;
 		}
 	}
@@ -182,8 +182,7 @@ void move(ClientPointer c)
 	do
 	{
 		XMaskEvent(dsply, ExposureMask|MouseMask, &ev);
-		switch (ev.type)
-		{
+		switch (ev.type) {
 			case Expose:
 				exposed_c = find_client(ev.xexpose.window, FRAME);
 				if (exposed_c ) {
@@ -207,21 +206,15 @@ void resize(ClientPointer c, int x, int y)
 {
 	XEvent ev;
 	ClientPointer exposed_c;
-	Rect recalceddims;
-	unsigned int dragging_outwards, dw, dh;
 	Window resize_win, resizebar_win;
 	XSetWindowAttributes pattr, resize_pattr, resizebar_pattr;
 
-	if (x > c->x + BORDERWIDTH(c) && x < (c->x + c->width) - BORDERWIDTH(c) && y > (c->y - BARHEIGHT()) + BORDERWIDTH(c) && y < (c->y + c->height) - BORDERWIDTH(c)) {
-		// inside the window, dragging outwards
-		dragging_outwards = 1;
-	} else {
-		// outside the window, dragging inwards
-		dragging_outwards = 0;
-	}
+    // inside the window, dragging outwards : TRUE
+    // outside the window, dragging inwards : FALSE
+    bool dragging_outwards = x > c->x + BORDERWIDTH(c) && x < (c->x + c->width) - BORDERWIDTH(c) && y > (c->y - BARHEIGHT()) + BORDERWIDTH(c) && y < (c->y + c->height) - BORDERWIDTH(c);
 
-	dw = DisplayWidth(dsply, screen);
-	dh = DisplayHeight(dsply, screen);
+	unsigned int dw = DisplayWidth(dsply, screen);
+	unsigned int dh = DisplayHeight(dsply, screen);
 
     Rect bounddims { 0, 0, dw, dh };
 
@@ -233,8 +226,7 @@ void resize(ClientPointer c, int x, int y)
 		return;
 	}
     Rect newdims { c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT() };
-
-    recalceddims = newdims;
+    Rect recalceddims(newdims);
 
 	// create and map resize window
 	resize_pattr.override_redirect = True;
@@ -260,8 +252,7 @@ void resize(ClientPointer c, int x, int y)
 	do
 	{
 		XMaskEvent(dsply, ExposureMask|MouseMask, &ev);
-		switch (ev.type)
-		{
+		switch (ev.type) {
 			case Expose:
 				if (ev.xexpose.window == resizebar_win) {
 					write_titletext(c, resizebar_win);
@@ -272,8 +263,7 @@ void resize(ClientPointer c, int x, int y)
 					}
 				}
 				break;
-			case MotionNotify:
-				{
+			case MotionNotify: {
 					unsigned int in_taskbar = 1, leftedge_changed = 0, rightedge_changed = 0, topedge_changed = 0, bottomedge_changed = 0;
 					int newwidth, newheight;
 					// warping the pointer is wrong - wait until it leaves the taskbar

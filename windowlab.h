@@ -67,13 +67,13 @@ constexpr auto SPACE = 3;
 
 // change MODIFIER to None to remove the need to hold down a modifier key
 // the Windows key should be Mod4Mask and the Alt key is Mod1Mask
-#define MODIFIER Mod1Mask
+constexpr auto MODIFIER = Mod1Mask;
 
 // keys may be used by other apps, so change them here
-#define KEY_CYCLEPREV XK_Tab
-#define KEY_CYCLENEXT XK_q
-#define KEY_FULLSCREEN XK_F11
-#define KEY_TOGGLEZ XK_F12
+constexpr auto KEY_CYCLEPREV = XK_Tab;
+constexpr auto KEY_CYCLENEXT = XK_q;
+constexpr auto KEY_FULLSCREEN = XK_F11;
+constexpr auto KEY_TOGGLEZ = XK_F12;
 // max time between clicks in double click
 constexpr auto DEF_DBLCLKTIME = 400;
 
@@ -109,10 +109,6 @@ constexpr T ABS(T x) noexcept {
 		XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); \
 		XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); \
 	}
-
-// I wanna know who the morons who prototyped these functions as implicit int are...
-#define lower_win(c) ((void) XLowerWindow(dsply, (c)->frame))
-#define raise_win(c) ((void) XRaiseWindow(dsply, (c)->frame))
 
 template<typename T>
 constexpr auto BORDERWIDTH(T) noexcept {
@@ -193,6 +189,8 @@ struct Client {
     void drawToggleDepthButton(GC* detail, GC* background) noexcept;
     void drawCloseButton(GC* detail , GC* background) noexcept;
     void drawButton(GC* detail, GC* background, unsigned int whichBox) noexcept;
+    void lowerWindow() noexcept;
+    void raiseWindow() noexcept;
 };
 
 struct Rect final {
