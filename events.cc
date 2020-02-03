@@ -25,7 +25,6 @@
 static void handle_key_press(XKeyEvent *);
 static void handle_button_press(XButtonEvent *);
 static void handle_windowbar_click(XButtonEvent *, ClientPointer );
-static void draw_button(ClientPointer , GC *, GC *, unsigned int);
 static void handle_configure_request(XConfigureRequestEvent *);
 static void handle_map_request(XMapRequestEvent *);
 static void handle_unmap_event(XUnmapEvent *);
@@ -195,7 +194,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 
 		in_box = 1;
 
-		draw_button(c, &text_gc, &depressed_gc, in_box_down);
+		c->drawButton(&text_gc, &depressed_gc, in_box_down);
 
 		do
 		{
@@ -205,15 +204,15 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 			if (ev.type == MotionNotify) {
 				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
 					in_box = 1;
-					draw_button(c, &text_gc, &depressed_gc, in_box_down);
+					c->drawButton(&text_gc, &depressed_gc, in_box_down);
 				} else {
 					in_box = 0;
-					draw_button(c, &text_gc, &active_gc, in_box_down);
+					c->drawButton(&text_gc, &active_gc, in_box_down);
 				}
 			}
 		}
 		while (ev.type != ButtonRelease);
-		draw_button(c, &text_gc, &active_gc, in_box_down);
+        c->drawButton(&text_gc, &active_gc, in_box_down);
 
 		XUngrabServer(dsply);
 		ungrab();
@@ -250,18 +249,17 @@ Client::boxClicked(int x) const noexcept {
         return (pixFromRight / (BARHEIGHT() - DEF_BORDERWIDTH));
     }
 }
-
-static void draw_button(ClientPointer c, GC *detail_gc, GC *background_gc, unsigned int which_box)
-{
+void
+Client::drawButton(GC *detail_gc, GC *background_gc, unsigned int which_box) noexcept {
 	switch (which_box) {
 		case 0:
-			draw_close_button(c, detail_gc, background_gc);
+            drawCloseButton(detail_gc, background_gc);
 			break;
 		case 1:
-            c->drawToggleDepthButton(detail_gc, background_gc);
+            drawToggleDepthButton(detail_gc, background_gc);
 			break;
 		case 2:
-            c->drawHideButton(detail_gc, background_gc);
+            drawHideButton(detail_gc, background_gc);
 			break;
 	}
 }

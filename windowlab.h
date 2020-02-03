@@ -189,8 +189,10 @@ struct Client {
      * from the right hand side; We only care about 0, 1 and 2. 
      */
     unsigned int boxClicked(int x) const noexcept;
-    void drawHideButton(GC *, GC *) noexcept;
-    void drawToggleDepthButton(GC *, GC *) noexcept;
+    void drawHideButton(GC* detail, GC* background) noexcept;
+    void drawToggleDepthButton(GC* detail, GC* background) noexcept;
+    void drawCloseButton(GC* detail , GC* background) noexcept;
+    void drawButton(GC* detail, GC* background, unsigned int whichBox) noexcept;
 };
 
 struct Rect final {
