@@ -182,11 +182,11 @@ void redraw(ClientPointer c)
         drawString(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(c->name));
 	}
 	if (c == focused_client) {
-		draw_hide_button(c, &text_gc, &active_gc);
+        c->drawHideButton(&text_gc, &active_gc);
 		draw_toggledepth_button(c, &text_gc, &active_gc);
 		draw_close_button(c, &text_gc, &active_gc);
 	} else {
-		draw_hide_button(c, &text_gc, &inactive_gc);
+        c->drawHideButton(&text_gc, &inactive_gc);
 		draw_toggledepth_button(c, &text_gc, &inactive_gc);
 		draw_close_button(c, &text_gc, &inactive_gc);
 	}
@@ -295,21 +295,20 @@ ClientPointer get_prev_focused(void)
 	}
 	return prev_focused;
 }
-
-void draw_hide_button(ClientPointer c, GC *detail_gc, GC *background_gc)
-{
-	int x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
+void
+Client::drawHideButton(GC* detail, GC* background) noexcept {
+	int x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(dsply, c->frame, *background_gc, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dsply, frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 6, topleft_offset + 4, x + topleft_offset + 8, topleft_offset + 4);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 6, topleft_offset + 6, x + topleft_offset + 7, topleft_offset + 7);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 4, topleft_offset + 6, x + topleft_offset + 4, topleft_offset + 8);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 2, topleft_offset + 6, x + topleft_offset + 1, topleft_offset + 7);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 2, topleft_offset + 4, x + topleft_offset + 0, topleft_offset + 4);
-	XDrawLine(dsply, c->frame, *detail_gc, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 6, topleft_offset + 4, x + topleft_offset + 8, topleft_offset + 4);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 6, topleft_offset + 6, x + topleft_offset + 7, topleft_offset + 7);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 4, topleft_offset + 6, x + topleft_offset + 4, topleft_offset + 8);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 6, x + topleft_offset + 1, topleft_offset + 7);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 4, x + topleft_offset + 0, topleft_offset + 4);
+	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
 }
 
 void draw_toggledepth_button(ClientPointer c, GC *detail_gc, GC *background_gc)
