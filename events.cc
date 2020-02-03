@@ -94,8 +94,7 @@ void doEventLoop()
 				break;
 #ifdef SHAPE
 			default:
-				if (shape && ev.type == shape_event)
-				{
+				if (shape && ev.type == shape_event) {
 					handle_shape_change((XShapeEvent *)&ev);
 				}
 #endif
@@ -244,13 +243,19 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 	}
 }
 
+unsigned int
+Client::boxClicked(int x) noexcept {
+    if (int pixFromRight = width - x; pixFromRight < 0) {
+        return std::numeric_limits<unsigned int>::max();
+    } else {
+        return (pixFromRight / (BARHEIGHT() - DEF_BORDERWIDTH));
+    }
+}
 /* Return which button was clicked - this is a multiple of BARHEIGHT()
  * from the right hand side. We only care about 0, 1 and 2. */
 
-static unsigned int box_clicked(ClientPointer c, int x)
-{
-	int pix_from_right = c->width - x;
-	if (pix_from_right < 0) {
+static unsigned int box_clicked(ClientPointer c, int x) {
+	if (int pix_from_right = c->width - x; pix_from_right < 0) {
 		return UINT_MAX; // outside window
 	} else {
 		return (pix_from_right / (BARHEIGHT() - DEF_BORDERWIDTH));

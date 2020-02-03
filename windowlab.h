@@ -167,8 +167,7 @@ constexpr auto REMAP = 1;
  * ignore_unmap. This way our unmap event handler can tell when it
  * isn't supposed to do anything. */
 
-struct Client
-{
+struct Client {
     using Ptr = std::shared_ptr<Client>;
     std::optional<std::string> name;
 	XSizeHints *size;
@@ -186,6 +185,10 @@ struct Client
 	XftDraw *xftdraw;
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
+    /** Return which button was clicked - this is a multiple of BARHEIGHT()
+     * from the right hand side; We only care about 0, 1 and 2. 
+     */
+    unsigned int boxClicked(int x) noexcept;
 };
 
 struct Rect final {
@@ -249,8 +252,7 @@ struct Rect final {
         int _height = 0;
 };
 
-struct MenuItem final
-{
+struct MenuItem final {
     public:
         MenuItem() = default;
         MenuItem(const std::string& lbl, const std::string& cmd, int __x = 0, int w = 0) noexcept : _command(cmd), _label(lbl), _x(__x), _width(w) { }
