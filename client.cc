@@ -183,11 +183,11 @@ void redraw(ClientPointer c)
 	}
 	if (c == focused_client) {
         c->drawHideButton(&text_gc, &active_gc);
-		draw_toggledepth_button(c, &text_gc, &active_gc);
+        c->drawToggleDepthButton(&text_gc, &active_gc);
 		draw_close_button(c, &text_gc, &active_gc);
 	} else {
         c->drawHideButton(&text_gc, &inactive_gc);
-		draw_toggledepth_button(c, &text_gc, &inactive_gc);
+        c->drawToggleDepthButton(&text_gc, &inactive_gc);
 		draw_close_button(c, &text_gc, &inactive_gc);
 	}
 }
@@ -311,16 +311,18 @@ Client::drawHideButton(GC* detail, GC* background) noexcept {
 	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
 }
 
-void draw_toggledepth_button(ClientPointer c, GC *detail_gc, GC *background_gc)
-{
-	int x, topleft_offset;
-	x = c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
-	topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-	XFillRectangle(dsply, c->frame, *background_gc, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawRectangle(dsply, c->frame, *detail_gc, x + topleft_offset, topleft_offset, 7, 7);
-	XDrawRectangle(dsply, c->frame, *detail_gc, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
+void
+Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
+	int x, topleft_offset;
+	x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
+	topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
+	XFillRectangle(dsply, frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+
+	XDrawRectangle(dsply, frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
+	XDrawRectangle(dsply, frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
 }
+
 
 void draw_close_button(ClientPointer c, GC *detail_gc, GC *background_gc)
 {

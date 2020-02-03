@@ -190,6 +190,7 @@ struct Client {
      */
     unsigned int boxClicked(int x) const noexcept;
     void drawHideButton(GC *, GC *) noexcept;
+    void drawToggleDepthButton(GC *, GC *) noexcept;
 };
 
 struct Rect final {
@@ -326,7 +327,6 @@ void set_shape(ClientPointer);
 #endif
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
-void draw_toggledepth_button(ClientPointer, GC *, GC *);
 void draw_close_button(ClientPointer, GC *, GC *);
 
 // new.c

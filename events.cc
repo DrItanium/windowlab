@@ -258,7 +258,7 @@ static void draw_button(ClientPointer c, GC *detail_gc, GC *background_gc, unsig
 			draw_close_button(c, detail_gc, background_gc);
 			break;
 		case 1:
-			draw_toggledepth_button(c, detail_gc, background_gc);
+            c->drawToggleDepthButton(detail_gc, background_gc);
 			break;
 		case 2:
             c->drawHideButton(detail_gc, background_gc);
