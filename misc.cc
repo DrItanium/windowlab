@@ -318,16 +318,13 @@ static std::string show_grav(ClientPointer c)
 
 void dump(ClientPointer c) {
 	if (c ) {
-        err(c->name, "\n\t", show_state(c), ",", show_grav(c), ", ignore ", c->ignore_unmap, ", was_hidden ", c->was_hidden, "\n\tframe ", c->frame, ", win ", c->window, ", geom ", c->width, "x", c->height, "+", c->x, "+", c->y);
+        err((c->name ? *c->name : ""), "\n\t", show_state(c), ",", show_grav(c), ", ignore ", c->ignore_unmap, ", was_hidden ", c->was_hidden, "\n\tframe ", c->frame, ", win ", c->window, ", geom ", c->width, "x", c->height, "+", c->x, "+", c->y);
 	}
 }
 
-void dump_clients(void)
-{
-	ClientPointer c = head_client;
-	while (c) {
+void dump_clients(void) {
+    for (auto& c : clients) {
 		dump(c);
-		c = c->next;
 	}
 }
 #endif

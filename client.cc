@@ -123,7 +123,7 @@ void remove_client(ClientPointer c, int mode)
 	XSetErrorHandler(ignore_xerror);
 
 #ifdef DEBUG
-	err("removing %s, %d: %d left", c->name, mode, XPending(dsply));
+    err("removing ", (c->name ? *c->name : ""), ", ", mode, ": ", XPending(dsply), " left");
 #endif
 
 	if (mode == WITHDRAW)
@@ -232,11 +232,12 @@ Client::setShape() noexcept {
 		temp.width = width + (2 * BORDERWIDTH(this));
 		temp.height = BARHEIGHT() + BORDERWIDTH(this);
 		XShapeCombineRectangles(dsply, frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
-		temp.x = 0;
-		temp.y = 0;
-		temp.width = width;
-		temp.height = BARHEIGHT() - BORDERWIDTH(this);
-		XShapeCombineRectangles(dsply, frame, ShapeClip, 0, BARHEIGHT(), &temp, 1, ShapeUnion, YXBanded);
+        XRectangle temp2;
+		temp2.x = 0;
+		temp2.y = 0;
+		temp2.width = width;
+		temp2.height = BARHEIGHT() - BORDERWIDTH(this);
+		XShapeCombineRectangles(dsply, frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
 		has_been_shaped = 1;
 	} else {
 		if (has_been_shaped) {
@@ -273,8 +274,7 @@ void check_focus(ClientPointer c)
 	}
 }
 
-ClientPointer get_prev_focused(void)
-{
+ClientPointer get_prev_focused(void) {
 	ClientPointer prev_focused;
 	unsigned int highest = 0;
 
