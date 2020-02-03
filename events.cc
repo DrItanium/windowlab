@@ -180,22 +180,20 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 {
 	static ClientPointer  first_click_c;
 	static Time first_click_time;
-	unsigned int in_box, in_box_down, in_box_up;
 	int win_ypos;
 	XEvent ev;
 
-    in_box_down = c->boxClicked(e->x);
-	if (in_box_down <= 2) {
+    if (unsigned int in_box_down = c->boxClicked(e->x); in_box_down <= 2) {
 		if (!grab(root, MouseMask, None)) {
 			return;
 		}
 
 		XGrabServer(dsply);
 
-		in_box = 1;
+		unsigned int in_box = 1;
+        unsigned int in_box_up = 0;
 
 		c->drawButton(&text_gc, &depressed_gc, in_box_down);
-
 		do
 		{
 			XMaskEvent(dsply, MouseMask, &ev);
@@ -210,8 +208,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 					c->drawButton(&text_gc, &active_gc, in_box_down);
 				}
 			}
-		}
-		while (ev.type != ButtonRelease);
+		} while (ev.type != ButtonRelease);
         c->drawButton(&text_gc, &active_gc, in_box_down);
 
 		XUngrabServer(dsply);
@@ -283,8 +280,7 @@ Client::drawButton(GC *detail_gc, GC *background_gc, unsigned int which_box) noe
  * are supposed to have been written so that they are aware that their
  * requirements may not be met by the window manager. */
 
-static void handle_configure_request(XConfigureRequestEvent *e)
-{
+static void handle_configure_request(XConfigureRequestEvent *e) {
 	ClientPointer c = find_client(e->window, WINDOW);
 	XWindowChanges wc;
 
@@ -370,11 +366,8 @@ static void handle_map_request(XMapRequestEvent *e) {
  * events should be intercepted too. No use arguing with a standard
  * that's almost as old as I am though. :-( */
 
-static void handle_unmap_event(XUnmapEvent *e)
-{
-	ClientPointer c = find_client(e->window, WINDOW);
-
-	if (c) {
+static void handle_unmap_event(XUnmapEvent *e) {
+	if (ClientPointer c = find_client(e->window, WINDOW); c) {
 		if (c->ignore_unmap) {
 			c->ignore_unmap--;
 		} else {

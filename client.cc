@@ -170,22 +170,17 @@ void redraw(ClientPointer c)
 	XDrawLine(dsply, c->frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, c->width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (c == focused_client) {
-		XFillRectangle(dsply, c->frame, active_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, c->frame,   active_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
 		XFillRectangle(dsply, c->frame, inactive_gc, 0, 0, c->width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	if (!c->trans && c->name) {
         drawString(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(c->name));
 	}
-	if (c == focused_client) {
-        c->drawHideButton(&text_gc, &active_gc);
-        c->drawToggleDepthButton(&text_gc, &active_gc);
-        c->drawCloseButton(&text_gc, &active_gc);
-	} else {
-        c->drawHideButton(&text_gc, &inactive_gc);
-        c->drawToggleDepthButton(&text_gc, &inactive_gc);
-        c->drawCloseButton(&text_gc, &inactive_gc);
-	}
+    auto background_gc = c == focused_client ? &active_gc : &inactive_gc;
+    c->drawHideButton(&text_gc, background_gc);
+    c->drawToggleDepthButton(&text_gc, background_gc);
+    c->drawCloseButton(&text_gc, background_gc);
 }
 
 /* Window gravity is a mess to explain, but we don't need to do much
@@ -227,9 +222,9 @@ void gravitate(ClientPointer c, int multiplier)
 void
 Client::setShape() noexcept {
 	int n, order;
-	XRectangle temp, *dummy;
+	XRectangle temp;
 
-	dummy = XShapeGetRectangles(dsply, window, ShapeBounding, &n, &order);
+	auto dummy = XShapeGetRectangles(dsply, window, ShapeBounding, &n, &order);
 	if (n > 1) {
 		XShapeCombineShape(dsply, frame, ShapeBounding, 0, BARHEIGHT(), window, ShapeBounding, ShapeSet);
 		temp.x = -BORDERWIDTH(this);
