@@ -198,6 +198,7 @@ struct Client {
     void raiseLower() noexcept;
     void hide() noexcept;
     void unhide() noexcept;
+    void gravitate(int multiplier) noexcept;
     private:
         Client(Window w) noexcept : window(w) { };
     private:
@@ -330,7 +331,6 @@ void doEventLoop();
 // client.c
 ClientPointer find_client(Window, int);
 void remove_client(ClientPointer, int);
-void gravitate(ClientPointer, int);
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
 

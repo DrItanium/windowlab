@@ -119,7 +119,7 @@ void remove_client(ClientPointer c, int mode)
 	} else { //REMAP
 		XMapWindow(dsply, c->window);
 	}
-	gravitate(c, REMOVE_GRAVITY);
+    c->gravitate(REMOVE_GRAVITY);
 	XReparentWindow(dsply, c->window, root, c->x, c->y);
 	XSetWindowBorderWidth(dsply, c->window, 1);
 	XftDrawDestroy(c->xftdraw);
@@ -170,6 +170,8 @@ Client::redraw() noexcept {
 
 }
 
+void 
+Client::gravitate(int multiplier) noexcept {
 /* Window gravity is a mess to explain, but we don't need to do much
  * about it since we're using X borders. For NorthWest et al, the top
  * left corner of the window when there is no WM needs to match up
@@ -177,11 +179,8 @@ Client::redraw() noexcept {
  * SouthWest and the bottom right (these are the only values I ever
  * use, but the others should be obvious). Our titlebar is on the top
  * so we only have to adjust in the first case. */
-
-void gravitate(ClientPointer c, int multiplier)
-{
 	int dy = 0;
-	int gravity = (c->size->flags & PWinGravity) ? c->size->win_gravity : NorthWestGravity;
+	int gravity = (size->flags & PWinGravity) ? size->win_gravity : NorthWestGravity;
 
 	switch (gravity) {
 		case NorthWestGravity:
@@ -194,8 +193,10 @@ void gravitate(ClientPointer c, int multiplier)
 			break;
 	}
 
-	c->y += multiplier * dy;
+	y += multiplier * dy;
 }
+
+
 
 /* Well, the man pages for the shape extension say nothing, but I was
  * able to find a shape.PS.Z on the x.org FTP site. What we want to do

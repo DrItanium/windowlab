@@ -293,7 +293,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 	}
 
 	if (c) {
-		gravitate(c, REMOVE_GRAVITY);
+        c->gravitate(REMOVE_GRAVITY);
 		if (e->value_mask & CWX) {
 			c->x = e->x;
 		}
@@ -307,7 +307,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 			c->height = e->height;
 		}
 		refix_position(c, e);
-		gravitate(c, APPLY_GRAVITY);
+        c->gravitate(APPLY_GRAVITY);
 		// configure the frame
 		wc.x = c->x;
 		wc.y = c->y - BARHEIGHT();

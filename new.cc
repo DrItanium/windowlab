@@ -71,7 +71,7 @@ Client::makeNew(Window w) noexcept {
 	}
 
 	fix_position(c);
-	gravitate(c, APPLY_GRAVITY);
+    c->gravitate(APPLY_GRAVITY);
     c->reparent();
 
 	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
@@ -133,7 +133,7 @@ static void init_position(ClientPointer c) {
         auto [mousex, mousey] = getMousePosition();
 		c->x = mousex;
 		c->y = mousey + BARHEIGHT();
-		gravitate(c, REMOVE_GRAVITY);
+        c->gravitate(REMOVE_GRAVITY);
 	}
 }
 
