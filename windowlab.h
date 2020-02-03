@@ -191,6 +191,7 @@ struct Client {
     void setShape() noexcept;
 #endif
     void setWindowAttributes(XWindowAttributes& attr) noexcept;
+    void redraw() noexcept;
 };
 
 struct Rect final {
@@ -319,7 +320,6 @@ void doEventLoop();
 // client.c
 ClientPointer find_client(Window, int);
 void remove_client(ClientPointer, int);
-void redraw(ClientPointer);
 void gravitate(ClientPointer, int);
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();

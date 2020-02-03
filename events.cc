@@ -410,7 +410,7 @@ static void handle_property_change(XPropertyEvent *e) {
                                  auto [ status, opt ] = fetchName(dsply, c->window);
                                  (void)status; // status isn't actually used but is returned in the tuple
                                  c->name = opt;
-                                 redraw(c);
+                                 c->redraw();
                                  Taskbar::instance().redraw();
                                  break;
                              }
@@ -487,7 +487,7 @@ static void handle_expose_event(XExposeEvent *e) {
 		}
 	} else {
 		if (ClientPointer c = find_client(e->window, FRAME); c  && e->count == 0) {
-			redraw(c);
+            c->redraw();
 		}
 	}
 }

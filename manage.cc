@@ -186,7 +186,7 @@ void move(ClientPointer c)
 			case Expose:
 				exposed_c = find_client(ev.xexpose.window, FRAME);
 				if (exposed_c ) {
-					redraw(exposed_c);
+                    exposed_c->redraw();
 				}
 				break;
 			case MotionNotify:
@@ -259,7 +259,7 @@ void resize(ClientPointer c, int x, int y)
 				} else {
 					exposed_c = find_client(ev.xexpose.window, FRAME);
 					if (exposed_c) {
-						redraw(exposed_c);
+                        exposed_c->redraw();
 					}
 				}
 				break;

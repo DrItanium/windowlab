@@ -128,7 +128,7 @@ Taskbar::leftClick(int x)
 				case Expose:
 					exposed_c = find_client(ev.xexpose.window, FRAME);
 					if (exposed_c) {
-						::redraw(exposed_c);
+                        exposed_c->redraw();
 					}
 					break;
 				case MotionNotify:
