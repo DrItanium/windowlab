@@ -349,3 +349,17 @@ Client::lowerWindow() noexcept {
     // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
     (void)XLowerWindow(dsply, frame);
 }
+
+void
+ungrab() noexcept {
+    XUngrabPointer(dsply, CurrentTime);
+}
+void
+setmouse(Window w, int x, int y) noexcept {
+    XWarpPointer(dsply, None, w, 0, 0, 0, 0, x, y);
+}
+
+bool
+grab(Window w, unsigned int mask, Cursor curs) noexcept {
+    return XGrabPointer(dsply, w, False, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
+}

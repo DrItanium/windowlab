@@ -97,10 +97,9 @@ constexpr T ABS(T x) noexcept {
 }
 
 // shorthand for wordy function calls
-#define setmouse(w, x, y) XWarpPointer(dsply, None, w, 0, 0, 0, 0, x, y)
-#define ungrab() XUngrabPointer(dsply, CurrentTime)
-#define grab(w, mask, curs) \
-	(XGrabPointer(dsply, w, False, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess)
+void setmouse(Window w, int x, int y) noexcept;
+void ungrab() noexcept;
+bool grab(Window w, unsigned int mask, Cursor curs) noexcept;
 #define grab_keysym(w, mask, keysym) \
 	XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), mask, w, True, GrabModeAsync, GrabModeAsync); \
 	XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); \
