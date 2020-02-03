@@ -166,8 +166,8 @@ struct Client {
 	int x = 0, y = 0;
 	int width = 0, height = 0;
 	int ignore_unmap = 0;
-	unsigned int hidden = 0;
-	unsigned int was_hidden = 0;
+	bool hidden = 0;
+	bool was_hidden = 0;
 	unsigned int focus_order;
 #ifdef SHAPE
 	Bool has_been_shaped = 0;
