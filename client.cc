@@ -350,26 +350,3 @@ Client::lowerWindow() noexcept {
     (void)XLowerWindow(dsply, frame);
 }
 
-void
-ungrab() noexcept {
-    XUngrabPointer(dsply, CurrentTime);
-}
-void
-setmouse(Window w, int x, int y) noexcept {
-    XWarpPointer(dsply, None, w, 0, 0, 0, 0, x, y);
-}
-
-bool
-grab(Window w, unsigned int mask, Cursor curs) noexcept {
-    return XGrabPointer(dsply, w, False, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
-}
-
-void
-grab_keysym(Window w, unsigned int mask, KeySym keysym) noexcept {
-	XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
-	XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-	if (numlockmask) { 
-		XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-		XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-	}
-}
