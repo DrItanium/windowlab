@@ -200,6 +200,7 @@ struct Client {
     void unhide() noexcept;
     void gravitate(int multiplier) noexcept;
     void move() noexcept;
+    void writeTitleText(Window) noexcept;
     private:
         Client(Window w) noexcept : window(w) { };
         void initPosition() noexcept;
@@ -345,7 +346,6 @@ void hide(ClientPointer);
 void unhide(ClientPointer);
 void toggle_fullscreen(ClientPointer);
 void send_wm_delete(ClientPointer);
-void write_titletext(ClientPointer, Window);
 
 // misc.c
 template<typename ... Args>

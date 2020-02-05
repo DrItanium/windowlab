@@ -257,13 +257,12 @@ void resize(ClientPointer c, int x, int y)
 	// hide real window's frame
 	XUnmapWindow(dsply, c->frame);
 
-	do
-	{
+	do {
 		XMaskEvent(dsply, ExposureMask|MouseMask, &ev);
 		switch (ev.type) {
 			case Expose:
 				if (ev.xexpose.window == resizebar_win) {
-					write_titletext(c, resizebar_win);
+                    c->writeTitleText(resizebar_win);
 				} else {
 					exposed_c = find_client(ev.xexpose.window, FRAME);
 					if (exposed_c) {
@@ -442,9 +441,9 @@ static bool get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_re
 	return false;
 }
 
-void write_titletext(ClientPointer c, Window /* bar_win */)
-{
-	if (!c->trans && c->name ) {
-		drawString(c->xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(c->name));
-	}
+void 
+Client::writeTitleText(Window /* barWin */) noexcept {
+   if (!trans && name) {
+       drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *name);
+   }
 }

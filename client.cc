@@ -262,7 +262,7 @@ void check_focus(ClientPointer c)
 	}
 }
 
-ClientPointer get_prev_focused(void) {
+ClientPointer get_prev_focused() {
 	ClientPointer prev_focused;
 	unsigned int highest = 0;
 
