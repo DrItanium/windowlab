@@ -337,10 +337,7 @@ void remove_client(ClientPointer, int);
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
 
-// new.c
-
 // manage.c
-void raise_lower(ClientPointer);
 void resize(ClientPointer, int, int);
 void hide(ClientPointer);
 void unhide(ClientPointer);

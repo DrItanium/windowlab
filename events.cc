@@ -115,7 +115,7 @@ static void handle_key_press(XKeyEvent *e)
 			toggle_fullscreen(focused_client);
 			break;
 		case KEY_TOGGLEZ:
-			raise_lower(focused_client);
+            focused_client->raiseLower();
 			break;
 	}
 }
@@ -219,7 +219,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 					send_wm_delete(c);
 					break;
 				case 1:
-					raise_lower(c);
+                    c->raiseLower();
 					break;
 				case 2:
 					hide(c);
@@ -228,13 +228,15 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		}
 	} else if (in_box_down != UINT_MAX) {
 		if (first_click_c == c && (e->time - first_click_time) < DEF_DBLCLKTIME) {
-			raise_lower(c);
+            if (c) {
+                c->raiseLower();
+            }
 			first_click_c = nullptr; // prevent 3rd clicks counting as double clicks
 		} else {
 			first_click_c = c;
 		}
 		first_click_time = e->time;
-		move(c);
+        c->move();
 	}
 }
 

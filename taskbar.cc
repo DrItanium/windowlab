@@ -95,7 +95,7 @@ lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
         if (c->was_hidden) {
 			hide(c);
 		} else {
-			raise_lower(c);
+            c->raiseLower();
 		}
 	}
 	check_focus(c);
