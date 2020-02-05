@@ -201,6 +201,7 @@ struct Client {
     void gravitate(int multiplier) noexcept;
     private:
         Client(Window w) noexcept : window(w) { };
+        void initPosition() noexcept;
     private:
         WeakPtr _selfReference;
 };

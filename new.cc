@@ -21,7 +21,6 @@
 
 #include "windowlab.h"
 
-static void init_position(ClientPointer );
 
 void
 Client::setWindowAttributes(XWindowAttributes& attr) noexcept {
@@ -60,7 +59,7 @@ Client::makeNew(Window w) noexcept {
 	c->ignore_unmap++;
 	
 	if (attr.map_state != IsViewable) {
-		init_position(c);
+        c->initPosition();
         c->setWMState(NormalState);
 		if (XWMHints* hints = XGetWMHints(dsply, w); hints) {
 			if (hints->flags & StateHint) {
@@ -120,20 +119,21 @@ Client::makeNew(Window w) noexcept {
  * calculation and then degravitate. Don't think about it too hard, or
  * your head will explode. */
 
-static void init_position(ClientPointer c) {
+void
+Client::initPosition() noexcept {
 	// make sure it's big enough for the 3 buttons and a bit of bar
-	if (c->width < 4 * BARHEIGHT()) {
-		c->width = 4 * BARHEIGHT();
+	if (width < 4 * BARHEIGHT()) {
+		width = 4 * BARHEIGHT();
 	}
-	if (c->height < BARHEIGHT()) {
-		c->height = BARHEIGHT();
+	if (height < BARHEIGHT()) {
+		height = BARHEIGHT();
 	}
 
-	if (c->x == 0 && c->y == 0) {
+	if (x == 0 && y == 0) {
         auto [mousex, mousey] = getMousePosition();
-		c->x = mousex;
-		c->y = mousey + BARHEIGHT();
-        c->gravitate(REMOVE_GRAVITY);
+		x = mousex;
+		y = mousey + BARHEIGHT();
+        gravitate(REMOVE_GRAVITY);
 	}
 }
 
