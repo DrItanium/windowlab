@@ -159,29 +159,27 @@ void send_wm_delete(ClientPointer c)
 		XKillClient(dsply, c->window);
 	}
 }
-
-void move(ClientPointer c)
-{
+void
+Client::move() noexcept {
 	XEvent ev;
-	int old_cx = c->x;
-	int old_cy = c->y;
-	ClientPointer exposed_c;
+	int old_cx = x;
+	int old_cy = y;
 	Rect bounddims;
 	XSetWindowAttributes pattr;
 
 	int dw = DisplayWidth(dsply, screen);
 	int dh = DisplayHeight(dsply, screen);
     auto [mousex, mousey] = getMousePosition();
-	bounddims.setX((mousex - c->x) - BORDERWIDTH(c));
-	bounddims.setWidth((dw - bounddims.getX() - (c->width - bounddims.getX())) + 1);
-	bounddims.setY(mousey - c->y);
-	bounddims.setHeight((dh - bounddims.getY() - (c->height - bounddims.getY())) + 1);
-	bounddims.addToY((BARHEIGHT() * 2) - BORDERWIDTH(c));
-	bounddims.addToHeight(c->height - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
+	bounddims.setX((mousex - x) - BORDERWIDTH(this));
+	bounddims.setWidth((dw - bounddims.getX() - (width - bounddims.getX())) + 1);
+	bounddims.setY(mousey - y);
+	bounddims.setHeight((dh - bounddims.getY() - (height - bounddims.getY())) + 1);
+	bounddims.addToY((BARHEIGHT() * 2) - BORDERWIDTH(this));
+	bounddims.addToHeight(height - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
 
     auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 #ifdef DEBUG
-    std::cerr << "move() : constraint_win is (" << bounddims.getX() << ", " << bounddims.getY() << ")-(" << (bounddims.getX() + bounddims.getWidth()) << ", " << (bounddims.getY() + bounddims.getHeight()) << ")" << std::endl;
+    std::cerr << "Client::move() : constraint_win is (" << bounddims.getX() << ", " << bounddims.getY() << ")-(" << (bounddims.getX() + bounddims.getWidth()) << ", " << (bounddims.getY() + bounddims.getHeight()) << ")" << std::endl;
 #endif
 	XMapWindow(dsply, constraint_win);
 
@@ -195,16 +193,15 @@ void move(ClientPointer c)
 		XMaskEvent(dsply, ExposureMask|MouseMask, &ev);
 		switch (ev.type) {
 			case Expose:
-				exposed_c = find_client(ev.xexpose.window, FRAME);
-				if (exposed_c ) {
+				if (ClientPointer exposed_c = find_client(ev.xexpose.window, FRAME); exposed_c) {
                     exposed_c->redraw();
 				}
 				break;
 			case MotionNotify:
-				c->x = old_cx + (ev.xmotion.x - mousex);
-				c->y = old_cy + (ev.xmotion.y - mousey);
-				XMoveWindow(dsply, c->frame, c->x, c->y - BARHEIGHT());
-                c->sendConfig();
+				x = old_cx + (ev.xmotion.x - mousex);
+				y = old_cy + (ev.xmotion.y - mousey);
+				XMoveWindow(dsply, frame, x, y - BARHEIGHT());
+                sendConfig();
 				break;
 		}
 	} while (ev.type != ButtonRelease);

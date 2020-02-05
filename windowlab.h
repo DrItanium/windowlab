@@ -199,6 +199,7 @@ struct Client {
     void hide() noexcept;
     void unhide() noexcept;
     void gravitate(int multiplier) noexcept;
+    void move() noexcept;
     private:
         Client(Window w) noexcept : window(w) { };
         void initPosition() noexcept;
@@ -338,7 +339,6 @@ ClientPointer get_prev_focused();
 // new.c
 
 // manage.c
-void move(ClientPointer);
 void raise_lower(ClientPointer);
 void resize(ClientPointer, int, int);
 void hide(ClientPointer);

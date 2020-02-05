@@ -74,14 +74,15 @@ Client::forgetHidden() noexcept {
 }
 
 
-void forget_hidden(void) {
+void 
+forget_hidden() {
     for (auto& c : clients) {
         c->forgetHidden();
 	}
 }
 
-void lclick_taskbutton(ClientPointer old_c, ClientPointer c)
-{
+void 
+lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
 	if (old_c) {
 		if (old_c->was_hidden) {
 			hide(old_c);
