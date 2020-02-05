@@ -35,13 +35,13 @@ DEFINES += -DDEF_MENURC="\"$(MENURC)\""
 
 # --------------------------------------------------------------------
 
-CC = gcc
-CXX = g++
+CC = clang
+CXX = clang++
 ifndef CFLAGS
-CFLAGS = -g -Os -Wall -W
+CFLAGS = -g -O0
 endif
 ifndef CXXFLAGS
-CXXFLAGS = -g -Os -Wall -W -std=c++17
+CXXFLAGS = -g -O0 -std=c++17
 endif
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)$(MANBASE)/man1

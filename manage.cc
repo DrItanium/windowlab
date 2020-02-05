@@ -224,7 +224,7 @@ void resize(ClientPointer c, int x, int y)
 	unsigned int dw = DisplayWidth(dsply, screen);
 	unsigned int dh = DisplayHeight(dsply, screen);
 
-    Rect bounddims { 0, 0, dw, dh };
+    Rect bounddims { 0, 0, static_cast<int>(dw), static_cast<int>(dh) };
 
 	auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
 	XMapWindow(dsply, constraint_win);
@@ -279,7 +279,7 @@ void resize(ClientPointer c, int x, int y)
 					} else {
 						if (in_taskbar == 1) { // first time outside taskbar
 							in_taskbar = 0;
-                            bounddims = { 0, BARHEIGHT(), dw, dh - BARHEIGHT()};
+                            bounddims = { 0, BARHEIGHT(), static_cast<int>(dw), static_cast<int>(dh - BARHEIGHT()) };
 							XMoveResizeWindow(dsply, constraint_win, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight());
 							in_taskbar = 0;
 						}
