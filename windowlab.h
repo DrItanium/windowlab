@@ -186,7 +186,6 @@ struct Client {
 #ifdef SHAPE
         void setShape() noexcept;
 #endif
-        void setWindowAttributes(XWindowAttributes& attr) noexcept;
         void redraw() noexcept;
         void rememberHidden() noexcept;
         void forgetHidden() noexcept;
@@ -213,6 +212,7 @@ struct Client {
         auto getColormap() const noexcept { return _cmap; }
         void setColormap(Colormap value) noexcept { _cmap = value; } 
     private:
+        void setWindowAttributes(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
     private:
