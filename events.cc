@@ -130,7 +130,7 @@ static void handle_button_press(XButtonEvent *e)
     auto& taskbar = Taskbar::instance();
 	if (e->state & MODIFIER) {
 		if (focused_client  && focused_client != fullscreen_client) {
-			resize(focused_client, e->x_root, e->y_root);
+            focused_client->resize(e->x_root, e->y_root);
 		} else {
 			// pass event on
 			XAllowEvents(dsply, ReplayPointer, CurrentTime);

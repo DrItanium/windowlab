@@ -201,7 +201,8 @@ Client::move() noexcept {
 	XDestroyWindow(dsply, constraint_win);
 }
 
-void resize(ClientPointer c, int x, int y)
+void 
+Client::resize(int x, int y)
 {
 	XEvent ev;
 	ClientPointer exposed_c;
@@ -210,7 +211,7 @@ void resize(ClientPointer c, int x, int y)
 
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
-    bool dragging_outwards = x > c->getX() + BORDERWIDTH(c) && x < (c->getY() + c->getWidth()) - BORDERWIDTH(c) && y > (c->getY() - BARHEIGHT()) + BORDERWIDTH(c) && y < (c->getY() + c->getHeight()) - BORDERWIDTH(c);
+    bool dragging_outwards = x > _x + BORDERWIDTH(this) && x < (_y + _width) - BORDERWIDTH(this) && y > (_y - BARHEIGHT()) + BORDERWIDTH(this) && y < (_y + _height) - BORDERWIDTH(this);
 
 	unsigned int dw = DisplayWidth(dsply, screen);
 	unsigned int dh = DisplayHeight(dsply, screen);
@@ -224,7 +225,7 @@ void resize(ClientPointer c, int x, int y)
 		XDestroyWindow(dsply, constraint_win);
 		return;
 	}
-    Rect newdims { c->getX(), c->getY() - BARHEIGHT(), c->getWidth(), c->getHeight() + BARHEIGHT() };
+    Rect newdims { _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT() };
     Rect recalceddims(newdims);
 
 	// create and map resize window
@@ -243,17 +244,17 @@ void resize(ClientPointer c, int x, int y)
 	XMapRaised(dsply, resizebar_win);
 
 	// temporarily swap drawables in order to draw on the resize window's XFT context
-	XftDrawChange(c->getXftDraw(), (Drawable) resizebar_win);
+	XftDrawChange(_xftdraw, (Drawable) resizebar_win);
 
 	// hide real window's frame
-	XUnmapWindow(dsply, c->getFrame());
+	XUnmapWindow(dsply, _frame);
 
 	do {
 		XMaskEvent(dsply, ExposureMask|MouseMask, &ev);
 		switch (ev.type) {
 			case Expose:
 				if (ev.xexpose.window == resizebar_win) {
-                    c->writeTitleText(resizebar_win);
+                    writeTitleText(resizebar_win);
 				} else {
 					exposed_c = find_client(ev.xexpose.window, FRAME);
 					if (exposed_c) {
@@ -276,49 +277,49 @@ void resize(ClientPointer c, int x, int y)
 						}
 						// inside the window, dragging outwards
 						if (dragging_outwards) {
-							if (ev.xmotion.x < newdims.getX() + BORDERWIDTH(c)) {
-								newdims.addToWidth(newdims.getX() + BORDERWIDTH(c) - ev.xmotion.x);
-								newdims.setX(ev.xmotion.x - BORDERWIDTH(c));
+							if (ev.xmotion.x < newdims.getX() + BORDERWIDTH(this)) {
+								newdims.addToWidth(newdims.getX() + BORDERWIDTH(this) - ev.xmotion.x);
+								newdims.setX(ev.xmotion.x - BORDERWIDTH(this));
 								leftedge_changed = 1;
-							} else if (ev.xmotion.x > newdims.getX() + newdims.getWidth() + BORDERWIDTH(c)) {
-								newdims.setWidth((ev.xmotion.x - newdims.getX() - BORDERWIDTH(c)) + 1); // add 1 to allow window to be flush with edge of screen
+							} else if (ev.xmotion.x > newdims.getX() + newdims.getWidth() + BORDERWIDTH(this)) {
+								newdims.setWidth((ev.xmotion.x - newdims.getX() - BORDERWIDTH(this)) + 1); // add 1 to allow window to be flush with edge of screen
 								rightedge_changed = 1;
 							}
-							if (ev.xmotion.y < newdims.getY() + BORDERWIDTH(c)) {
-								newdims.addToHeight(newdims.getY() + BORDERWIDTH(c) - ev.xmotion.y);
-								newdims.setY(ev.xmotion.y - BORDERWIDTH(c));
+							if (ev.xmotion.y < newdims.getY() + BORDERWIDTH(this)) {
+								newdims.addToHeight(newdims.getY() + BORDERWIDTH(this) - ev.xmotion.y);
+								newdims.setY(ev.xmotion.y - BORDERWIDTH(this));
 								topedge_changed = 1;
-							} else if (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(c))
+							} else if (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(this))
 							{
-								newdims.setHeight((ev.xmotion.y - newdims.getY() - BORDERWIDTH(c)) + 1); // add 1 to allow window to be flush with edge of screen
+								newdims.setHeight((ev.xmotion.y - newdims.getY() - BORDERWIDTH(this)) + 1); // add 1 to allow window to be flush with edge of screen
 								bottomedge_changed = 1;
 							}
 						} else { // outside the window, dragging inwards
-							unsigned int above_win = (ev.xmotion.y < newdims.getY() + BORDERWIDTH(c));
-							unsigned int below_win = (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(c));
-							unsigned int leftof_win = (ev.xmotion.x < newdims.getX() + BORDERWIDTH(c));
-							unsigned int rightof_win = (ev.xmotion.x > newdims.getX() + newdims.getWidth()+ BORDERWIDTH(c));
+							unsigned int above_win = (ev.xmotion.y < newdims.getY() + BORDERWIDTH(this));
+							unsigned int below_win = (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(this));
+							unsigned int leftof_win = (ev.xmotion.x < newdims.getX() + BORDERWIDTH(this));
+							unsigned int rightof_win = (ev.xmotion.x > newdims.getX() + newdims.getWidth()+ BORDERWIDTH(this));
 
 							unsigned int in_win = ((!above_win) && (!below_win) && (!leftof_win) && (!rightof_win));
 
 							if (in_win) {
-								unsigned int from_left = ev.xmotion.x - newdims.getX() - BORDERWIDTH(c);
-								unsigned int from_right = newdims.getX() + newdims.getWidth() + BORDERWIDTH(c) - ev.xmotion.x;
-								unsigned int from_top = ev.xmotion.y - newdims.getY() - BORDERWIDTH(c);
-								unsigned int from_bottom = newdims.getY() + newdims.getHeight() + BORDERWIDTH(c) - ev.xmotion.y;
+								unsigned int from_left = ev.xmotion.x - newdims.getX() - BORDERWIDTH(this);
+								unsigned int from_right = newdims.getX() + newdims.getWidth() + BORDERWIDTH(this) - ev.xmotion.x;
+								unsigned int from_top = ev.xmotion.y - newdims.getY() - BORDERWIDTH(this);
+								unsigned int from_bottom = newdims.getY() + newdims.getHeight() + BORDERWIDTH(this) - ev.xmotion.y;
 								if (from_left < from_right && from_left < from_top && from_left < from_bottom) {
-                                    newdims.subtractFromWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(c));
-                                    newdims.setX(ev.xmotion.x - BORDERWIDTH(c));
+                                    newdims.subtractFromWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(this));
+                                    newdims.setX(ev.xmotion.x - BORDERWIDTH(this));
 									leftedge_changed = 1;
 								} else if (from_right < from_top && from_right < from_bottom) {
-                                    newdims.setWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(c));
+                                    newdims.setWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(this));
 									rightedge_changed = 1;
 								} else if (from_top < from_bottom) {
-									newdims.subtractFromHeight(ev.xmotion.y - newdims.getY() - BORDERWIDTH(c));
-									newdims.setY(ev.xmotion.y - BORDERWIDTH(c));
+									newdims.subtractFromHeight(ev.xmotion.y - newdims.getY() - BORDERWIDTH(this));
+									newdims.setY(ev.xmotion.y - BORDERWIDTH(this));
 									topedge_changed = 1;
 								} else {
-                                    newdims.setHeight( ev.xmotion.y - newdims.getY() - BORDERWIDTH(c));
+                                    newdims.setHeight( ev.xmotion.y - newdims.getY() - BORDERWIDTH(this));
 									bottomedge_changed = 1;
 								}
 							}
@@ -328,7 +329,7 @@ void resize(ClientPointer c, int x, int y)
                             recalceddims = newdims;
 							recalceddims.subtractFromHeight(BARHEIGHT());
 
-							if (get_incsize(c, (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, PIXELS)) {
+							if (get_incsize(sharedReference(), (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, PIXELS)) {
 								if (leftedge_changed) {
 									recalceddims.setX((recalceddims.getX() + recalceddims.getWidth()) - newwidth);
 									recalceddims.setWidth(newwidth);
@@ -345,7 +346,7 @@ void resize(ClientPointer c, int x, int y)
 							}
 
                             recalceddims.addToHeight(BARHEIGHT());
-							limit_size(c, &recalceddims);
+							limit_size(sharedReference(), &recalceddims);
 
 							XMoveResizeWindow(dsply, resize_win, recalceddims.getX(), recalceddims.getY(), recalceddims.getWidth(), recalceddims.getHeight());
 							XResizeWindow(dsply, resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
@@ -358,24 +359,21 @@ void resize(ClientPointer c, int x, int y)
 
 	XUngrabServer(dsply);
 	ungrab();
-	c->setX(recalceddims.getX());
-    c->setY(recalceddims.getY() + BARHEIGHT());
-	c->setWidth(recalceddims.getWidth());
-	c->setHeight(recalceddims.getHeight() - BARHEIGHT());
-
-	XMoveResizeWindow(dsply, c->getFrame(), c->getX(), c->getY() - BARHEIGHT(), c->getWidth(), c->getHeight() + BARHEIGHT());
-	XResizeWindow(dsply, c->getWindow(), c->getWidth(), c->getHeight());
+    setDimensions(recalceddims.getX(), recalceddims.getY() + BARHEIGHT(),
+            recalceddims.getWidth(), recalceddims.getHeight() - BARHEIGHT());
+	XMoveResizeWindow(dsply, _frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());
+	XResizeWindow(dsply, _window, _width, _height);
 
 	// unhide real window's frame
-	XMapWindow(dsply, c->getFrame());
+	XMapWindow(dsply, _frame);
+    
+	XSetInputFocus(dsply, _window, RevertToNone, CurrentTime);
 
-	XSetInputFocus(dsply, c->getWindow(), RevertToNone, CurrentTime);
-
-    c->sendConfig();
+    sendConfig();
 	XDestroyWindow(dsply, constraint_win);
 
 	// reset the drawable
-	XftDrawChange(c->getXftDraw(), (Drawable) c->getFrame());
+	XftDrawChange(_xftdraw, static_cast<Drawable>(_frame));
 	
 	XDestroyWindow(dsply, resizebar_win);
 	XDestroyWindow(dsply, resize_win);

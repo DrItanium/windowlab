@@ -225,6 +225,7 @@ struct Client {
         Rect getRect() const noexcept;
         void setDimensions(const Rect& r) noexcept;
         void setDimensions(int x, int y, int width, int height) noexcept;
+        void resize(int, int);
     private:
         void setDimensions(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -378,7 +379,6 @@ void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
 
 // manage.c
-void resize(ClientPointer, int, int);
 void hide(ClientPointer);
 void unhide(ClientPointer);
 void toggle_fullscreen(ClientPointer);
