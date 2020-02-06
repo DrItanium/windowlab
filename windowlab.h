@@ -310,6 +310,8 @@ struct Rect final {
         int _height = 0;
 };
 
+void forkExec(const std::string&);
+
 struct MenuItem final {
     public:
         MenuItem() = default;
@@ -323,6 +325,7 @@ struct MenuItem final {
         bool isEmpty() const noexcept { return _command.empty() && _label.empty(); }
         bool labelIsEmpty() const noexcept { return _label.empty(); }
         bool commandIsEmpty() const noexcept { return _command.empty(); }
+        void forkExec() noexcept { ::forkExec(_command); }
     private:
         std::string _command;
         std::string _label;
@@ -400,8 +403,6 @@ void printToStderr(Args&& ... parts) noexcept {
 
 std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
 std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
-void forkExec(const std::string&);
-inline void forkExec(const MenuItem& item) noexcept { forkExec(item.getCommand()); }
 
 void sig_handler(int);
 int handle_xerror(Display *, XErrorEvent *);

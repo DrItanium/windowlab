@@ -193,7 +193,7 @@ Taskbar::rightClick(int x)
 			case ButtonRelease:
 				if (current_item != UINT_MAX) {
                     if (auto item = Menu::instance().at(current_item); item) {
-                        forkExec(*item);
+                        item->forkExec();
                     }
 				}
 				break;
