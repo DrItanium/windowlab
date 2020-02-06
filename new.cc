@@ -46,14 +46,14 @@ Client::makeNew(Window w) noexcept {
     auto& c = clients.back();
 	XGrabServer(dsply);
 
-	XGetTransientForHint(dsply, w, &c->trans);
+	XGetTransientForHint(dsply, w, &c->_trans);
     auto [ status, opt ] = fetchName(dsply, w);
     c->name = opt;
 	XGetWindowAttributes(dsply, w, &attr);
     c->setWindowAttributes(attr);
 	c->size = XAllocSizeHints();
     c->_selfReference = c;
-	XGetWMNormalHints(dsply, c->window, c->size, &dummy);
+	XGetWMNormalHints(dsply, c->_window, c->size, &dummy);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	c->ignore_unmap++;
@@ -73,18 +73,18 @@ Client::makeNew(Window w) noexcept {
     c->gravitate(APPLY_GRAVITY);
     c->reparent();
 
-	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
+	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->_frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 
 	if (c->getWMState() != IconicState) {
-		XMapWindow(dsply, c->window);
-		XMapRaised(dsply, c->frame);
+		XMapWindow(dsply, c->_window);
+		XMapRaised(dsply, c->_frame);
 
 		topmost_client = c;
 	} else {
 		c->hidden = 1;
 		if(attr.map_state == IsViewable) {
 			c->ignore_unmap++;
-			XUnmapWindow(dsply, c->window);
+			XUnmapWindow(dsply, c->_window);
 		}
 	}
 
@@ -145,20 +145,20 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	frame = XCreateWindow(dsply, root, x, y - BARHEIGHT(), width, height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_frame = XCreateWindow(dsply, root, x, y - BARHEIGHT(), width, height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
 #ifdef SHAPE
 	if (shape) {
-		XShapeSelectInput(dsply, window, ShapeNotifyMask);
+		XShapeSelectInput(dsply, _window, ShapeNotifyMask);
         setShape();
 	}
 #endif
 
-	XAddToSaveSet(dsply, window);
-	XSelectInput(dsply, window, ColormapChangeMask|PropertyChangeMask);
-	XSetWindowBorderWidth(dsply, window, 0);
-	XResizeWindow(dsply, window, width, height);
-	XReparentWindow(dsply, window, frame, 0, BARHEIGHT());
+	XAddToSaveSet(dsply, _window);
+	XSelectInput(dsply, _window, ColormapChangeMask|PropertyChangeMask);
+	XSetWindowBorderWidth(dsply, _window, 0);
+	XResizeWindow(dsply, _window, width, height);
+	XReparentWindow(dsply, _window, _frame, 0, BARHEIGHT());
 
     sendConfig();
 }

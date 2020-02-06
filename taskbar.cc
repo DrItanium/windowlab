@@ -268,7 +268,7 @@ Taskbar::redraw()
 		} else {
 			XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
-		if (!c->trans && c->name) {
+		if (!c->getTrans() && c->name) {
             drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->name));
 		}
         ++i;
