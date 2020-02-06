@@ -306,7 +306,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		if (e->value_mask & CWHeight) {
             c->setHeight(e->height);
 		}
-		refix_position(c, e);
+        c->refixPosition(e);
         c->gravitate(APPLY_GRAVITY);
 		// configure the frame
 		wc.x = c->getX();

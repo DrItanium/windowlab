@@ -202,27 +202,24 @@ Client::fixPosition() noexcept {
     _y -= BORDERWIDTH(this);
 }
 
-void refix_position(ClientPointer c, XConfigureRequestEvent *e)
-{
-	Rect olddims { c->getX() - BORDERWIDTH(c),
-                   c->getY() - BORDERWIDTH(c),
-                   c->getWidth(),
-                   c->getHeight()};
-    c->fixPosition();
-	if (olddims.getX() != c->getX())
-	{
+void
+Client::refixPosition(XConfigureRequestEvent *e) {
+	Rect olddims { _x - BORDERWIDTH(this),
+                   _y - BORDERWIDTH(this),
+                   _width,
+                   _height };
+
+    fixPosition();
+	if (olddims.getX() != _x) {
 		e->value_mask |= CWX;
 	}
-	if (olddims.getY() != c->getY())
-	{
+	if (olddims.getY() != _y) {
 		e->value_mask |= CWY;
 	}
-	if (olddims.getWidth() != c->getWidth())
-	{
+	if (olddims.getWidth() != _width ) {
 		e->value_mask |= CWWidth;
 	}
-	if (olddims.getHeight() != c->getHeight())
-	{
+	if (olddims.getHeight() != _height) {
 		e->value_mask |= CWHeight;
 	}
 }
