@@ -162,7 +162,7 @@ void fix_position(ClientPointer c)
 	int titlebarheight;
 
 #ifdef DEBUG
-    printToStderr("fix_position(): client was (", c->x, ", ", c->y, ")-(", c->x + c->width, ", ", c->y + c->height, ")");
+    printToStderr("fix_position(): client was (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->width, ", ", c->getY() + c->height, ")");
 #endif
 	
 	titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
@@ -181,40 +181,40 @@ void fix_position(ClientPointer c)
 		c->height = ymax - (BARHEIGHT() + titlebarheight);
 	}
 
-	if (c->x < 0) {
-		c->x = 0;
+	if (c->getX() < 0) {
+        c->setX(0);
 	}
-	if (c->y < BARHEIGHT()) {
-		c->y = BARHEIGHT();
+	if (c->getY() < BARHEIGHT()) {
+        c->setY(BARHEIGHT());
 	}
 
-	if (c->x + c->width + BORDERWIDTH(c) >= xmax) {
-		c->x = xmax - c->width;
+	if (c->getX() + c->width + BORDERWIDTH(c) >= xmax) {
+		c->setX(xmax - c->width);
 	}
-	if (c->y + c->height + BARHEIGHT() >= ymax) {
-		c->y = (ymax - c->height) - BARHEIGHT();
+	if (c->getY()+ c->height + BARHEIGHT() >= ymax) {
+        c->setY((ymax - c->height) - BARHEIGHT());
 	}
 
 #ifdef DEBUG
-    printToStderr("fix_position(): client is (", c->x, ", ", c->y, ")-(", c->x + c->width, ", ", c->y + c->height, ")");
+    printToStderr("fix_position(): client is (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->width, ", ", c->getY() + c->height, ")");
 #endif
 
-	c->x -= BORDERWIDTH(c);
-	c->y -= BORDERWIDTH(c);
+	c->setX(c->getX() - BORDERWIDTH(c));
+    c->setY(c->getY() - BORDERWIDTH(c));
 }
 
 void refix_position(ClientPointer c, XConfigureRequestEvent *e)
 {
-	Rect olddims { c->x - BORDERWIDTH(c),
-                   c->y - BORDERWIDTH(c),
+	Rect olddims { c->getX() - BORDERWIDTH(c),
+                   c->getY() - BORDERWIDTH(c),
                    c->width,
                    c->height };
 	fix_position(c);
-	if (olddims.getX() != c->x)
+	if (olddims.getX() != c->getX())
 	{
 		e->value_mask |= CWX;
 	}
-	if (olddims.getY() != c->y)
+	if (olddims.getY() != c->getY())
 	{
 		e->value_mask |= CWY;
 	}
