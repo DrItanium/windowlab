@@ -166,7 +166,6 @@ struct Client {
 	int ignore_unmap = 0;
 	bool hidden = 0;
 	bool was_hidden = 0;
-	unsigned int focus_order;
 #ifdef SHAPE
 	Bool has_been_shaped = 0;
 #endif
@@ -207,7 +206,9 @@ struct Client {
     const std::optional<std::string>& getName() const noexcept { return _name; }
     void setName(const std::string& name) noexcept { _name.emplace(name); }
     void setName(const std::optional<std::string>& name) noexcept { _name = name; }
-
+    auto getFocusOrder() const noexcept { return _focus_order; }
+    void setFocusOrder(unsigned int value) noexcept { _focus_order = value; }
+    void incrementFocusOrder() noexcept { ++_focus_order; }
     private:
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
@@ -216,6 +217,7 @@ struct Client {
         Window _frame;
         Window _trans;
         std::optional<std::string> _name;
+	    unsigned int _focus_order = 0u;
         WeakPtr _selfReference;
 };
 

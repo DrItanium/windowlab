@@ -252,7 +252,7 @@ void check_focus(ClientPointer c)
 		focused_client = c;
 		focus_count++;
 		if (c) {
-			c->focus_order = focus_count;
+            c->setFocusOrder(focus_count);
             c->redraw();
 		}
 		if (old_focused) {
@@ -267,8 +267,8 @@ ClientPointer get_prev_focused() {
 	unsigned int highest = 0;
 
     for (auto& c : clients) {
-		if (!c->hidden && c->focus_order > highest) {
-			highest = c->focus_order;
+		if (!c->hidden && c->getFocusOrder() > highest) {
+			highest = c->getFocusOrder();
 			prev_focused = c;
 		}
 	}
