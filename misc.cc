@@ -28,7 +28,7 @@
 #include <optional>
 #include <string>
 
-static void quit_nicely(void);
+static void quit_nicely();
 
 std::optional<std::string>
 getEnvironmentVariable(const std::string& varName) noexcept {
@@ -328,7 +328,7 @@ void dump_clients(void) {
 /* We use XQueryTree here to preserve the window stacking order,
  * since the order in our linked list is different. */
 
-static void quit_nicely(void)
+static void quit_nicely()
 {
 	unsigned int nwins, i;
 	Window dummyw1, dummyw2, *wins;
