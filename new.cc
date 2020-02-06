@@ -78,7 +78,7 @@ Client::makeNew(Window w) noexcept {
 		}
 	}
 
-	fix_position(c);
+    c->fixPosition();
     c->gravitate(APPLY_GRAVITY);
     c->reparent();
 

@@ -155,51 +155,51 @@ getMousePosition() {
 /* If this is the fullscreen client we don't take BARHEIGHT() into account
  * because the titlebar isn't being drawn on the window. */
 
-void fix_position(ClientPointer c)
-{
+void
+Client::fixPosition() noexcept {
 
 #ifdef DEBUG
-    printToStderr("fix_position(): client was (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->width, ", ", c->getY() + c->height, ")");
+    printToStderr("fix_position(): client was (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
 #endif
 	
-	int titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
+	int titlebarheight = (fullscreen_client.get() == this) ? 0 : BARHEIGHT();
 	int xmax = DisplayWidth(dsply, screen);
 	int ymax = DisplayHeight(dsply, screen);
 
-	if (c->getWidth() < MINWINWIDTH()) {
-        c->setWidth(MINWINWIDTH());
+    if (_width < MINWINWIDTH()) {
+        _width = MINWINWIDTH();
 	}
-	if (c->getHeight() < MINWINHEIGHT()) {
-        c->setHeight(MINWINHEIGHT());
-	}
+    if (_height < MINWINHEIGHT()) {
+        _height = MINWINHEIGHT();
+    }
 	
-	if (c->getWidth() > xmax) {
-        c->setWidth(xmax);
+	if (_width > xmax) {
+        _width = xmax;
 	}
-	if (c->getHeight() + (BARHEIGHT() + titlebarheight) > ymax) {
-		c->setHeight(ymax - (BARHEIGHT() + titlebarheight));
-	}
-
-	if (c->getX() < 0) {
-        c->setX(0);
-	}
-	if (c->getY() < BARHEIGHT()) {
-        c->setY(BARHEIGHT());
+	if (_height + (BARHEIGHT() + titlebarheight) > ymax) {
+		_height = ymax - (BARHEIGHT() + titlebarheight);
 	}
 
-	if (c->getX() + c->getWidth() + BORDERWIDTH(c) >= xmax) {
-		c->setX(xmax - c->getWidth());
+	if (_x < 0) {
+        _x = 0;
 	}
-	if (c->getY()+ c->getHeight() + BARHEIGHT() >= ymax) {
-        c->setY((ymax - c->getHeight()) - BARHEIGHT());
+	if (_y < BARHEIGHT()) {
+        _y = BARHEIGHT();
+	}
+
+	if (_x + _width + BORDERWIDTH(this) >= xmax) {
+        _x = xmax - _width;
+	}
+	if (_y + _height + BARHEIGHT() >= ymax) {
+        _y = (ymax - _height) - BARHEIGHT();
 	}
 
 #ifdef DEBUG
-    printToStderr("fix_position(): client is (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->getWidth(), ", ", c->getY() + c->getHeight(), ")");
+    printToStderr("fix_position(): client is (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
 #endif
 
-	c->setX(c->getX() - BORDERWIDTH(c));
-    c->setY(c->getY() - BORDERWIDTH(c));
+    _x -= BORDERWIDTH(this);
+    _y -= BORDERWIDTH(this);
 }
 
 void refix_position(ClientPointer c, XConfigureRequestEvent *e)
@@ -208,7 +208,7 @@ void refix_position(ClientPointer c, XConfigureRequestEvent *e)
                    c->getY() - BORDERWIDTH(c),
                    c->getWidth(),
                    c->getHeight()};
-	fix_position(c);
+    c->fixPosition();
 	if (olddims.getX() != c->getX())
 	{
 		e->value_mask |= CWX;
