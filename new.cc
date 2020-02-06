@@ -51,8 +51,9 @@ void
 Client::makeNew(Window w) noexcept {
 	XWindowAttributes attr;
 	long dummy = 0;
-    clients.emplace_back(ClientPointer(new Client(w)));
-    auto& c = clients.back();
+    auto& clients = ClientTracker::instance();
+    clients.add(ClientPointer(new Client(w)));
+    auto c = clients.back();
 	XGrabServer(dsply);
 
 	XGetTransientForHint(dsply, w, &c->_trans);

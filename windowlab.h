@@ -344,19 +344,45 @@ extern Display *dsply;
 extern Window root;
 extern int screen;
 using ClientPointer = typename Client::Ptr;
-extern std::vector<ClientPointer> clients;
+class ClientTracker final {
+    public:
+        static ClientTracker& instance() noexcept {
+            static ClientTracker ct;
+            return ct;
+        }
+    public:
+        auto find(ClientPointer p) {
+            return std::find(_clients.begin(), _clients.end(), p);
+        }
+        bool remove(ClientPointer p) {
+            if (auto loc = this->find(p); loc != _clients.end()) {
+                _clients.erase(loc);
+                return true;
+            } else {
+                return false;
+            }
+        }
+        void add(ClientPointer p) { _clients.emplace_back(p); }
+        auto back() { return _clients.back(); }
+        auto back() const { return _clients.back(); }
+        auto size() const noexcept { return _clients.size(); }
+        [[nodiscard]] bool empty() const noexcept { return _clients.empty(); }
+    public:
+        ClientTracker(const ClientTracker&) = delete;
+        ClientTracker(ClientTracker&&) = delete;
+    private:
+        ClientTracker() = default;
+    private:
+        std::vector<ClientPointer> _clients;
 
-inline decltype(clients)::const_iterator findClient(ClientPointer p) {
-    return std::find(clients.begin(), clients.end(), p);
+};
+
+inline auto findClient(ClientPointer p) {
+    return ClientTracker::instance().find(p);
 }
 
 inline bool removeClientFromList(ClientPointer p) {
-    if (auto loc = findClient(p); loc != clients.end()) {
-        clients.erase(loc);
-        return true;
-    } else {
-        return false;
-    }
+    return ClientTracker::instance().remove(p);
 }
 
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
