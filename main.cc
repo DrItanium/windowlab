@@ -57,8 +57,7 @@ unsigned int numlockmask = 0;
 static void scan_wins(void);
 static void setup_display(void);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int i;
 	struct sigaction act;
 
@@ -103,7 +102,7 @@ int main(int argc, char **argv)
 	return 1; // just another brick in the -Wall
 }
 
-static void scan_wins(void) {
+static void scan_wins() {
 	unsigned int nwins, i;
 	Window dummyw1, dummyw2, *wins;
 	XWindowAttributes attr;
@@ -118,7 +117,7 @@ static void scan_wins(void) {
 	XFree(wins);
 }
 
-static void setup_display(void) {
+static void setup_display() {
 	XColor dummyc;
 	XGCValues gv;
 	XSetWindowAttributes sattr;

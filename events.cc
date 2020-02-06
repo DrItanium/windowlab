@@ -179,7 +179,6 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 {
 	static ClientPointer  first_click_c;
 	static Time first_click_time;
-	int win_ypos;
 	XEvent ev;
 
     if (unsigned int in_box_down = c->boxClicked(e->x); in_box_down <= 2) {
@@ -197,7 +196,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		{
 			XMaskEvent(dsply, MouseMask, &ev);
             in_box_up = c->boxClicked(ev.xbutton.x - (c->getX() + DEF_BORDERWIDTH));
-			win_ypos = (ev.xbutton.y - c->getY()) + BARHEIGHT();
+			int win_ypos = (ev.xbutton.y - c->getY()) + BARHEIGHT();
 			if (ev.type == MotionNotify) {
 				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
 					in_box = 1;

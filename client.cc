@@ -126,16 +126,13 @@ void remove_client(ClientPointer c, int mode)
 	XRemoveFromSaveSet(dsply, c->getWindow());
 	XDestroyWindow(dsply, c->getFrame());
     removeClientFromList(c);
-	if (c->getSize())
-	{
+	if (c->getSize()) {
 		XFree(c->getSize());
 	}
-	if (c == fullscreen_client)
-	{
+	if (c == fullscreen_client) {
 		fullscreen_client = nullptr;
 	}
-	if (c == focused_client)
-	{
+	if (c == focused_client) {
 		focused_client = nullptr;
 		check_focus(get_prev_focused());
 	}
@@ -263,16 +260,16 @@ void check_focus(ClientPointer c)
 }
 
 ClientPointer get_prev_focused() {
-	ClientPointer prev_focused;
+	ClientPointer prevFocused;
 	unsigned int highest = 0;
 
     for (auto& c : clients) {
 		if (!c->isHidden() && c->getFocusOrder() > highest) {
 			highest = c->getFocusOrder();
-			prev_focused = c;
+			prevFocused = c;
 		}
 	}
-	return prev_focused;
+	return prevFocused;
 }
 void
 Client::drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept {
