@@ -443,7 +443,7 @@ static bool get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_re
 
 void 
 Client::writeTitleText(Window /* barWin */) noexcept {
-   if (!_trans && name) {
-       drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *name);
+   if (!_trans && _name) {
+       drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *_name);
    }
 }

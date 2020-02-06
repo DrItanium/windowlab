@@ -251,8 +251,7 @@ Taskbar::redraw()
 	auto buttonWidth = getButtonWidth();
 	XClearWindow(dsply, _taskbar);
 
-	if (showing_taskbar == 0)
-	{
+	if (showing_taskbar == 0) {
 		return;
 	}
 
@@ -268,8 +267,8 @@ Taskbar::redraw()
 		} else {
 			XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		}
-		if (!c->getTrans() && c->name) {
-            drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->name));
+		if (!c->getTrans() && c->getName()) {
+            drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->getName()));
 		}
         ++i;
 	}

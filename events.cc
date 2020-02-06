@@ -410,7 +410,7 @@ static void handle_property_change(XPropertyEvent *e) {
             case XA_WM_NAME: {
                                  auto [ status, opt ] = fetchName(dsply, c->getWindow());
                                  (void)status; // status isn't actually used but is returned in the tuple
-                                 c->name = opt;
+                                 c->setName(opt);
                                  c->redraw();
                                  Taskbar::instance().redraw();
                                  break;

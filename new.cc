@@ -48,7 +48,7 @@ Client::makeNew(Window w) noexcept {
 
 	XGetTransientForHint(dsply, w, &c->_trans);
     auto [ status, opt ] = fetchName(dsply, w);
-    c->name = opt;
+    c->setName(opt);
 	XGetWindowAttributes(dsply, w, &attr);
     c->setWindowAttributes(attr);
 	c->size = XAllocSizeHints();

@@ -159,7 +159,6 @@ struct Client {
     using Ptr = std::shared_ptr<Client>;
     using WeakPtr = std::weak_ptr<Client>;
     static void makeNew(Window) noexcept;
-    std::optional<std::string> name;
 	XSizeHints *size = nullptr;
 	Colormap cmap;
 	int x = 0, y = 0;
@@ -205,14 +204,19 @@ struct Client {
     auto getTrans() const noexcept { return _trans; }
     void setFrame(Window frame) noexcept { _frame = frame; }
     void setTrans(Window trans) noexcept { _trans = trans; }
+    const std::optional<std::string>& getName() const noexcept { return _name; }
+    void setName(const std::string& name) noexcept { _name.emplace(name); }
+    void setName(const std::optional<std::string>& name) noexcept { _name = name; }
+
     private:
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
     private:
-        WeakPtr _selfReference;
         Window _window;
         Window _frame;
         Window _trans;
+        std::optional<std::string> _name;
+        WeakPtr _selfReference;
 };
 
 struct Rect final {

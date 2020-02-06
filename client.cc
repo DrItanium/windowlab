@@ -160,8 +160,8 @@ Client::redraw() noexcept {
 	} else {
 		XFillRectangle(dsply, _frame, inactive_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-	if (!_trans && name) {
-        drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(name));
+	if (!_trans && _name) {
+        drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(_name));
 	}
     auto background_gc = self == focused_client ? &active_gc : &inactive_gc;
     drawHideButton(&text_gc, background_gc);
