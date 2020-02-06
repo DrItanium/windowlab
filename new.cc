@@ -73,7 +73,7 @@ Client::makeNew(Window w) noexcept {
     c->gravitate(APPLY_GRAVITY);
     c->reparent();
 
-	c->xftdraw = XftDrawCreate(dsply, (Drawable) c->_frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
+	c->_xftdraw = XftDrawCreate(dsply, (Drawable) c->_frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
 
 	if (c->getWMState() != IconicState) {
 		XMapWindow(dsply, c->_window);

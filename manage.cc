@@ -252,7 +252,7 @@ void resize(ClientPointer c, int x, int y)
 	XMapRaised(dsply, resizebar_win);
 
 	// temporarily swap drawables in order to draw on the resize window's XFT context
-	XftDrawChange(c->xftdraw, (Drawable) resizebar_win);
+	XftDrawChange(c->getXftDraw(), (Drawable) resizebar_win);
 
 	// hide real window's frame
 	XUnmapWindow(dsply, c->getFrame());
@@ -384,7 +384,7 @@ void resize(ClientPointer c, int x, int y)
 	XDestroyWindow(dsply, constraint_win);
 
 	// reset the drawable
-	XftDrawChange(c->xftdraw, (Drawable) c->getFrame());
+	XftDrawChange(c->getXftDraw(), (Drawable) c->getFrame());
 	
 	XDestroyWindow(dsply, resizebar_win);
 	XDestroyWindow(dsply, resize_win);
@@ -444,6 +444,6 @@ static bool get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_re
 void 
 Client::writeTitleText(Window /* barWin */) noexcept {
    if (!_trans && _name) {
-       drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *_name);
+       drawString(_xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *_name);
    }
 }
