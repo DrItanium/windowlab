@@ -127,7 +127,6 @@ static void handle_key_press(XKeyEvent *e)
 
 static void handle_button_press(XButtonEvent *e)
 {
-	ClientPointer c;
     auto& taskbar = Taskbar::instance();
 	if (e->state & MODIFIER) {
 		if (focused_client  && focused_client != fullscreen_client) {
@@ -143,7 +142,7 @@ static void handle_button_press(XButtonEvent *e)
 		if (e->button == Button3) {
             taskbar.rightClickRoot();
 		}
-	} else if (e->window == Taskbar::instance().getWindow()) {
+	} else if (e->window == taskbar.getWindow()) {
 		switch (e->button) {
 			case Button1: // left mouse button
                 taskbar.leftClick(e->x);
@@ -162,7 +161,7 @@ static void handle_button_press(XButtonEvent *e)
 		// pass event on
 		XAllowEvents(dsply, ReplayPointer, CurrentTime);
 		if (e->button == Button1) {
-			c = find_client(e->window, FRAME);
+			ClientPointer c = find_client(e->window, FRAME);
 			if (c) {
 				// click-to-focus
 				check_focus(c);
