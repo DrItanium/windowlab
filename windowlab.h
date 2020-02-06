@@ -342,8 +342,24 @@ class XInterface {
         constexpr auto getDisplay() const noexcept { return _dsply; }
         constexpr auto getWindow() const noexcept { return _root; }
         constexpr auto getScreen() const noexcept { return _screen; }
+        Atom internAtom(const std::string& name, bool onlyIfExists) noexcept;
+        Colormap defaultColormap() noexcept;
+        Status allocNamedColor(Colormap colormap, const std::string& colorName, XColor& screenDefReturn, XColor& exactDefReturn) noexcept;
+        inline Status allocNamedColor(const std::string& colorName, XColor& screenDefReturn, XColor& exactDefReturn) noexcept {
+            return allocNamedColor(defaultColormap(), colorName, screenDefReturn, exactDefReturn);
+        }
+        inline Status allocNamedColor(const std::string& colorName, XColor& screenDefReturn) noexcept {
+            XColor tmp;
+            return allocNamedColor(colorName, screenDefReturn, tmp);
+        }
+        Status allocColor(Colormap colormap, XColor& screenInOut) noexcept;
+        inline Status allocColor(XColor& screenInOut) noexcept {
+            return allocColor(defaultColormap(), screenInOut);
+        }
+
+
     private:
-        XInterface();
+        XInterface() = default;
     private:
         Display* _dsply;
         Window _root;

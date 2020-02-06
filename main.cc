@@ -117,118 +117,254 @@ static void scan_wins() {
 	XFree(wins);
 }
 
+Atom
+XInterface::internAtom(const std::string& name, bool onlyIfExists) noexcept {
+    return XInternAtom(_dsply, name.data(), onlyIfExists ? True : False);
+}
+Colormap
+XInterface::defaultColormap() noexcept {
+    return XDefaultColormap(_dsply, _screen);
+}
+Status 
+XInterface::allocNamedColor(Colormap colormap, const std::string& colorName, XColor& screenDefReturn, XColor& exactDefReturn) noexcept {
+    return XAllocNamedColor(_dsply, colormap, colorName.c_str(), &screenDefReturn, &exactDefReturn);
+}
+Status
+XInterface::allocColor(Colormap colormap, XColor& screenInOut) noexcept {
+    return XAllocColor(_dsply, colormap, &screenInOut);
+}
+
+XInterface& 
+XInterface::instance() noexcept {
+    static XInterface xi;
+    static bool _init = false;
+    if (!_init) {
+        _init = true;
+        XGCValues gv;
+        XSetWindowAttributes sattr;
+        XModifierKeymap *modmap;
+        int i, j;
+#ifdef SHAPE
+        int dummy;
+#endif
+
+        xi._dsply = XOpenDisplay(opt_display.c_str());
+
+        if (!xi._dsply) {
+            err("can't open display! check your DISPLAY variable.");
+            exit(1);
+        }
+
+        XSetErrorHandler(handle_xerror);
+        xi._screen = DefaultScreen(xi._dsply);
+        xi._root = RootWindow(xi._dsply, xi._screen);
+
+        wm_state = xi.internAtom("WM_STATE", false);
+        wm_change_state = xi.internAtom("WM_CHANGE_STATE", false);
+        wm_protos = xi.internAtom("WM_PROTOCOLS", false);
+        wm_delete = xi.internAtom("WM_DELETE_WINDOW", false);
+        wm_cmapwins = xi.internAtom("WM_COLORMAP_WINDOWS", false);
+        xi.allocNamedColor(opt_border, border_col);
+        xi.allocNamedColor(opt_text, text_col);
+        xi.allocNamedColor(opt_active, active_col);
+        xi.allocNamedColor(opt_inactive, inactive_col);
+        xi.allocNamedColor(opt_menu, menu_col);
+        xi.allocNamedColor(opt_selected, selected_col);
+        xi.allocNamedColor(opt_empty, empty_col);
+
+        depressed_col.pixel = active_col.pixel;
+        depressed_col.red = active_col.red - ACTIVE_SHADOW;
+        depressed_col.green = active_col.green - ACTIVE_SHADOW;
+        depressed_col.blue = active_col.blue - ACTIVE_SHADOW;
+        depressed_col.red = depressed_col.red <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.red : 0;
+        depressed_col.green = depressed_col.green <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.green : 0;
+        depressed_col.blue = depressed_col.blue <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.blue : 0;
+        xi.allocColor(depressed_col);
+
+        xft_detail.color.red = text_col.red;
+        xft_detail.color.green = text_col.green;
+        xft_detail.color.blue = text_col.blue;
+        xft_detail.color.alpha = 0xffff;
+        xft_detail.pixel = text_col.pixel;
+
+        xftfont = XftFontOpenXlfd(xi._dsply, DefaultScreen(xi._dsply), opt_font.c_str());
+        if (!xftfont) {
+            err("font '", opt_font, "' not found");
+            exit(1);
+        }
+
+#ifdef SHAPE
+        shape = XShapeQueryExtension(xi._dsply, &shape_event, &dummy);
+#endif
+
+        resize_curs = XCreateFontCursor(xi._dsply, XC_fleur);
+
+        /* find out which modifier is NumLock - we'll use this when grabbing every combination of modifiers we can think of */
+        modmap = XGetModifierMapping(dsply);
+        for (i = 0; i < 8; i++) {
+            for (j = 0; j < modmap->max_keypermod; j++) {
+                if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dsply, XK_Num_Lock)) {
+                    numlockmask = (1 << i);
+#ifdef DEBUG
+                    std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
+#endif
+                }
+            }
+        }
+        XFree(modmap);
+
+        gv.function = GXcopy;
+
+        gv.foreground = border_col.pixel;
+        gv.line_width = DEF_BORDERWIDTH;
+        border_gc = XCreateGC(dsply, root, GCFunction|GCForeground|GCLineWidth, &gv);
+
+        gv.foreground = text_col.pixel;
+        gv.line_width = 1;
+
+        text_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        gv.foreground = active_col.pixel;
+        active_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        gv.foreground = depressed_col.pixel;
+        depressed_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        gv.foreground = inactive_col.pixel;
+        inactive_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        gv.foreground = menu_col.pixel;
+        menu_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        gv.foreground = selected_col.pixel;
+        selected_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        gv.foreground = empty_col.pixel;
+        empty_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+
+        sattr.event_mask = ChildMask|ColormapChangeMask|ButtonMask;
+        XChangeWindowAttributes(dsply, root, CWEventMask, &sattr);
+
+        grab_keysym(root, MODIFIER, KEY_CYCLEPREV);
+        grab_keysym(root, MODIFIER, KEY_CYCLENEXT);
+        grab_keysym(root, MODIFIER, KEY_FULLSCREEN);
+        grab_keysym(root, MODIFIER, KEY_TOGGLEZ);
+    }
+    return xi;
+}
 static void setup_display() {
-	XColor dummyc;
-	XGCValues gv;
-	XSetWindowAttributes sattr;
-	XModifierKeymap *modmap;
-	int i, j;
+    XColor dummyc;
+    XGCValues gv;
+    XSetWindowAttributes sattr;
+    XModifierKeymap *modmap;
+    int i, j;
 #ifdef SHAPE
-	int dummy;
+    int dummy;
 #endif
 
-	dsply = XOpenDisplay(opt_display.c_str());
+    dsply = XOpenDisplay(opt_display.c_str());
 
-	if (!dsply) {
-		err("can't open display! check your DISPLAY variable.");
-		exit(1);
-	}
+    if (!dsply) {
+        err("can't open display! check your DISPLAY variable.");
+        exit(1);
+    }
 
-	XSetErrorHandler(handle_xerror);
-	screen = DefaultScreen(dsply);
-	root = RootWindow(dsply, screen);
+    XSetErrorHandler(handle_xerror);
+    screen = DefaultScreen(dsply);
+    root = RootWindow(dsply, screen);
 
-	wm_state = XInternAtom(dsply, "WM_STATE", False);
-	wm_change_state = XInternAtom(dsply, "WM_CHANGE_STATE", False);
-	wm_protos = XInternAtom(dsply, "WM_PROTOCOLS", False);
-	wm_delete = XInternAtom(dsply, "WM_DELETE_WINDOW", False);
-	wm_cmapwins = XInternAtom(dsply, "WM_COLORMAP_WINDOWS", False);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_border.c_str(), &border_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_text.c_str(), &text_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_active.c_str(), &active_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_inactive.c_str(), &inactive_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_menu.c_str(), &menu_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_selected.c_str(), &selected_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_empty.c_str(), &empty_col, &dummyc);
+    wm_state = XInternAtom(dsply, "WM_STATE", False);
+    wm_change_state = XInternAtom(dsply, "WM_CHANGE_STATE", False);
+    wm_protos = XInternAtom(dsply, "WM_PROTOCOLS", False);
+    wm_delete = XInternAtom(dsply, "WM_DELETE_WINDOW", False);
+    wm_cmapwins = XInternAtom(dsply, "WM_COLORMAP_WINDOWS", False);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_border.c_str(), &border_col, &dummyc);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_text.c_str(), &text_col, &dummyc);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_active.c_str(), &active_col, &dummyc);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_inactive.c_str(), &inactive_col, &dummyc);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_menu.c_str(), &menu_col, &dummyc);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_selected.c_str(), &selected_col, &dummyc);
+    XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_empty.c_str(), &empty_col, &dummyc);
 
-	depressed_col.pixel = active_col.pixel;
-	depressed_col.red = active_col.red - ACTIVE_SHADOW;
-	depressed_col.green = active_col.green - ACTIVE_SHADOW;
-	depressed_col.blue = active_col.blue - ACTIVE_SHADOW;
-	depressed_col.red = depressed_col.red <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.red : 0;
-	depressed_col.green = depressed_col.green <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.green : 0;
-	depressed_col.blue = depressed_col.blue <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.blue : 0;
-	XAllocColor(dsply, DefaultColormap(dsply, screen), &depressed_col);
+    depressed_col.pixel = active_col.pixel;
+    depressed_col.red = active_col.red - ACTIVE_SHADOW;
+    depressed_col.green = active_col.green - ACTIVE_SHADOW;
+    depressed_col.blue = active_col.blue - ACTIVE_SHADOW;
+    depressed_col.red = depressed_col.red <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.red : 0;
+    depressed_col.green = depressed_col.green <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.green : 0;
+    depressed_col.blue = depressed_col.blue <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.blue : 0;
+    XAllocColor(dsply, DefaultColormap(dsply, screen), &depressed_col);
 
-	xft_detail.color.red = text_col.red;
-	xft_detail.color.green = text_col.green;
-	xft_detail.color.blue = text_col.blue;
-	xft_detail.color.alpha = 0xffff;
-	xft_detail.pixel = text_col.pixel;
+    xft_detail.color.red = text_col.red;
+    xft_detail.color.green = text_col.green;
+    xft_detail.color.blue = text_col.blue;
+    xft_detail.color.alpha = 0xffff;
+    xft_detail.pixel = text_col.pixel;
 
-	xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font.c_str());
-	if (!xftfont) {
+    xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font.c_str());
+    if (!xftfont) {
         err("font '", opt_font, "' not found");
-		exit(1);
-	}
+        exit(1);
+    }
 
 #ifdef SHAPE
-	shape = XShapeQueryExtension(dsply, &shape_event, &dummy);
+    shape = XShapeQueryExtension(dsply, &shape_event, &dummy);
 #endif
 
-	resize_curs = XCreateFontCursor(dsply, XC_fleur);
+    resize_curs = XCreateFontCursor(dsply, XC_fleur);
 
-	/* find out which modifier is NumLock - we'll use this when grabbing every combination of modifiers we can think of */
-	modmap = XGetModifierMapping(dsply);
-	for (i = 0; i < 8; i++) {
-		for (j = 0; j < modmap->max_keypermod; j++) {
-			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dsply, XK_Num_Lock)) {
-				numlockmask = (1 << i);
+    /* find out which modifier is NumLock - we'll use this when grabbing every combination of modifiers we can think of */
+    modmap = XGetModifierMapping(dsply);
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < modmap->max_keypermod; j++) {
+            if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dsply, XK_Num_Lock)) {
+                numlockmask = (1 << i);
 #ifdef DEBUG
                 std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
 #endif
-			}
-		}
-	}
-	XFree(modmap);
+            }
+        }
+    }
+    XFree(modmap);
 
-	gv.function = GXcopy;
+    gv.function = GXcopy;
 
-	gv.foreground = border_col.pixel;
-	gv.line_width = DEF_BORDERWIDTH;
-	border_gc = XCreateGC(dsply, root, GCFunction|GCForeground|GCLineWidth, &gv);
+    gv.foreground = border_col.pixel;
+    gv.line_width = DEF_BORDERWIDTH;
+    border_gc = XCreateGC(dsply, root, GCFunction|GCForeground|GCLineWidth, &gv);
 
-	gv.foreground = text_col.pixel;
-	gv.line_width = 1;
+    gv.foreground = text_col.pixel;
+    gv.line_width = 1;
 
-	text_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    text_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	gv.foreground = active_col.pixel;
-	active_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    gv.foreground = active_col.pixel;
+    active_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	gv.foreground = depressed_col.pixel;
-	depressed_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    gv.foreground = depressed_col.pixel;
+    depressed_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	gv.foreground = inactive_col.pixel;
-	inactive_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    gv.foreground = inactive_col.pixel;
+    inactive_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	gv.foreground = menu_col.pixel;
-	menu_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    gv.foreground = menu_col.pixel;
+    menu_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	gv.foreground = selected_col.pixel;
-	selected_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    gv.foreground = selected_col.pixel;
+    selected_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	gv.foreground = empty_col.pixel;
-	empty_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+    gv.foreground = empty_col.pixel;
+    empty_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
 
-	sattr.event_mask = ChildMask|ColormapChangeMask|ButtonMask;
-	XChangeWindowAttributes(dsply, root, CWEventMask, &sattr);
+    sattr.event_mask = ChildMask|ColormapChangeMask|ButtonMask;
+    XChangeWindowAttributes(dsply, root, CWEventMask, &sattr);
 
-	grab_keysym(root, MODIFIER, KEY_CYCLEPREV);
-	grab_keysym(root, MODIFIER, KEY_CYCLENEXT);
-	grab_keysym(root, MODIFIER, KEY_FULLSCREEN);
-	grab_keysym(root, MODIFIER, KEY_TOGGLEZ);
+    grab_keysym(root, MODIFIER, KEY_CYCLEPREV);
+    grab_keysym(root, MODIFIER, KEY_CYCLENEXT);
+    grab_keysym(root, MODIFIER, KEY_FULLSCREEN);
+    grab_keysym(root, MODIFIER, KEY_TOGGLEZ);
 }
 int BARHEIGHT() noexcept {
     return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
 }
+
