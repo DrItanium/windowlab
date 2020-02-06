@@ -126,9 +126,9 @@ void remove_client(ClientPointer c, int mode)
 	XRemoveFromSaveSet(dsply, c->getWindow());
 	XDestroyWindow(dsply, c->getFrame());
     removeClientFromList(c);
-	if (c->size)
+	if (c->getSize())
 	{
-		XFree(c->size);
+		XFree(c->getSize());
 	}
 	if (c == fullscreen_client)
 	{
@@ -180,7 +180,7 @@ Client::gravitate(int multiplier) noexcept {
  * use, but the others should be obvious). Our titlebar is on the top
  * so we only have to adjust in the first case. */
 	int dy = 0;
-	int gravity = (size->flags & PWinGravity) ? size->win_gravity : NorthWestGravity;
+	int gravity = (_size->flags & PWinGravity) ? _size->win_gravity : NorthWestGravity;
 
 	switch (gravity) {
 		case NorthWestGravity:

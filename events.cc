@@ -417,7 +417,7 @@ static void handle_property_change(XPropertyEvent *e) {
                              }
             case XA_WM_NORMAL_HINTS: {
                                          long dummy = 0;
-                                         XGetWMNormalHints(dsply, c->getWindow(), c->size, &dummy);
+                                         XGetWMNormalHints(dsply, c->getWindow(), c->getSize(), &dummy);
                                          break;
                                      }
 		}

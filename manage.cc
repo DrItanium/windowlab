@@ -112,17 +112,17 @@ void toggle_fullscreen(ClientPointer c)
 			c->y = BARHEIGHT() - BORDERWIDTH(c);
 			c->width = maxwinwidth;
 			c->height = maxwinheight;
-			if (c->size->flags & PMaxSize || c->size->flags & PResizeInc) {
-				if (c->size->flags & PResizeInc) {
+			if (c->getSize()->flags & PMaxSize || c->getSize()->flags & PResizeInc) {
+				if (c->getSize()->flags & PResizeInc) {
 					Rect maxwinsize { xoffset, yoffset, maxwinwidth, maxwinheight };
-					get_incsize(c, (unsigned int *)&c->size->max_width, (unsigned int *)&c->size->max_height, &maxwinsize, PIXELS);
+					get_incsize(c, (unsigned int *)&c->getSize()->max_width, (unsigned int *)&c->getSize()->max_height, &maxwinsize, PIXELS);
 				}
-				if (c->size->max_width < maxwinwidth) {
-					c->width = c->size->max_width;
+				if (c->getSize()->max_width < maxwinwidth) {
+					c->width = c->getSize()->max_width;
 					xoffset = (maxwinwidth - c->width) / 2;
 				}
-				if (c->size->max_height < maxwinheight) {
-					c->height = c->size->max_height;
+				if (c->getSize()->max_height < maxwinheight) {
+					c->height = c->getSize()->max_height;
 					yoffset = (maxwinheight - c->height) / 2;
 				}
 			}
@@ -395,14 +395,14 @@ static void limit_size(ClientPointer c, Rect *newdims)
 	auto dw = DisplayWidth(dsply, screen);
 	auto dh = DisplayHeight(dsply, screen);
 
-	if (c->size->flags & PMinSize) {
-        newdims->setWidth(c->size->min_width, [compare = c->size->min_width](int width) { return width < compare; });
-        newdims->setHeight(c->size->min_height, [compare = c->size->min_height](int height) { return height < compare; });
+	if (c->getSize()->flags & PMinSize) {
+        newdims->setWidth(c->getSize()->min_width, [compare = c->getSize()->min_width](int width) { return width < compare; });
+        newdims->setHeight(c->getSize()->min_height, [compare = c->getSize()->min_height](int height) { return height < compare; });
 	}
 
-	if (c->size->flags & PMaxSize) {
-        newdims->setWidth(c->size->max_width, [compare = c->size->max_width](int width) { return width > compare; });
-        newdims->setHeight(c->size->max_height, [compare = c->size->max_height](int height) { return height > compare; });
+	if (c->getSize()->flags & PMaxSize) {
+        newdims->setWidth(c->getSize()->max_width, [compare = c->getSize()->max_width](int width) { return width > compare; });
+        newdims->setHeight(c->getSize()->max_height, [compare = c->getSize()->max_height](int height) { return height > compare; });
 	}
     newdims->setWidth(MINWINWIDTH(), [](int width) { return width < MINWINWIDTH(); });
     newdims->setHeight(MINWINHEIGHT(), [](int height) { return height < MINWINHEIGHT(); });
@@ -417,23 +417,23 @@ static void limit_size(ClientPointer c, Rect *newdims)
 
 static bool get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_ret, Rect *newdims, int mode)
 {
-	if (c->size->flags & PResizeInc) {
-		auto basex = (c->size->flags & PBaseSize) ? c->size->base_width : (c->size->flags & PMinSize) ? c->size->min_width : 0;
-		auto basey = (c->size->flags & PBaseSize) ? c->size->base_height : (c->size->flags & PMinSize) ? c->size->min_height : 0;
+	if (c->getSize()->flags & PResizeInc) {
+		auto basex = (c->getSize()->flags & PBaseSize) ? c->getSize()->base_width : (c->getSize()->flags & PMinSize) ? c->getSize()->min_width : 0;
+		auto basey = (c->getSize()->flags & PBaseSize) ? c->getSize()->base_height : (c->getSize()->flags & PMinSize) ? c->getSize()->min_height : 0;
 		// work around broken apps that set their resize increments to 0
 		if (auto nWidth= newdims->getWidth(), nHeight = newdims->getHeight(); mode == PIXELS) {
-			if (c->size->width_inc != 0) {
-				*x_ret = nWidth - ((nWidth - basex) % c->size->width_inc);
+			if (c->getSize()->width_inc != 0) {
+				*x_ret = nWidth - ((nWidth - basex) % c->getSize()->width_inc);
 			}
-			if (c->size->height_inc != 0) {
-				*y_ret = nHeight - ((nHeight - basey) % c->size->height_inc);
+			if (c->getSize()->height_inc != 0) {
+				*y_ret = nHeight - ((nHeight - basey) % c->getSize()->height_inc);
 			}
 		} else { // INCREMENTS
-			if (c->size->width_inc != 0) {
-				*x_ret = (nWidth - basex) / c->size->width_inc;
+			if (c->getSize()->width_inc != 0) {
+				*x_ret = (nWidth - basex) / c->getSize()->width_inc;
 			}
-			if (c->size->height_inc != 0) {
-				*y_ret = (nHeight - basey) / c->size->height_inc;
+			if (c->getSize()->height_inc != 0) {
+				*y_ret = (nHeight - basey) / c->getSize()->height_inc;
 			}
 		}
 		return true;

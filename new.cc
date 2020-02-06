@@ -51,9 +51,9 @@ Client::makeNew(Window w) noexcept {
     c->setName(opt);
 	XGetWindowAttributes(dsply, w, &attr);
     c->setWindowAttributes(attr);
-	c->size = XAllocSizeHints();
+	c->_size = XAllocSizeHints();
     c->_selfReference = c;
-	XGetWMNormalHints(dsply, c->_window, c->size, &dummy);
+	XGetWMNormalHints(dsply, c->_window, c->_size, &dummy);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	c->ignore_unmap++;

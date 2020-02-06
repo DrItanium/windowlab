@@ -159,7 +159,6 @@ struct Client {
     using Ptr = std::shared_ptr<Client>;
     using WeakPtr = std::weak_ptr<Client>;
     static void makeNew(Window) noexcept;
-	XSizeHints *size = nullptr;
 	Colormap cmap;
 	int x = 0, y = 0;
 	int width = 0, height = 0;
@@ -169,7 +168,8 @@ struct Client {
 	XftDraw *xftdraw = nullptr;
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
-    /** Return which button was clicked - this is a multiple of BARHEIGHT()
+    /**
+     * Return which button was clicked - this is a multiple of BARHEIGHT()
      * from the right hand side; We only care about 0, 1 and 2. 
      */
     unsigned int boxClicked(int x) const noexcept;
@@ -206,6 +206,8 @@ struct Client {
     auto getFocusOrder() const noexcept { return _focus_order; }
     void setFocusOrder(unsigned int value) noexcept { _focus_order = value; }
     void incrementFocusOrder() noexcept { ++_focus_order; }
+    XSizeHints* getSize() const noexcept { return _size; }
+    void setSize(XSizeHints* value) noexcept { _size = value; }
     private:
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
@@ -218,6 +220,7 @@ struct Client {
 #ifdef SHAPE
         Bool _hasBeenShaped = 0;
 #endif
+        XSizeHints* _size = nullptr;
         WeakPtr _selfReference;
 };
 
