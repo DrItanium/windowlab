@@ -161,7 +161,6 @@ struct Client {
     static void makeNew(Window) noexcept;
     std::optional<std::string> name;
 	XSizeHints *size = nullptr;
-	Window window, frame, trans;
 	Colormap cmap;
 	int x = 0, y = 0;
 	int width = 0, height = 0;
@@ -201,11 +200,19 @@ struct Client {
     void gravitate(int multiplier) noexcept;
     void move() noexcept;
     void writeTitleText(Window) noexcept;
+    auto getWindow() const noexcept { return _window; }
+    auto getFrame() const noexcept { return _frame; }
+    auto getTrans() const noexcept { return _trans; }
+    void setFrame(Window frame) noexcept { _frame = frame; }
+    void setTrans(Window trans) noexcept { _trans = trans; }
     private:
-        Client(Window w) noexcept : window(w) { };
+        Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
     private:
         WeakPtr _selfReference;
+        Window _window;
+        Window _frame;
+        Window _trans;
 };
 
 struct Rect final {

@@ -26,13 +26,13 @@ std::vector<typename Client::Ptr> clients;
 ClientPointer find_client(Window w, int mode) {
 	if (mode == FRAME) {
         for (auto& client : clients) {
-            if (client->frame == w) {
+            if (client->getFrame() == w) {
                 return client;
             }
         }
 	} else { // WINDOW
         for (auto& client : clients) {
-            if (client->window == w) {
+            if (client->getWindow() == w) {
                 return client;
             }
         }
@@ -50,7 +50,7 @@ Client::setWMState(int state) noexcept
 	data[0] = state;
 	data[1] = None; //Icon? We don't need no steenking icon.
 
-	XChangeProperty(dsply, window, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data, 2);
+	XChangeProperty(dsply, _window, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data, 2);
 }
 
 long 
@@ -67,7 +67,7 @@ Client::getWMState() const noexcept
 	unsigned long items_read, items_left;
 	unsigned char *data;
 
-	if (XGetWindowProperty(dsply, window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read) {
+	if (XGetWindowProperty(dsply, _window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read) {
 		state = *(long *)data;
 		XFree(data);
 	}
@@ -79,8 +79,8 @@ void
 Client::sendConfig() noexcept {
     XConfigureEvent ce;
     ce.type = ConfigureNotify;
-    ce.event = window;
-    ce.window = window;
+    ce.event = _window;
+    ce.window = _window;
     ce.x = x;
     ce.y = y;
     ce.width = width;
@@ -89,7 +89,7 @@ Client::sendConfig() noexcept {
     ce.above = None;
     ce.override_redirect = 0;
 
-    XSendEvent(dsply, window, False, StructureNotifyMask, (XEvent*)&ce);
+    XSendEvent(dsply, _window, False, StructureNotifyMask, (XEvent*)&ce);
 }
 
 
@@ -117,14 +117,14 @@ void remove_client(ClientPointer c, int mode)
 	if (mode == WITHDRAW) {
         c->setWMState(WithdrawnState);
 	} else { //REMAP
-		XMapWindow(dsply, c->window);
+		XMapWindow(dsply, c->getWindow());
 	}
     c->gravitate(REMOVE_GRAVITY);
-	XReparentWindow(dsply, c->window, root, c->x, c->y);
-	XSetWindowBorderWidth(dsply, c->window, 1);
+	XReparentWindow(dsply, c->getWindow(), root, c->x, c->y);
+	XSetWindowBorderWidth(dsply, c->getWindow(), 1);
 	XftDrawDestroy(c->xftdraw);
-	XRemoveFromSaveSet(dsply, c->window);
-	XDestroyWindow(dsply, c->frame);
+	XRemoveFromSaveSet(dsply, c->getWindow());
+	XDestroyWindow(dsply, c->getFrame());
     removeClientFromList(c);
 	if (c->size)
 	{
@@ -153,14 +153,14 @@ Client::redraw() noexcept {
     if (self == fullscreen_client) {
         return;
     }
-	XDrawLine(dsply, frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
+	XDrawLine(dsply, _frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (self == focused_client) {
-		XFillRectangle(dsply, frame, active_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _frame, active_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(dsply, frame, inactive_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _frame, inactive_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
-	if (!trans && name) {
+	if (!_trans && name) {
         drawString(xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(name));
 	}
     auto background_gc = self == focused_client ? &active_gc : &inactive_gc;
@@ -212,20 +212,20 @@ Client::setShape() noexcept {
 	int n, order;
 	XRectangle temp;
 
-	auto dummy = XShapeGetRectangles(dsply, window, ShapeBounding, &n, &order);
+	auto dummy = XShapeGetRectangles(dsply, _window, ShapeBounding, &n, &order);
 	if (n > 1) {
-		XShapeCombineShape(dsply, frame, ShapeBounding, 0, BARHEIGHT(), window, ShapeBounding, ShapeSet);
+		XShapeCombineShape(dsply, _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
 		temp.x = -BORDERWIDTH(this);
 		temp.y = -BORDERWIDTH(this);
 		temp.width = width + (2 * BORDERWIDTH(this));
 		temp.height = BARHEIGHT() + BORDERWIDTH(this);
-		XShapeCombineRectangles(dsply, frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
+		XShapeCombineRectangles(dsply, _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
         XRectangle temp2;
 		temp2.x = 0;
 		temp2.y = 0;
 		temp2.width = width;
 		temp2.height = BARHEIGHT() - BORDERWIDTH(this);
-		XShapeCombineRectangles(dsply, frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
+		XShapeCombineRectangles(dsply, _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
 		has_been_shaped = 1;
 	} else {
 		if (has_been_shaped) {
@@ -234,7 +234,7 @@ Client::setShape() noexcept {
 			temp.y = -BORDERWIDTH(this);
 			temp.width = width + (2 * BORDERWIDTH(this));
 			temp.height = height + BARHEIGHT() + (2 * BORDERWIDTH(this));
-			XShapeCombineRectangles(dsply, frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
+			XShapeCombineRectangles(dsply, _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}
 	XFree(dummy);
@@ -244,7 +244,7 @@ Client::setShape() noexcept {
 void check_focus(ClientPointer c)
 {
 	if (c) {
-		XSetInputFocus(dsply, c->window, RevertToNone, CurrentTime);
+		XSetInputFocus(dsply, c->getWindow(), RevertToNone, CurrentTime);
 		XInstallColormap(dsply, c->cmap);
 	}
 	if (c != focused_client) {
@@ -278,16 +278,16 @@ void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
 	int x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(dsply, frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 6, topleft_offset + 4, x + topleft_offset + 8, topleft_offset + 4);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 6, topleft_offset + 6, x + topleft_offset + 7, topleft_offset + 7);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 4, topleft_offset + 6, x + topleft_offset + 4, topleft_offset + 8);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 6, x + topleft_offset + 1, topleft_offset + 7);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 4, x + topleft_offset + 0, topleft_offset + 4);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 6, topleft_offset + 4, x + topleft_offset + 8, topleft_offset + 4);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 6, topleft_offset + 6, x + topleft_offset + 7, topleft_offset + 7);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 4, topleft_offset + 6, x + topleft_offset + 4, topleft_offset + 8);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 2, topleft_offset + 6, x + topleft_offset + 1, topleft_offset + 7);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 2, topleft_offset + 4, x + topleft_offset + 0, topleft_offset + 4);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
 }
 
 
@@ -295,10 +295,10 @@ void
 Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
 	int x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
 	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-	XFillRectangle(dsply, frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawRectangle(dsply, frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
-	XDrawRectangle(dsply, frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
+	XDrawRectangle(dsply, _frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
+	XDrawRectangle(dsply, _frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
 }
 
 
@@ -306,26 +306,26 @@ void
 Client::drawCloseButton(GC* detail, GC* background) noexcept {
 	int x = width - (BARHEIGHT() - DEF_BORDERWIDTH);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(dsply, frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 8);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 8);
 
-	XDrawLine(dsply, frame, *detail, x + topleft_offset, topleft_offset + 7, x + topleft_offset + 7, topleft_offset);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 1, topleft_offset + 7, x + topleft_offset + 7, topleft_offset + 1);
-	XDrawLine(dsply, frame, *detail, x + topleft_offset + 1, topleft_offset + 8, x + topleft_offset + 8, topleft_offset + 1);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset, topleft_offset + 7, x + topleft_offset + 7, topleft_offset);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset + 7, x + topleft_offset + 7, topleft_offset + 1);
+	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset + 8, x + topleft_offset + 8, topleft_offset + 1);
 }
 
 void
 Client::raiseWindow() noexcept {
     // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
-    (void)XRaiseWindow(dsply, frame);
+    (void)XRaiseWindow(dsply, _frame);
 }
 
 void 
 Client::lowerWindow() noexcept {
     // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
-    (void)XLowerWindow(dsply, frame);
+    (void)XLowerWindow(dsply, _frame);
 }
 

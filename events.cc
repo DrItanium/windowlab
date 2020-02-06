@@ -317,7 +317,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		wc.border_width = DEF_BORDERWIDTH;
 		//wc.sibling = e->above;
 		//wc.stack_mode = e->detail;
-		XConfigureWindow(dsply, c->frame, e->value_mask, &wc);
+		XConfigureWindow(dsply, c->getFrame(), e->value_mask, &wc);
 #ifdef SHAPE
 		if (e->value_mask & (CWWidth|CWHeight)) {
             c->setShape();
@@ -408,7 +408,7 @@ static void handle_property_change(XPropertyEvent *e) {
 	if (ClientPointer c = find_client(e->window, WINDOW); c) {
 		switch (e->atom) {
             case XA_WM_NAME: {
-                                 auto [ status, opt ] = fetchName(dsply, c->window);
+                                 auto [ status, opt ] = fetchName(dsply, c->getWindow());
                                  (void)status; // status isn't actually used but is returned in the tuple
                                  c->name = opt;
                                  c->redraw();
@@ -417,7 +417,7 @@ static void handle_property_change(XPropertyEvent *e) {
                              }
             case XA_WM_NORMAL_HINTS: {
                                          long dummy = 0;
-                                         XGetWMNormalHints(dsply, c->window, c->size, &dummy);
+                                         XGetWMNormalHints(dsply, c->getWindow(), c->size, &dummy);
                                          break;
                                      }
 		}
@@ -456,7 +456,7 @@ static void handle_enter_event(XCrossingEvent *e) {
 		}
 
 		if (ClientPointer c = find_client(e->window, FRAME); c) {
-			XGrabButton(dsply, AnyButton, AnyModifier, c->frame, False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
+			XGrabButton(dsply, AnyButton, AnyModifier, c->getFrame(), False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
 	}
 }
