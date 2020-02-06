@@ -241,7 +241,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 
 unsigned int
 Client::boxClicked(int x) const noexcept {
-    if (int pixFromRight = width - x; pixFromRight < 0) {
+    if (int pixFromRight = _width - x; pixFromRight < 0) {
         return std::numeric_limits<unsigned int>::max(); // outside window
     } else {
         return (pixFromRight / (BARHEIGHT() - DEF_BORDERWIDTH));
@@ -302,18 +302,18 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
             c->setY(e->y);
 		}
 		if (e->value_mask & CWWidth) {
-			c->width = e->width;
+            c->setWidth(e->width);
 		}
 		if (e->value_mask & CWHeight) {
-			c->height = e->height;
+            c->setHeight(e->height);
 		}
 		refix_position(c, e);
         c->gravitate(APPLY_GRAVITY);
 		// configure the frame
 		wc.x = c->getX();
 		wc.y = c->getY() - BARHEIGHT();
-		wc.width = c->width;
-		wc.height = c->height + BARHEIGHT();
+		wc.width = c->getWidth();
+		wc.height = c->getHeight()+ BARHEIGHT();
 		wc.border_width = DEF_BORDERWIDTH;
 		//wc.sibling = e->above;
 		//wc.stack_mode = e->detail;

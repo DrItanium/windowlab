@@ -157,28 +157,27 @@ getMousePosition() {
 
 void fix_position(ClientPointer c)
 {
-	int xmax = DisplayWidth(dsply, screen);
-	int ymax = DisplayHeight(dsply, screen);
-	int titlebarheight;
 
 #ifdef DEBUG
     printToStderr("fix_position(): client was (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->width, ", ", c->getY() + c->height, ")");
 #endif
 	
-	titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
+	int titlebarheight = (fullscreen_client == c) ? 0 : BARHEIGHT();
+	int xmax = DisplayWidth(dsply, screen);
+	int ymax = DisplayHeight(dsply, screen);
 
-	if (c->width < MINWINWIDTH()) {
-		c->width = MINWINWIDTH();
+	if (c->getWidth() < MINWINWIDTH()) {
+        c->setWidth(MINWINWIDTH());
 	}
-	if (c->height < MINWINHEIGHT()) {
-		c->height = MINWINHEIGHT();
+	if (c->getHeight() < MINWINHEIGHT()) {
+        c->setHeight(MINWINHEIGHT());
 	}
 	
-	if (c->width > xmax) {
-		c->width = xmax;
+	if (c->getWidth() > xmax) {
+        c->setWidth(xmax);
 	}
-	if (c->height + (BARHEIGHT() + titlebarheight) > ymax) {
-		c->height = ymax - (BARHEIGHT() + titlebarheight);
+	if (c->getHeight() + (BARHEIGHT() + titlebarheight) > ymax) {
+		c->setHeight(ymax - (BARHEIGHT() + titlebarheight));
 	}
 
 	if (c->getX() < 0) {
@@ -188,15 +187,15 @@ void fix_position(ClientPointer c)
         c->setY(BARHEIGHT());
 	}
 
-	if (c->getX() + c->width + BORDERWIDTH(c) >= xmax) {
-		c->setX(xmax - c->width);
+	if (c->getX() + c->getWidth() + BORDERWIDTH(c) >= xmax) {
+		c->setX(xmax - c->getWidth());
 	}
-	if (c->getY()+ c->height + BARHEIGHT() >= ymax) {
-        c->setY((ymax - c->height) - BARHEIGHT());
+	if (c->getY()+ c->getHeight() + BARHEIGHT() >= ymax) {
+        c->setY((ymax - c->getHeight()) - BARHEIGHT());
 	}
 
 #ifdef DEBUG
-    printToStderr("fix_position(): client is (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->width, ", ", c->getY() + c->height, ")");
+    printToStderr("fix_position(): client is (", c->getX(), ", ", c->getY(), ")-(", c->getX() + c->getWidth(), ", ", c->getY() + c->getHeight(), ")");
 #endif
 
 	c->setX(c->getX() - BORDERWIDTH(c));
@@ -207,8 +206,8 @@ void refix_position(ClientPointer c, XConfigureRequestEvent *e)
 {
 	Rect olddims { c->getX() - BORDERWIDTH(c),
                    c->getY() - BORDERWIDTH(c),
-                   c->width,
-                   c->height };
+                   c->getWidth(),
+                   c->getHeight()};
 	fix_position(c);
 	if (olddims.getX() != c->getX())
 	{
@@ -218,11 +217,11 @@ void refix_position(ClientPointer c, XConfigureRequestEvent *e)
 	{
 		e->value_mask |= CWY;
 	}
-	if (olddims.getWidth() != c->width)
+	if (olddims.getWidth() != c->getWidth())
 	{
 		e->value_mask |= CWWidth;
 	}
-	if (olddims.getHeight() != c->height)
+	if (olddims.getHeight() != c->getHeight())
 	{
 		e->value_mask |= CWHeight;
 	}

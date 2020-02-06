@@ -83,8 +83,8 @@ Client::sendConfig() noexcept {
     ce.window = _window;
     ce.x = _x;
     ce.y = _y;
-    ce.width = width;
-    ce.height = height;
+    ce.width = _width;
+    ce.height = _height;
     ce.border_width = 0;
     ce.above = None;
     ce.override_redirect = 0;
@@ -153,12 +153,12 @@ Client::redraw() noexcept {
     if (self == fullscreen_client) {
         return;
     }
-    drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
+    drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (self == focused_client) {
-		XFillRectangle(dsply, _frame, active_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(dsply, _frame, inactive_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(dsply, _frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	if (!_trans && _name) {
         drawString(_xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(_name));
@@ -217,13 +217,13 @@ Client::setShape() noexcept {
 		XShapeCombineShape(dsply, _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
 		temp.x = -BORDERWIDTH(this);
 		temp.y = -BORDERWIDTH(this);
-		temp.width = width + (2 * BORDERWIDTH(this));
+		temp.width = _width + (2 * BORDERWIDTH(this));
 		temp.height = BARHEIGHT() + BORDERWIDTH(this);
 		XShapeCombineRectangles(dsply, _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
         XRectangle temp2;
 		temp2.x = 0;
 		temp2.y = 0;
-		temp2.width = width;
+		temp2.width = _width;
 		temp2.height = BARHEIGHT() - BORDERWIDTH(this);
 		XShapeCombineRectangles(dsply, _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
 		_hasBeenShaped = 1;
@@ -232,8 +232,8 @@ Client::setShape() noexcept {
 			// I can't find a 'remove all shaping' function...
 			temp.x = -BORDERWIDTH(this);
 			temp.y = -BORDERWIDTH(this);
-			temp.width = width + (2 * BORDERWIDTH(this));
-			temp.height = height + BARHEIGHT() + (2 * BORDERWIDTH(this));
+			temp.width = _width + (2 * BORDERWIDTH(this));
+			temp.height = _height + BARHEIGHT() + (2 * BORDERWIDTH(this));
 			XShapeCombineRectangles(dsply, _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}
@@ -280,7 +280,7 @@ Client::drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept {
 }
 void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
-	int x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
+	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
 	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
@@ -297,7 +297,7 @@ Client::drawHideButton(GC* detail, GC* background) noexcept {
 
 void
 Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
-	int x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
+	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
 	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
 	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
@@ -308,7 +308,7 @@ Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
 
 void
 Client::drawCloseButton(GC* detail, GC* background) noexcept {
-	int x = width - (BARHEIGHT() - DEF_BORDERWIDTH);
+	int x = _width - (BARHEIGHT() - DEF_BORDERWIDTH);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
 	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
@@ -335,6 +335,6 @@ Client::lowerWindow() noexcept {
 
 Rect
 Client::getRect() const noexcept {
-    return { _x, _y, width, height };
+    return { _x, _y, _width, _height };
 }
 

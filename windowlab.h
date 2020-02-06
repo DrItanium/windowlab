@@ -161,7 +161,6 @@ struct Client {
         using WeakPtr = std::weak_ptr<Client>;
         static void makeNew(Window) noexcept;
     public:
-        int width = 0, height = 0;
     public:
         long getWMState() const noexcept;
         void setWMState(int) noexcept; 
@@ -219,13 +218,15 @@ struct Client {
         void setX(int value) noexcept { _x = value; }
         constexpr auto getY() const noexcept { return _y; }
         void setY(int value) noexcept { _y = value; }
-        constexpr auto getWidth() const noexcept { return width; }
-        void setWidth(int value) noexcept { width = value; }
-        constexpr auto getHeight() const noexcept { return height; }
-        void setHeight(int value) noexcept { height = value; }
+        constexpr auto getWidth() const noexcept { return _width; }
+        void setWidth(int value) noexcept { _width = value; }
+        constexpr auto getHeight() const noexcept { return _height; }
+        void setHeight(int value) noexcept { _height = value; }
         Rect getRect() const noexcept;
+        void setDimensions(const Rect& r) noexcept;
+        void setDimensions(int x, int y, int width, int height) noexcept;
     private:
-        void setWindowAttributes(XWindowAttributes& attr) noexcept;
+        void setDimensions(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
         void drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept;
@@ -247,6 +248,8 @@ struct Client {
         int _ignoreUnmap = 0;
         int _x = 0;
         int _y = 0;
+        int _width = 0;
+        int _height = 0;
         WeakPtr _selfReference;
 };
 

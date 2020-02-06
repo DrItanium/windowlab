@@ -21,13 +21,22 @@
 
 #include "windowlab.h"
 
+void
+Client::setDimensions(const Rect& r) noexcept {
+    setDimensions(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+}
 
 void
-Client::setWindowAttributes(XWindowAttributes& attr) noexcept {
-    _x = attr.x;
-    _y = attr.y;
-    width = attr.width;
-    height = attr.height;
+Client::setDimensions(int x, int y, int width, int height) noexcept {
+    _x = x;
+    _y = y;
+    _width = width;
+    _height = height;
+}
+
+void
+Client::setDimensions(XWindowAttributes& attr) noexcept {
+    setDimensions(attr.x, attr.y, attr.width, attr.height);
     _cmap = attr.colormap;
 }
 
@@ -50,7 +59,7 @@ Client::makeNew(Window w) noexcept {
     auto [ status, opt ] = fetchName(dsply, w);
     c->setName(opt);
 	XGetWindowAttributes(dsply, w, &attr);
-    c->setWindowAttributes(attr);
+    c->setDimensions(attr);
 	c->_size = XAllocSizeHints();
     c->_selfReference = c;
 	XGetWMNormalHints(dsply, c->_window, c->_size, &dummy);
@@ -122,11 +131,11 @@ Client::makeNew(Window w) noexcept {
 void
 Client::initPosition() noexcept {
 	// make sure it's big enough for the 3 buttons and a bit of bar
-	if (width < 4 * BARHEIGHT()) {
-		width = 4 * BARHEIGHT();
+	if (_width < 4 * BARHEIGHT()) {
+		_width = 4 * BARHEIGHT();
 	}
-	if (height < BARHEIGHT()) {
-		height = BARHEIGHT();
+	if (_height < BARHEIGHT()) {
+		_height = BARHEIGHT();
 	}
 
 	if (_x == 0 && _y == 0) {
@@ -145,7 +154,7 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_frame = XCreateWindow(dsply, root, _x, _y - BARHEIGHT(), width, height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_frame = XCreateWindow(dsply, root, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
 #ifdef SHAPE
 	if (shape) {
@@ -157,7 +166,7 @@ Client::reparent() noexcept {
 	XAddToSaveSet(dsply, _window);
 	XSelectInput(dsply, _window, ColormapChangeMask|PropertyChangeMask);
 	XSetWindowBorderWidth(dsply, _window, 0);
-	XResizeWindow(dsply, _window, width, height);
+	XResizeWindow(dsply, _window, _width, _height);
 	XReparentWindow(dsply, _window, _frame, 0, BARHEIGHT());
 
     sendConfig();
