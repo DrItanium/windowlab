@@ -161,7 +161,6 @@ struct Client {
         using WeakPtr = std::weak_ptr<Client>;
         static void makeNew(Window) noexcept;
     public:
-    public:
         long getWMState() const noexcept;
         void setWMState(int) noexcept; 
         /**
@@ -291,16 +290,16 @@ struct Rect final {
                 setHeight(value);
             }
         }
-        void addToHeight(int accumulation) noexcept {
+        void addToHeight(int accumulation = 1) noexcept {
             setHeight(getHeight() + accumulation);
         }
-        void addToWidth(int accumulation) noexcept {
+        void addToWidth(int accumulation = 1) noexcept {
             setWidth(getWidth() + accumulation);
         }
-        void subtractFromHeight(int amount) noexcept {
+        void subtractFromHeight(int amount = 1) noexcept {
             setHeight(getHeight() - amount);
         }
-        void subtractFromWidth(int amount) noexcept {
+        void subtractFromWidth(int amount = 1) noexcept {
             setWidth(getWidth() - amount);
         }
     private:
