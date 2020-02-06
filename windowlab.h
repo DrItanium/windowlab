@@ -164,8 +164,6 @@ struct Client {
         int x = 0, y = 0;
         int width = 0, height = 0;
         int ignore_unmap = 0;
-        bool hidden = 0;
-        bool was_hidden = 0;
     public:
         long getWMState() const noexcept;
         void setWMState(int) noexcept; 
@@ -212,6 +210,10 @@ struct Client {
         void setColormap(Colormap value) noexcept { _cmap = value; } 
         auto getXftDraw() const noexcept { return _xftdraw; }
         void setXftDraw(XftDraw* value) noexcept { _xftdraw = value; }
+        auto isHidden() const noexcept { return _hidden; }
+        void setHidden(bool value) noexcept { _hidden = value; }
+        auto wasHidden() const noexcept { return _wasHidden; }
+        void setWasHidden(bool value) noexcept { _wasHidden = value; }
     private:
         void setWindowAttributes(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -228,6 +230,8 @@ struct Client {
         XSizeHints* _size = nullptr;
         Colormap _cmap = 0;
         XftDraw* _xftdraw = nullptr;
+        bool _hidden = false;
+        bool _wasHidden = false;
         WeakPtr _selfReference;
 };
 

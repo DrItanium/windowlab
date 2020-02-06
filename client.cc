@@ -267,7 +267,7 @@ ClientPointer get_prev_focused() {
 	unsigned int highest = 0;
 
     for (auto& c : clients) {
-		if (!c->hidden && c->getFocusOrder() > highest) {
+		if (!c->isHidden() && c->getFocusOrder() > highest) {
 			highest = c->getFocusOrder();
 			prev_focused = c;
 		}

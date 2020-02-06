@@ -81,7 +81,7 @@ Client::makeNew(Window w) noexcept {
 
 		topmost_client = c;
 	} else {
-		c->hidden = 1;
+        c->setHidden(true);
 		if(attr.map_state == IsViewable) {
 			c->ignore_unmap++;
 			XUnmapWindow(dsply, c->_window);

@@ -60,17 +60,13 @@ void remember_hidden(void)
 
 void
 Client::rememberHidden() noexcept {
-    was_hidden = hidden;
+    _wasHidden = _hidden;
 }
 
 
 void
 Client::forgetHidden() noexcept {
-    if (this == focused_client.get()) {
-        was_hidden = hidden;
-    } else {
-        was_hidden = false;
-    }
+    _wasHidden = (this == focused_client.get()) ? _hidden : false;
 }
 
 
@@ -84,15 +80,15 @@ forget_hidden() {
 void 
 lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
 	if (old_c) {
-		if (old_c->was_hidden) {
+		if (old_c->wasHidden()) {
 			hide(old_c);
 		}
 	}
 
-	if (c->hidden) {
+	if (c->isHidden()) {
 		unhide(c);
 	} else {
-        if (c->was_hidden) {
+        if (c->wasHidden()) {
 			hide(c);
 		} else {
             c->raiseLower();

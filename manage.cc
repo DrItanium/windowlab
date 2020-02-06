@@ -44,9 +44,9 @@ void raise_lower(ClientPointer c) {
 
 void
 Client::hide() noexcept {
-    if (!hidden) {
+    if (!_hidden) {
         ignore_unmap++;
-        hidden = true;
+        _hidden = true;
         if (sharedReference() == topmost_client) {
             topmost_client = nullptr;
         }
@@ -59,8 +59,8 @@ Client::hide() noexcept {
 
 void
 Client::unhide() noexcept {
-    if (hidden) {
-        hidden = false;
+    if (_hidden) {
+        _hidden = false;
         topmost_client = sharedReference();
         XMapWindow(dsply, _window);
         XMapRaised(dsply, _frame);
