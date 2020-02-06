@@ -138,7 +138,7 @@ constexpr auto REMAP = 1;
 // stuff for the menu file
 #define NO_MENU_LABEL "xterm"
 #define NO_MENU_COMMAND "xterm"
-
+class Rect;
 /* This structure keeps track of top-level windows (hereinafter
  * 'clients'). The clients we know about (i.e. all that don't set
  * override-redirect) are kept track of in linked list starting at the
@@ -223,6 +223,7 @@ struct Client {
         void setWidth(int value) noexcept { width = value; }
         constexpr auto getHeight() const noexcept { return height; }
         void setHeight(int value) noexcept { height = value; }
+        Rect getRect() const noexcept;
     private:
         void setWindowAttributes(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -253,6 +254,7 @@ struct Rect final {
     public:
         constexpr Rect() noexcept = default;
         constexpr Rect(int x, int y, int w, int h) noexcept : _x(x), _y(y), _width(w), _height(h) { }
+        constexpr Rect(const Rect& r) noexcept : Rect(r._x, r._y, r._width, r._height) { }
         ~Rect() = default;
         constexpr auto getX() const noexcept { return _x; }
         constexpr auto getY() const noexcept { return _y; }
@@ -296,18 +298,6 @@ struct Rect final {
         }
         void subtractFromWidth(int amount) noexcept {
             setWidth(getWidth() - amount);
-        }
-        void become(int x, int y, int w, int h) noexcept {
-            setX(x);
-            setY(y);
-            setWidth(w);
-            setHeight(h);
-        }
-        void become(const Client& client) noexcept {
-            become(client.getX(), client.getY(), client.getWidth(), client.getHeight());
-        }
-        void become(const Client::Ptr client) noexcept {
-            become(client->getX(), client->getY(), client->getWidth(), client->getHeight());
         }
     private:
         int _x = 0;

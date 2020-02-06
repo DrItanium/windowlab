@@ -98,7 +98,7 @@ void toggle_fullscreen(ClientPointer c)
 			xoffset = yoffset = 0;
 			maxwinwidth = DisplayWidth(dsply, screen);
 			maxwinheight = DisplayHeight(dsply, screen) - BARHEIGHT();
-			if (fullscreen_client ) { // reset existing fullscreen window to original size
+			if (fullscreen_client) { // reset existing fullscreen window to original size
 				fullscreen_client->setX(fs_prevdims.getX());
 				fullscreen_client->setY(fs_prevdims.getY());
 				fullscreen_client->width = fs_prevdims.getWidth();
@@ -107,7 +107,7 @@ void toggle_fullscreen(ClientPointer c)
 				XMoveResizeWindow(dsply, fullscreen_client->getWindow(), 0, BARHEIGHT(), fullscreen_client->width, fullscreen_client->height);
                 fullscreen_client->sendConfig();
 			}
-            fs_prevdims.become(c->getX(), c->getY(), c->width, c->height);
+            fs_prevdims = c->getRect();
 			c->setX(0 - BORDERWIDTH(c));
             c->setY(BARHEIGHT() - BORDERWIDTH(c));
 			c->width = maxwinwidth;

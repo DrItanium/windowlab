@@ -333,3 +333,8 @@ Client::lowerWindow() noexcept {
     (void)XLowerWindow(dsply, _frame);
 }
 
+Rect
+Client::getRect() const noexcept {
+    return { _x, _y, width, height };
+}
+
