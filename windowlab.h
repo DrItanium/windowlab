@@ -335,6 +335,20 @@ struct MenuItem final {
 extern Display *dsply;
 extern Window root;
 extern int screen;
+class XInterface {
+    public:
+        XInterface& instance() noexcept;
+    public:
+        constexpr auto getDisplay() const noexcept { return _dsply; }
+        constexpr auto getWindow() const noexcept { return _root; }
+        constexpr auto getScreen() const noexcept { return _screen; }
+    private:
+        XInterface();
+    private:
+        Display* _dsply;
+        Window _root;
+        int _screen;
+};
 using ClientPointer = typename Client::Ptr;
 extern std::vector<ClientPointer> clients;
 
