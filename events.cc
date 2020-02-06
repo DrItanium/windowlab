@@ -369,8 +369,8 @@ static void handle_map_request(XMapRequestEvent *e) {
 
 static void handle_unmap_event(XUnmapEvent *e) {
 	if (ClientPointer c = find_client(e->window, WINDOW); c) {
-		if (c->ignore_unmap) {
-			c->ignore_unmap--;
+        if (c->getIgnoreUnmap()) {
+            c->decrementIgnoreUnmap();
 		} else {
 			remove_client(c, WITHDRAW);
 		}

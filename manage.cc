@@ -45,7 +45,7 @@ void raise_lower(ClientPointer c) {
 void
 Client::hide() noexcept {
     if (!_hidden) {
-        ignore_unmap++;
+        ++_ignoreUnmap;
         _hidden = true;
         if (sharedReference() == topmost_client) {
             topmost_client = nullptr;

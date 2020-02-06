@@ -56,7 +56,7 @@ Client::makeNew(Window w) noexcept {
 	XGetWMNormalHints(dsply, c->_window, c->_size, &dummy);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
-	c->ignore_unmap++;
+	++c->_ignoreUnmap;
 	
 	if (attr.map_state != IsViewable) {
         c->initPosition();
@@ -83,7 +83,7 @@ Client::makeNew(Window w) noexcept {
 	} else {
         c->setHidden(true);
 		if(attr.map_state == IsViewable) {
-			c->ignore_unmap++;
+			++c->_ignoreUnmap;
 			XUnmapWindow(dsply, c->_window);
 		}
 	}

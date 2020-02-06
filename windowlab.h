@@ -163,7 +163,6 @@ struct Client {
     public:
         int x = 0, y = 0;
         int width = 0, height = 0;
-        int ignore_unmap = 0;
     public:
         long getWMState() const noexcept;
         void setWMState(int) noexcept; 
@@ -214,6 +213,9 @@ struct Client {
         void setHidden(bool value) noexcept { _hidden = value; }
         auto wasHidden() const noexcept { return _wasHidden; }
         void setWasHidden(bool value) noexcept { _wasHidden = value; }
+        auto getIgnoreUnmap() const noexcept { return _ignoreUnmap; }
+        void decrementIgnoreUnmap() noexcept { --_ignoreUnmap; }
+        void incrementIgnoreUnmap() noexcept { ++_ignoreUnmap; }
     private:
         void setWindowAttributes(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -232,6 +234,7 @@ struct Client {
         XftDraw* _xftdraw = nullptr;
         bool _hidden = false;
         bool _wasHidden = false;
+        int _ignoreUnmap = 0;
         WeakPtr _selfReference;
 };
 
