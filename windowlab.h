@@ -161,7 +161,6 @@ struct Client {
         using WeakPtr = std::weak_ptr<Client>;
         static void makeNew(Window) noexcept;
     public:
-        int x = 0, y = 0;
         int width = 0, height = 0;
     public:
         long getWMState() const noexcept;
@@ -200,7 +199,7 @@ struct Client {
         const std::optional<std::string>& getName() const noexcept { return _name; }
         void setName(const std::string& name) noexcept { _name.emplace(name); }
         void setName(const std::optional<std::string>& name) noexcept { _name = name; }
-        auto getFocusOrder() const noexcept { return _focus_order; }
+        constexpr auto getFocusOrder() const noexcept { return _focus_order; }
         void setFocusOrder(unsigned int value) noexcept { _focus_order = value; }
         void incrementFocusOrder() noexcept { ++_focus_order; }
         XSizeHints* getSize() const noexcept { return _size; }
@@ -209,13 +208,17 @@ struct Client {
         void setColormap(Colormap value) noexcept { _cmap = value; } 
         auto getXftDraw() const noexcept { return _xftdraw; }
         void setXftDraw(XftDraw* value) noexcept { _xftdraw = value; }
-        auto isHidden() const noexcept { return _hidden; }
+        constexpr auto isHidden() const noexcept { return _hidden; }
         void setHidden(bool value) noexcept { _hidden = value; }
-        auto wasHidden() const noexcept { return _wasHidden; }
+        constexpr auto wasHidden() const noexcept { return _wasHidden; }
         void setWasHidden(bool value) noexcept { _wasHidden = value; }
-        auto getIgnoreUnmap() const noexcept { return _ignoreUnmap; }
+        constexpr auto getIgnoreUnmap() const noexcept { return _ignoreUnmap; }
         void decrementIgnoreUnmap() noexcept { --_ignoreUnmap; }
         void incrementIgnoreUnmap() noexcept { ++_ignoreUnmap; }
+        constexpr auto getX() const noexcept { return _x; }
+        void setX(int value) noexcept { _x = value; }
+        constexpr auto getY() const noexcept { return _y; }
+        void setY(int value) noexcept { _y = value; }
     private:
         void setWindowAttributes(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -237,6 +240,8 @@ struct Client {
         bool _hidden = false;
         bool _wasHidden = false;
         int _ignoreUnmap = 0;
+        int _x = 0;
+        int _y = 0;
         WeakPtr _selfReference;
 };
 

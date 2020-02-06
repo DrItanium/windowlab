@@ -196,8 +196,8 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		do
 		{
 			XMaskEvent(dsply, MouseMask, &ev);
-            in_box_up = c->boxClicked(ev.xbutton.x - (c->x + DEF_BORDERWIDTH));
-			win_ypos = (ev.xbutton.y - c->y) + BARHEIGHT();
+            in_box_up = c->boxClicked(ev.xbutton.x - (c->getX() + DEF_BORDERWIDTH));
+			win_ypos = (ev.xbutton.y - c->getY()) + BARHEIGHT();
 			if (ev.type == MotionNotify) {
 				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
 					in_box = 1;
@@ -296,10 +296,10 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 	if (c) {
         c->gravitate(REMOVE_GRAVITY);
 		if (e->value_mask & CWX) {
-			c->x = e->x;
+            c->setX(e->x);
 		}
 		if (e->value_mask & CWY) {
-			c->y = e->y;
+            c->setY(e->y);
 		}
 		if (e->value_mask & CWWidth) {
 			c->width = e->width;
@@ -310,8 +310,8 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		refix_position(c, e);
         c->gravitate(APPLY_GRAVITY);
 		// configure the frame
-		wc.x = c->x;
-		wc.y = c->y - BARHEIGHT();
+		wc.x = c->getX();
+		wc.y = c->getY() - BARHEIGHT();
 		wc.width = c->width;
 		wc.height = c->height + BARHEIGHT();
 		wc.border_width = DEF_BORDERWIDTH;

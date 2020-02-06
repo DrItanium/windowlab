@@ -24,8 +24,8 @@
 
 void
 Client::setWindowAttributes(XWindowAttributes& attr) noexcept {
-    x = attr.x;
-    y = attr.y;
+    _x = attr.x;
+    _y = attr.y;
     width = attr.width;
     height = attr.height;
     _cmap = attr.colormap;
@@ -129,10 +129,10 @@ Client::initPosition() noexcept {
 		height = BARHEIGHT();
 	}
 
-	if (x == 0 && y == 0) {
+	if (_x == 0 && _y == 0) {
         auto [mousex, mousey] = getMousePosition();
-		x = mousex;
-		y = mousey + BARHEIGHT();
+		_x = mousex;
+		_y = mousey + BARHEIGHT();
         gravitate(REMOVE_GRAVITY);
 	}
 }
@@ -145,7 +145,7 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_frame = XCreateWindow(dsply, root, x, y - BARHEIGHT(), width, height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_frame = XCreateWindow(dsply, root, _x, _y - BARHEIGHT(), width, height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
 #ifdef SHAPE
 	if (shape) {

@@ -85,11 +85,11 @@ void toggle_fullscreen(ClientPointer c)
 	int xoffset, yoffset, maxwinwidth, maxwinheight;
 	if (c  && !c->getTrans()) {
 		if (c == fullscreen_client) { // reset to original size
-			c->x = fs_prevdims.getX();
-			c->y = fs_prevdims.getY();
+			c->setX(fs_prevdims.getX());
+			c->setY(fs_prevdims.getY());
 			c->width = fs_prevdims.getWidth();
 			c->height = fs_prevdims.getHeight();
-			XMoveResizeWindow(dsply, c->getFrame(), c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT());
+			XMoveResizeWindow(dsply, c->getFrame(), c->getX(), c->getY() - BARHEIGHT(), c->width, c->height + BARHEIGHT());
 			XMoveResizeWindow(dsply, c->getWindow(), 0, BARHEIGHT(), c->width, c->height);
             c->sendConfig();
 			fullscreen_client = nullptr;
@@ -99,17 +99,17 @@ void toggle_fullscreen(ClientPointer c)
 			maxwinwidth = DisplayWidth(dsply, screen);
 			maxwinheight = DisplayHeight(dsply, screen) - BARHEIGHT();
 			if (fullscreen_client ) { // reset existing fullscreen window to original size
-				fullscreen_client->x = fs_prevdims.getX();
-				fullscreen_client->y = fs_prevdims.getY();
+				fullscreen_client->setX(fs_prevdims.getX());
+				fullscreen_client->setY(fs_prevdims.getY());
 				fullscreen_client->width = fs_prevdims.getWidth();
 				fullscreen_client->height = fs_prevdims.getHeight();
-				XMoveResizeWindow(dsply, fullscreen_client->getFrame(), fullscreen_client->x, fullscreen_client->y - BARHEIGHT(), fullscreen_client->width, fullscreen_client->height + BARHEIGHT());
+				XMoveResizeWindow(dsply, fullscreen_client->getFrame(), fullscreen_client->getX(), fullscreen_client->getY() - BARHEIGHT(), fullscreen_client->width, fullscreen_client->height + BARHEIGHT());
 				XMoveResizeWindow(dsply, fullscreen_client->getWindow(), 0, BARHEIGHT(), fullscreen_client->width, fullscreen_client->height);
                 fullscreen_client->sendConfig();
 			}
-            fs_prevdims.become(c->x, c->y, c->width, c->height);
-			c->x = 0 - BORDERWIDTH(c);
-			c->y = BARHEIGHT() - BORDERWIDTH(c);
+            fs_prevdims.become(c->getX(), c->getY(), c->width, c->height);
+			c->setX(0 - BORDERWIDTH(c));
+            c->setY(BARHEIGHT() - BORDERWIDTH(c));
 			c->width = maxwinwidth;
 			c->height = maxwinheight;
 			if (c->getSize()->flags & PMaxSize || c->getSize()->flags & PResizeInc) {
@@ -126,7 +126,7 @@ void toggle_fullscreen(ClientPointer c)
 					yoffset = (maxwinheight - c->height) / 2;
 				}
 			}
-			XMoveResizeWindow(dsply, c->getFrame(), c->x, c->y, maxwinwidth, maxwinheight);
+			XMoveResizeWindow(dsply, c->getFrame(), c->getX(), c->getY(), maxwinwidth, maxwinheight);
 			XMoveResizeWindow(dsply, c->getWindow(), xoffset, yoffset, c->width, c->height);
             c->sendConfig();
 			fullscreen_client = c;
@@ -162,17 +162,17 @@ void send_wm_delete(ClientPointer c)
 void
 Client::move() noexcept {
 	XEvent ev;
-	int old_cx = x;
-	int old_cy = y;
+	int old_cx = _x;
+	int old_cy = _y;
 	Rect bounddims;
 	XSetWindowAttributes pattr;
 
 	int dw = DisplayWidth(dsply, screen);
 	int dh = DisplayHeight(dsply, screen);
     auto [mousex, mousey] = getMousePosition();
-	bounddims.setX((mousex - x) - BORDERWIDTH(this));
+	bounddims.setX((mousex - _x) - BORDERWIDTH(this));
 	bounddims.setWidth((dw - bounddims.getX() - (width - bounddims.getX())) + 1);
-	bounddims.setY(mousey - y);
+	bounddims.setY(mousey - _y);
 	bounddims.setHeight((dh - bounddims.getY() - (height - bounddims.getY())) + 1);
 	bounddims.addToY((BARHEIGHT() * 2) - BORDERWIDTH(this));
 	bounddims.addToHeight(height - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
@@ -198,9 +198,9 @@ Client::move() noexcept {
 				}
 				break;
 			case MotionNotify:
-				x = old_cx + (ev.xmotion.x - mousex);
-				y = old_cy + (ev.xmotion.y - mousey);
-				XMoveWindow(dsply, _frame, x, y - BARHEIGHT());
+				_x = old_cx + (ev.xmotion.x - mousex);
+				_y = old_cy + (ev.xmotion.y - mousey);
+				XMoveWindow(dsply, _frame, _x, _y - BARHEIGHT());
                 sendConfig();
 				break;
 		}
@@ -219,7 +219,7 @@ void resize(ClientPointer c, int x, int y)
 
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
-    bool dragging_outwards = x > c->x + BORDERWIDTH(c) && x < (c->x + c->width) - BORDERWIDTH(c) && y > (c->y - BARHEIGHT()) + BORDERWIDTH(c) && y < (c->y + c->height) - BORDERWIDTH(c);
+    bool dragging_outwards = x > c->getX() + BORDERWIDTH(c) && x < (c->getY() + c->width) - BORDERWIDTH(c) && y > (c->getY() - BARHEIGHT()) + BORDERWIDTH(c) && y < (c->getY() + c->height) - BORDERWIDTH(c);
 
 	unsigned int dw = DisplayWidth(dsply, screen);
 	unsigned int dh = DisplayHeight(dsply, screen);
@@ -233,7 +233,7 @@ void resize(ClientPointer c, int x, int y)
 		XDestroyWindow(dsply, constraint_win);
 		return;
 	}
-    Rect newdims { c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT() };
+    Rect newdims { c->getX(), c->getY() - BARHEIGHT(), c->width, c->height + BARHEIGHT() };
     Rect recalceddims(newdims);
 
 	// create and map resize window
@@ -367,12 +367,12 @@ void resize(ClientPointer c, int x, int y)
 
 	XUngrabServer(dsply);
 	ungrab();
-	c->x = recalceddims.getX();
-	c->y = recalceddims.getY() + BARHEIGHT();
+	c->setX(recalceddims.getX());
+    c->setY(recalceddims.getY() + BARHEIGHT());
 	c->width = recalceddims.getWidth();
 	c->height = recalceddims.getHeight() - BARHEIGHT();
 
-	XMoveResizeWindow(dsply, c->getFrame(), c->x, c->y - BARHEIGHT(), c->width, c->height + BARHEIGHT());
+	XMoveResizeWindow(dsply, c->getFrame(), c->getX(), c->getY() - BARHEIGHT(), c->width, c->height + BARHEIGHT());
 	XResizeWindow(dsply, c->getWindow(), c->width, c->height);
 
 	// unhide real window's frame

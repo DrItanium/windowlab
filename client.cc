@@ -81,8 +81,8 @@ Client::sendConfig() noexcept {
     ce.type = ConfigureNotify;
     ce.event = _window;
     ce.window = _window;
-    ce.x = x;
-    ce.y = y;
+    ce.x = _x;
+    ce.y = _y;
     ce.width = width;
     ce.height = height;
     ce.border_width = 0;
@@ -120,7 +120,7 @@ void remove_client(ClientPointer c, int mode)
 		XMapWindow(dsply, c->getWindow());
 	}
     c->gravitate(REMOVE_GRAVITY);
-	XReparentWindow(dsply, c->getWindow(), root, c->x, c->y);
+	XReparentWindow(dsply, c->getWindow(), root, c->getX(), c->getY());
 	XSetWindowBorderWidth(dsply, c->getWindow(), 1);
 	XftDrawDestroy(c->getXftDraw());
 	XRemoveFromSaveSet(dsply, c->getWindow());
@@ -193,7 +193,7 @@ Client::gravitate(int multiplier) noexcept {
 			break;
 	}
 
-	y += multiplier * dy;
+	_y += multiplier * dy;
 }
 
 
