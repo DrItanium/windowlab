@@ -219,6 +219,10 @@ struct Client {
         void setX(int value) noexcept { _x = value; }
         constexpr auto getY() const noexcept { return _y; }
         void setY(int value) noexcept { _y = value; }
+        constexpr auto getWidth() const noexcept { return width; }
+        void setWidth(int value) noexcept { width = value; }
+        constexpr auto getHeight() const noexcept { return height; }
+        void setHeight(int value) noexcept { height = value; }
     private:
         void setWindowAttributes(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -298,6 +302,12 @@ struct Rect final {
             setY(y);
             setWidth(w);
             setHeight(h);
+        }
+        void become(const Client& client) noexcept {
+            become(client.getX(), client.getY(), client.getWidth(), client.getHeight());
+        }
+        void become(const Client::Ptr client) noexcept {
+            become(client->getX(), client->getY(), client->getWidth(), client->getHeight());
         }
     private:
         int _x = 0;
