@@ -28,7 +28,7 @@
 #include <optional>
 #include <string>
 
-static void quit_nicely();
+static void quitNicely();
 
 std::optional<std::string>
 getEnvironmentVariable(const std::string& varName) noexcept {
@@ -81,7 +81,7 @@ void sig_handler(int signal)
 	{
 		case SIGINT:
 		case SIGTERM:
-			quit_nicely();
+			quitNicely();
 			break;
 		case SIGHUP:
             Menu::instance().populate();
@@ -237,7 +237,7 @@ Client::refixPosition(XConfigureRequestEvent *e) {
 	case name: \
 		return #name;
 
-void show_event(XEvent e)
+void showEvent(XEvent e)
 {
 	char *s, buf[20];
 	Window w;
@@ -278,10 +278,10 @@ void show_event(XEvent e)
     err(w, ": ", ((c && c->name) ? *(c->name) : "(none)"), ": ", s);
 }
 
-static const char *show_state(ClientPointer c)
-{
-	switch (c->getWMState()) 
-	{
+static 
+std::string 
+showState(ClientPointer c) {
+	switch (c->getWMState()) {
 		SHOW(WithdrawnState)
 		SHOW(NormalState)
 		SHOW(IconicState)
@@ -289,8 +289,9 @@ static const char *show_state(ClientPointer c)
 	}
 }
 
-static std::string show_grav(ClientPointer c)
-{
+static 
+std::string 
+show_grav(ClientPointer c) {
 	if (!c->size || !(c->size->flags & PWinGravity)) {
 		return "no grav (NW)";
 	}
@@ -312,15 +313,23 @@ static std::string show_grav(ClientPointer c)
 	}
 }
 
-void dump(ClientPointer c) {
-	if (c ) {
-        err((c->name ? *c->name : ""), "\n\t", show_state(c), ",", show_grav(c), ", ignore ", c->ignore_unmap, ", was_hidden ", c->was_hidden, "\n\tframe ", c->frame, ", win ", c->window, ", geom ", c->width, "x", c->height, "+", c->x, "+", c->y);
-	}
+void 
+Client::dump() const noexcept {
+    err((_name ? *_name : ""), "\n\t", 
+            show_state(c), ",", show_grav(c), 
+            ", ignore ", _ignoreUnmap, 
+            ", was_hidden ", _wasHidden, 
+            "\n\tframe ", _frame, 
+            ", win ", _window, 
+            ", geom ", 
+            _width, "x", _height, "+", _x, "+", _y);
 }
 
-void dump_clients(void) {
-    for (auto& c : clients) {
-		dump(c);
+void dumpClients() {
+    for (const auto& c : clients) {
+        if (c) {
+		    c->dump();
+        }
 	}
 }
 #endif
@@ -328,8 +337,8 @@ void dump_clients(void) {
 /* We use XQueryTree here to preserve the window stacking order,
  * since the order in our linked list is different. */
 
-static void quit_nicely()
-{
+static 
+void quitNicely() {
 	unsigned int nwins, i;
 	Window dummyw1, dummyw2, *wins;
 	ClientPointer c;

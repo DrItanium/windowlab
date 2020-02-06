@@ -227,6 +227,9 @@ struct Client {
         void resize(int, int);
         void fixPosition() noexcept;
         void refixPosition(XConfigureRequestEvent*);
+#ifdef DEBUG
+        void dump() const noexcept;
+#endif
     private:
         void setDimensions(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -411,9 +414,8 @@ int ignore_xerror(Display *, XErrorEvent *);
 int send_xmessage(Window, Atom, long);
 std::tuple<int, int> getMousePosition();
 #ifdef DEBUG
-void show_event(XEvent);
-void dump(ClientPointer);
-void dump_clients(void);
+void showEvent(XEvent);
+void dumpClients();
 #endif
 
 Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
