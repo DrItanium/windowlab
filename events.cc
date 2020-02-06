@@ -472,8 +472,8 @@ static void handle_enter_event(XCrossingEvent *e) {
 
 static void handle_colormap_change(XColormapEvent *e) {
 	if (ClientPointer c = find_client(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
-		c->cmap = e->colormap;
-		XInstallColormap(dsply, c->cmap);
+        c->setColormap(e->colormap);
+		XInstallColormap(dsply, c->getColormap());
 	}
 }
 

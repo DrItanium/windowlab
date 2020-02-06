@@ -245,7 +245,7 @@ void check_focus(ClientPointer c)
 {
 	if (c) {
 		XSetInputFocus(dsply, c->getWindow(), RevertToNone, CurrentTime);
-		XInstallColormap(dsply, c->cmap);
+		XInstallColormap(dsply, c->getColormap());
 	}
 	if (c != focused_client) {
 		ClientPointer old_focused = focused_client;

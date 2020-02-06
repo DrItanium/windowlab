@@ -156,58 +156,62 @@ constexpr auto REMAP = 1;
  * isn't supposed to do anything. */
 
 struct Client {
-    using Ptr = std::shared_ptr<Client>;
-    using WeakPtr = std::weak_ptr<Client>;
-    static void makeNew(Window) noexcept;
-	Colormap cmap;
-	int x = 0, y = 0;
-	int width = 0, height = 0;
-	int ignore_unmap = 0;
-	bool hidden = 0;
-	bool was_hidden = 0;
-	XftDraw *xftdraw = nullptr;
-    long getWMState() const noexcept;
-    void setWMState(int) noexcept; 
-    /**
-     * Return which button was clicked - this is a multiple of BARHEIGHT()
-     * from the right hand side; We only care about 0, 1 and 2. 
-     */
-    unsigned int boxClicked(int x) const noexcept;
-    void drawHideButton(GC* detail, GC* background) noexcept;
-    void drawToggleDepthButton(GC* detail, GC* background) noexcept;
-    void drawCloseButton(GC* detail , GC* background) noexcept;
-    void drawButton(GC* detail, GC* background, unsigned int whichBox) noexcept;
-    void lowerWindow() noexcept;
-    void raiseWindow() noexcept;
-    void sendConfig() noexcept;
-    void reparent() noexcept;
+    public:
+        using Ptr = std::shared_ptr<Client>;
+        using WeakPtr = std::weak_ptr<Client>;
+        static void makeNew(Window) noexcept;
+    public:
+        int x = 0, y = 0;
+        int width = 0, height = 0;
+        int ignore_unmap = 0;
+        bool hidden = 0;
+        bool was_hidden = 0;
+        XftDraw *xftdraw = nullptr;
+    public:
+        long getWMState() const noexcept;
+        void setWMState(int) noexcept; 
+        /**
+         * Return which button was clicked - this is a multiple of BARHEIGHT()
+         * from the right hand side; We only care about 0, 1 and 2. 
+         */
+        unsigned int boxClicked(int x) const noexcept;
+        void drawHideButton(GC* detail, GC* background) noexcept;
+        void drawToggleDepthButton(GC* detail, GC* background) noexcept;
+        void drawCloseButton(GC* detail , GC* background) noexcept;
+        void drawButton(GC* detail, GC* background, unsigned int whichBox) noexcept;
+        void lowerWindow() noexcept;
+        void raiseWindow() noexcept;
+        void sendConfig() noexcept;
+        void reparent() noexcept;
 #ifdef SHAPE
-    void setShape() noexcept;
+        void setShape() noexcept;
 #endif
-    void setWindowAttributes(XWindowAttributes& attr) noexcept;
-    void redraw() noexcept;
-    void rememberHidden() noexcept;
-    void forgetHidden() noexcept;
-    Ptr sharedReference() const noexcept { return _selfReference.lock(); }
-    void raiseLower() noexcept;
-    void hide() noexcept;
-    void unhide() noexcept;
-    void gravitate(int multiplier) noexcept;
-    void move() noexcept;
-    void writeTitleText(Window) noexcept;
-    auto getWindow() const noexcept { return _window; }
-    auto getFrame() const noexcept { return _frame; }
-    auto getTrans() const noexcept { return _trans; }
-    void setFrame(Window frame) noexcept { _frame = frame; }
-    void setTrans(Window trans) noexcept { _trans = trans; }
-    const std::optional<std::string>& getName() const noexcept { return _name; }
-    void setName(const std::string& name) noexcept { _name.emplace(name); }
-    void setName(const std::optional<std::string>& name) noexcept { _name = name; }
-    auto getFocusOrder() const noexcept { return _focus_order; }
-    void setFocusOrder(unsigned int value) noexcept { _focus_order = value; }
-    void incrementFocusOrder() noexcept { ++_focus_order; }
-    XSizeHints* getSize() const noexcept { return _size; }
-    void setSize(XSizeHints* value) noexcept { _size = value; }
+        void setWindowAttributes(XWindowAttributes& attr) noexcept;
+        void redraw() noexcept;
+        void rememberHidden() noexcept;
+        void forgetHidden() noexcept;
+        Ptr sharedReference() const noexcept { return _selfReference.lock(); }
+        void raiseLower() noexcept;
+        void hide() noexcept;
+        void unhide() noexcept;
+        void gravitate(int multiplier) noexcept;
+        void move() noexcept;
+        void writeTitleText(Window) noexcept;
+        auto getWindow() const noexcept { return _window; }
+        auto getFrame() const noexcept { return _frame; }
+        auto getTrans() const noexcept { return _trans; }
+        void setFrame(Window frame) noexcept { _frame = frame; }
+        void setTrans(Window trans) noexcept { _trans = trans; }
+        const std::optional<std::string>& getName() const noexcept { return _name; }
+        void setName(const std::string& name) noexcept { _name.emplace(name); }
+        void setName(const std::optional<std::string>& name) noexcept { _name = name; }
+        auto getFocusOrder() const noexcept { return _focus_order; }
+        void setFocusOrder(unsigned int value) noexcept { _focus_order = value; }
+        void incrementFocusOrder() noexcept { ++_focus_order; }
+        XSizeHints* getSize() const noexcept { return _size; }
+        void setSize(XSizeHints* value) noexcept { _size = value; }
+        auto getColormap() const noexcept { return _cmap; }
+        void setColormap(Colormap value) noexcept { _cmap = value; } 
     private:
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
@@ -221,6 +225,7 @@ struct Client {
         Bool _hasBeenShaped = 0;
 #endif
         XSizeHints* _size = nullptr;
+        Colormap _cmap = 0;
         WeakPtr _selfReference;
 };
 

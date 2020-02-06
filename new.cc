@@ -28,7 +28,7 @@ Client::setWindowAttributes(XWindowAttributes& attr) noexcept {
     y = attr.y;
     width = attr.width;
     height = attr.height;
-    cmap = attr.colormap;
+    _cmap = attr.colormap;
 }
 
 /* Set up a client structure for the new (not-yet-mapped) window. The
