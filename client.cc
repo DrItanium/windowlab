@@ -153,7 +153,7 @@ Client::redraw() noexcept {
     if (self == fullscreen_client) {
         return;
     }
-	XDrawLine(dsply, _frame, border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
+    drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (self == focused_client) {
 		XFillRectangle(dsply, _frame, active_gc, 0, 0, width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
@@ -275,19 +275,23 @@ ClientPointer get_prev_focused() {
 	return prev_focused;
 }
 void
+Client::drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept {
+    XDrawLine(dsply, _frame, gc, x1, y1, x2, y2);
+}
+void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
 	int x = width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
 	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 6, topleft_offset + 4, x + topleft_offset + 8, topleft_offset + 4);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 6, topleft_offset + 6, x + topleft_offset + 7, topleft_offset + 7);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 4, topleft_offset + 6, x + topleft_offset + 4, topleft_offset + 8);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 2, topleft_offset + 6, x + topleft_offset + 1, topleft_offset + 7);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 2, topleft_offset + 4, x + topleft_offset + 0, topleft_offset + 4);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
+	drawLine(detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
+	drawLine(detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
+	drawLine(detail, x + topleft_offset + 6, topleft_offset + 4, x + topleft_offset + 8, topleft_offset + 4);
+	drawLine(detail, x + topleft_offset + 6, topleft_offset + 6, x + topleft_offset + 7, topleft_offset + 7);
+	drawLine(detail, x + topleft_offset + 4, topleft_offset + 6, x + topleft_offset + 4, topleft_offset + 8);
+	drawLine(detail, x + topleft_offset + 2, topleft_offset + 6, x + topleft_offset + 1, topleft_offset + 7);
+	drawLine(detail, x + topleft_offset + 2, topleft_offset + 4, x + topleft_offset + 0, topleft_offset + 4);
+	drawLine(detail, x + topleft_offset + 2, topleft_offset + 2, x + topleft_offset + 1, topleft_offset + 1);
 }
 
 
@@ -308,13 +312,13 @@ Client::drawCloseButton(GC* detail, GC* background) noexcept {
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
 	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 8);
+	drawLine(detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
+	drawLine(detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
+	drawLine(detail, x + topleft_offset, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 8);
 
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset, topleft_offset + 7, x + topleft_offset + 7, topleft_offset);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset + 7, x + topleft_offset + 7, topleft_offset + 1);
-	XDrawLine(dsply, _frame, *detail, x + topleft_offset + 1, topleft_offset + 8, x + topleft_offset + 8, topleft_offset + 1);
+	drawLine(detail, x + topleft_offset, topleft_offset + 7, x + topleft_offset + 7, topleft_offset);
+	drawLine(detail, x + topleft_offset + 1, topleft_offset + 7, x + topleft_offset + 7, topleft_offset + 1);
+	drawLine(detail, x + topleft_offset + 1, topleft_offset + 8, x + topleft_offset + 8, topleft_offset + 1);
 }
 
 void
