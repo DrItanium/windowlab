@@ -166,9 +166,6 @@ struct Client {
 	int ignore_unmap = 0;
 	bool hidden = 0;
 	bool was_hidden = 0;
-#ifdef SHAPE
-	Bool has_been_shaped = 0;
-#endif
 	XftDraw *xftdraw = nullptr;
     long getWMState() const noexcept;
     void setWMState(int) noexcept; 
@@ -218,6 +215,9 @@ struct Client {
         Window _trans;
         std::optional<std::string> _name;
 	    unsigned int _focus_order = 0u;
+#ifdef SHAPE
+        Bool _hasBeenShaped = 0;
+#endif
         WeakPtr _selfReference;
 };
 

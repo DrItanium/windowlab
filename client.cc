@@ -226,9 +226,9 @@ Client::setShape() noexcept {
 		temp2.width = width;
 		temp2.height = BARHEIGHT() - BORDERWIDTH(this);
 		XShapeCombineRectangles(dsply, _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
-		has_been_shaped = 1;
+		_hasBeenShaped = 1;
 	} else {
-		if (has_been_shaped) {
+		if (_hasBeenShaped) {
 			// I can't find a 'remove all shaping' function...
 			temp.x = -BORDERWIDTH(this);
 			temp.y = -BORDERWIDTH(this);
