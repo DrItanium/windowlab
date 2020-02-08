@@ -78,20 +78,21 @@ void
 lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
 	if (old_c) {
 		if (old_c->wasHidden()) {
-			hide(old_c);
+            old_c->hide();
 		}
 	}
-
-	if (c->isHidden()) {
-		unhide(c);
-	} else {
-        if (c->wasHidden()) {
-			hide(c);
-		} else {
-            c->raiseLower();
-		}
-	}
-    ClientTracker::instance().checkFocus(c);
+    if (c) {
+        if (c->isHidden()) {
+            c->unhide();
+        } else {
+            if (c->wasHidden()) {
+                c->hide();
+            } else {
+                c->raiseLower();
+            }
+        }
+        ClientTracker::instance().checkFocus(c);
+    }
 }
 
 void

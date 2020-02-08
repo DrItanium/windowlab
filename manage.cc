@@ -71,17 +71,6 @@ Client::unhide() noexcept {
     }
 }
 
-void hide(ClientPointer c) {
-	if (c ) {
-        c->hide();
-	}
-}
-
-void unhide(ClientPointer c) {
-	if (c ) {
-        c->unhide();
-	}
-}
 
 void toggle_fullscreen(ClientPointer c)
 {

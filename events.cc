@@ -222,7 +222,9 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
                     c->raiseLower();
 					break;
 				case 2:
-					hide(c);
+                    if (c) {
+                        c->hide();
+                    }
 					break;
 			}
 		}
@@ -349,7 +351,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 static void handle_map_request(XMapRequestEvent *e) {
 	ClientPointer c = ClientTracker::instance().find(e->window, WINDOW);
 	if (c) {
-		unhide(c);
+        c->unhide();
 	} else {
         Client::makeNew(e->window);
 	}
@@ -395,7 +397,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e) {
 
 static void handle_client_message(XClientMessageEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
-		hide(c);
+        c->hide();
 	}
 }
 

@@ -385,6 +385,7 @@ class ClientTracker final {
         auto getTopmostClient() const noexcept { return _topmostClient; }
         void setTopmostClient(ClientPointer p) noexcept { _topmostClient = p; }
         bool hasTopmostClient() const noexcept { return static_cast<bool>(_topmostClient); }
+
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -429,8 +430,6 @@ void doEventLoop();
 //void check_focus(ClientPointer);
 
 // manage.c
-void hide(ClientPointer);
-void unhide(ClientPointer);
 void toggle_fullscreen(ClientPointer);
 void send_wm_delete(ClientPointer);
 
