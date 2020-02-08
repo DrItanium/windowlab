@@ -326,12 +326,13 @@ Client::dump() const noexcept {
             _width, "x", _height, "+", _x, "+", _y);
 }
 
-void dumpClients() {
-    for (const auto& c : clients) {
+void
+ClientTracker::dump() {
+    for (const auto& c : _clients) {
         if (c) {
-		    c->dump();
+            c->dump();
         }
-	}
+    }
 }
 #endif
 

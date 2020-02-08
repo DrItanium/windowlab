@@ -139,7 +139,7 @@ static void handle_button_press(XButtonEvent *e)
 		}
 	} else if (e->window == root) {
 #ifdef DEBUG
-		dump_clients();
+        clients.dump();
 #endif
 		if (e->button == Button3) {
             taskbar.rightClickRoot();

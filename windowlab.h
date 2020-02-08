@@ -386,7 +386,9 @@ class ClientTracker final {
         auto getTopmostClient() const noexcept { return _topmostClient; }
         void setTopmostClient(ClientPointer p) noexcept { _topmostClient = p; }
         bool hasTopmostClient() const noexcept { return static_cast<bool>(_topmostClient); }
-
+#ifdef DEBUG
+        void dump();
+#endif
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -406,6 +408,31 @@ class ClientTracker final {
         ClientPointer _topmostClient;
         ClientPointer _fullscreenClient;
 
+};
+class Taskbar final {
+    public:
+        static Taskbar& instance() noexcept;
+        void cyclePrevious();
+        void cycleNext();
+        void leftClick(int);
+        void rightClick(int);
+        void rightClickRoot();
+        void redraw();
+        float getButtonWidth();
+        Window& getWindow() noexcept { return _taskbar; }
+    private:
+        Taskbar() = default;
+    private:
+        void drawMenubar();
+        unsigned int updateMenuItem(int mousex);
+        void drawMenuItem(unsigned int index, unsigned int active);
+
+    public:
+        void make() noexcept;
+    private:
+        bool _made = false;
+        Window _taskbar;
+        XftDraw* _tbxftdraw = nullptr;
 };
 
 extern bool in_taskbar, showing_taskbar;
@@ -462,32 +489,6 @@ void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const 
 std::tuple<Status, std::optional<std::string>> fetchName(Display* disp, Window w);
 
 // taskbar.c
-class Taskbar final {
-    public:
-        static Taskbar& instance() noexcept;
-        void cyclePrevious();
-        void cycleNext();
-        void leftClick(int);
-        void rightClick(int);
-        void rightClickRoot();
-        void redraw();
-        float getButtonWidth();
-        Window& getWindow() noexcept { return _taskbar; }
-    private:
-        Taskbar() = default;
-    private:
-        void drawMenubar();
-        unsigned int updateMenuItem(int mousex);
-        void drawMenuItem(unsigned int index, unsigned int active);
-
-    public:
-        void make() noexcept;
-    private:
-        bool _made = false;
-        Window _taskbar;
-        XftDraw* _tbxftdraw = nullptr;
-
-};
 
 // menufile.c
 class Menu final {
