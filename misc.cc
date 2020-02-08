@@ -100,7 +100,7 @@ void sig_handler(int signal)
 
 int handle_xerror(Display *dsply, XErrorEvent *e)
 {
-	ClientPointer c = find_client(e->resourceid, WINDOW);
+	ClientPointer c = ClientTracker::instance().find(e->resourceid, WINDOW);
 
 	if (e->error_code == BadAccess && e->resourceid == root) {
 		err("root window unavailable (maybe another wm is running?)");
@@ -274,7 +274,7 @@ void showEvent(XEvent e)
 			break;
 	}
 
-	c = find_client(w, WINDOW);
+	c = ClientTracker::instance().find(w, WINDOW);
     err(w, ": ", ((c && c->name) ? *(c->name) : "(none)"), ": ", s);
 }
 
@@ -347,7 +347,7 @@ void quitNicely() {
 
 	XQueryTree(dsply, root, &dummyw1, &dummyw2, &wins, &nwins);
 	for (i = 0; i < nwins; i++) {
-		c = find_client(wins[i], FRAME);
+		c = ClientTracker::instance().find(wins[i], FRAME);
 		if (c) {
 			remove_client(c, REMAP);
 		}

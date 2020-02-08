@@ -161,7 +161,7 @@ static void handle_button_press(XButtonEvent *e)
 		// pass event on
 		XAllowEvents(dsply, ReplayPointer, CurrentTime);
 		if (e->button == Button1) {
-			ClientPointer c = find_client(e->window, FRAME);
+			ClientPointer c = ClientTracker::instance().find(e->window, FRAME);
 			if (c) {
 				// click-to-focus
 				check_focus(c);
@@ -281,7 +281,7 @@ Client::drawButton(GC *detail_gc, GC *background_gc, unsigned int which_box) noe
  * requirements may not be met by the window manager. */
 
 static void handle_configure_request(XConfigureRequestEvent *e) {
-	ClientPointer c = find_client(e->window, WINDOW);
+	ClientPointer c = ClientTracker::instance().find(e->window, WINDOW);
 	XWindowChanges wc;
 
 	if (fullscreen_client  && c == fullscreen_client) {
@@ -344,8 +344,8 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
  * de-iconify, which is simple to take care of. */
 
 static void handle_map_request(XMapRequestEvent *e) {
-	ClientPointer c = find_client(e->window, WINDOW);
-	if (c ) {
+	ClientPointer c = ClientTracker::instance().find(e->window, WINDOW);
+	if (c) {
 		unhide(c);
 	} else {
         Client::makeNew(e->window);
@@ -367,7 +367,7 @@ static void handle_map_request(XMapRequestEvent *e) {
  * that's almost as old as I am though. :-( */
 
 static void handle_unmap_event(XUnmapEvent *e) {
-	if (ClientPointer c = find_client(e->window, WINDOW); c) {
+	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
         if (c->getIgnoreUnmap()) {
             c->decrementIgnoreUnmap();
 		} else {
@@ -381,7 +381,7 @@ static void handle_unmap_event(XUnmapEvent *e) {
  * already unmapped. */
 
 static void handle_destroy_event(XDestroyWindowEvent *e) {
-	if (ClientPointer c = find_client(e->window, WINDOW); c) {
+	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
 		remove_client(c, WITHDRAW);
 	}
 }
@@ -391,7 +391,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e) {
  * but there's nothing else required by the ICCCM. */
 
 static void handle_client_message(XClientMessageEvent *e) {
-	if (ClientPointer c = find_client(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
+	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
 		hide(c);
 	}
 }
@@ -402,9 +402,7 @@ static void handle_client_message(XClientMessageEvent *e) {
  * used when we need them. */
 
 static void handle_property_change(XPropertyEvent *e) {
-	ClientPointer c = find_client(e->window, WINDOW);
-
-	if (ClientPointer c = find_client(e->window, WINDOW); c) {
+	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
 		switch (e->atom) {
             case XA_WM_NAME: {
                                  auto [ status, opt ] = fetchName(dsply, c->getWindow());
@@ -454,7 +452,7 @@ static void handle_enter_event(XCrossingEvent *e) {
 			}
 		}
 
-		if (ClientPointer c = find_client(e->window, FRAME); c) {
+		if (ClientPointer c = ClientTracker::instance().find(e->window, FRAME); c) {
 			XGrabButton(dsply, AnyButton, AnyModifier, c->getFrame(), False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
 	}
@@ -470,7 +468,7 @@ static void handle_enter_event(XCrossingEvent *e) {
  * these days. */
 
 static void handle_colormap_change(XColormapEvent *e) {
-	if (ClientPointer c = find_client(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
+	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
         c->setColormap(e->colormap);
 		XInstallColormap(dsply, c->getColormap());
 	}
@@ -486,7 +484,7 @@ static void handle_expose_event(XExposeEvent *e) {
             taskbar.redraw();
 		}
 	} else {
-		if (ClientPointer c = find_client(e->window, FRAME); c  && e->count == 0) {
+		if (ClientPointer c = ClientTracker::instance().find(e->window, FRAME); c  && e->count == 0) {
             c->redraw();
 		}
 	}
@@ -494,7 +492,7 @@ static void handle_expose_event(XExposeEvent *e) {
 
 #ifdef SHAPE
 static void handle_shape_change(XShapeEvent *e) {
-	if (ClientPointer c = find_client(e->window, WINDOW); c) {
+	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
         c->setShape();
 	}
 }

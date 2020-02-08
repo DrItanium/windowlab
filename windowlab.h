@@ -354,6 +354,7 @@ class ClientTracker final {
         auto find(ClientPointer p) {
             return std::find(_clients.begin(), _clients.end(), p);
         }
+        ClientPointer find(Window, int);
         bool remove(ClientPointer p) {
             if (auto loc = this->find(p); loc != _clients.end()) {
                 _clients.erase(loc);
@@ -367,6 +368,13 @@ class ClientTracker final {
         auto back() const { return _clients.back(); }
         auto size() const noexcept { return _clients.size(); }
         [[nodiscard]] bool empty() const noexcept { return _clients.empty(); }
+        ClientPointer getPreviousFocused();
+        /**
+         * Visit each client and apply the given function to it.
+         * @param fn The function to apply to each client
+         * @return boolean value to signify if execution should terminate early (return true for it)
+         */
+        bool accept(std::function<bool(ClientPointer)> fn) noexcept;
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -406,7 +414,6 @@ extern unsigned int numlockmask;
 void doEventLoop();
 
 // client.c
-ClientPointer find_client(Window, int);
 void remove_client(ClientPointer, int);
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();

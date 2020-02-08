@@ -51,11 +51,16 @@ Taskbar::make() noexcept {
     _made = true;
 }
 
-void remember_hidden(void)
-{
-    for (auto& c : clients) {
-        c->rememberHidden();
+bool
+ClientTracker::accept(std::function<bool(ClientPointer)> fn) {
+    auto stop = false;
+    for (auto & c : _clients) {
+        stop = fn(c);
+        if (stop) {
+            break;
+        }
     }
+    return stop;
 }
 
 void
@@ -67,14 +72,6 @@ Client::rememberHidden() noexcept {
 void
 Client::forgetHidden() noexcept {
     _wasHidden = (this == focused_client.get()) ? _hidden : false;
-}
-
-
-void 
-forget_hidden() {
-    for (auto& c : clients) {
-        c->forgetHidden();
-	}
 }
 
 void 
@@ -107,7 +104,7 @@ Taskbar::leftClick(int x)
 	unsigned int button_clicked, old_button_clicked;
 	ClientPointer c, exposed_c, old_c;
 	if (!clients.empty()) {
-		remember_hidden();
+        ClientTracker::instance().accept([](ClientPointer p) { p->rememberHidden(); return false; });
 
         // unused?
         //auto [mousex, mousey] = getMousePosition();
@@ -133,7 +130,7 @@ Taskbar::leftClick(int x)
 			XMaskEvent(dsply, ExposureMask|MouseMask|KeyMask, &ev);
 			switch (ev.type) {
 				case Expose:
-					exposed_c = find_client(ev.xexpose.window, FRAME);
+					exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME);
 					if (exposed_c) {
                         exposed_c->redraw();
 					}
@@ -158,7 +155,7 @@ Taskbar::leftClick(int x)
 		XDestroyWindow(dsply, constraint_win);
 		ungrab();
 
-		forget_hidden();
+        ClientTracker::instance().accept([](ClientPointer p) { p->forgetHidden(); return false; });
 	}
 }
 

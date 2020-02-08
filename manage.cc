@@ -184,7 +184,7 @@ Client::move() noexcept {
 		XMaskEvent(dsply, ExposureMask|MouseMask, &ev);
 		switch (ev.type) {
 			case Expose:
-				if (ClientPointer exposed_c = find_client(ev.xexpose.window, FRAME); exposed_c) {
+				if (ClientPointer exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME); exposed_c) {
                     exposed_c->redraw();
 				}
 				break;
@@ -256,7 +256,7 @@ Client::resize(int x, int y)
 				if (ev.xexpose.window == resizebar_win) {
                     writeTitleText(resizebar_win);
 				} else {
-					exposed_c = find_client(ev.xexpose.window, FRAME);
+					exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME);
 					if (exposed_c) {
                         exposed_c->redraw();
 					}

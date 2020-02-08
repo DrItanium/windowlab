@@ -21,23 +21,23 @@
 
 #include "windowlab.h"
 
-std::vector<typename Client::Ptr> clients;
 
-ClientPointer find_client(Window w, int mode) {
-	if (mode == FRAME) {
-        for (auto& client : clients) {
+ClientPointer
+ClientTracker::find(Window w, int mode) {
+    if (mode == FRAME) {
+        for (auto& client : _clients) {
             if (client->getFrame() == w) {
                 return client;
             }
         }
-	} else { // WINDOW
-        for (auto& client : clients) {
+    } else {
+        for (auto& client : _clients) {
             if (client->getWindow() == w) {
                 return client;
             }
         }
-	}
-	return nullptr;
+    }
+    return nullptr;
 }
 
 void 
@@ -259,11 +259,12 @@ void check_focus(ClientPointer c)
 	}
 }
 
-ClientPointer get_prev_focused() {
+ClientPointer
+ClientTracker::getPreviousFocused() {
 	ClientPointer prevFocused;
 	unsigned int highest = 0;
 
-    for (auto& c : clients) {
+    for (auto& c : _clients) {
 		if (!c->isHidden() && c->getFocusOrder() > highest) {
 			highest = c->getFocusOrder();
 			prevFocused = c;
