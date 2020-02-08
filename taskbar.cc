@@ -71,7 +71,7 @@ Client::rememberHidden() noexcept {
 
 void
 Client::forgetHidden() noexcept {
-    _wasHidden = (this == focused_client.get()) ? _hidden : false;
+    _wasHidden = (this == ClientTracker::instance().getFocusedClient().get()) ? _hidden : false;
 }
 
 void 
@@ -256,7 +256,7 @@ Taskbar::redraw()
 		        if (button_startx != 0) {
 		        	XDrawLine(dsply, _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
-		        if (c == focused_client) {
+		        if (c == ClientTracker::instance().getFocusedClient()) {
 		        	XFillRectangle(dsply, _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        } else {
 		        	XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
@@ -339,7 +339,7 @@ void
 Taskbar::cyclePrevious() {
     auto& ctracker = ClientTracker::instance();
     if (ctracker.size() >= 2) { // at least 2 windows exist
-        ClientPointer c = focused_client;
+        ClientPointer c = ctracker.getFocusedClient();
         ClientPointer original_c = c;
         auto pos = ctracker.find(c);
         if (pos == ctracker.end() || pos == ctracker.begin()) {
@@ -363,7 +363,7 @@ void
 Taskbar::cycleNext()
 {
     if (auto& ctracker = ClientTracker::instance(); ctracker.size() >= 2) {
-	    ClientPointer c = focused_client;
+        ClientPointer c = ctracker.getFocusedClient();
         auto pos = ctracker.find(c);
         if (pos != ctracker.end()) {
             if (auto next = ++pos; next == ctracker.end()) {

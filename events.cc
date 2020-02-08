@@ -104,6 +104,7 @@ static void handle_key_press(XKeyEvent *e)
 {
 	KeySym key = XKeycodeToKeysym(dsply, e->keycode, 0);
     auto& taskbar = Taskbar::instance();
+    auto& clients = ClientTracker::instance();
 	switch (key) {
 		case KEY_CYCLEPREV:
             taskbar.cyclePrevious();
@@ -112,10 +113,10 @@ static void handle_key_press(XKeyEvent *e)
             taskbar.cycleNext();
 			break;
 		case KEY_FULLSCREEN:
-			toggle_fullscreen(focused_client);
+			toggle_fullscreen(clients.getFocusedClient());
 			break;
 		case KEY_TOGGLEZ:
-            focused_client->raiseLower();
+            clients.getFocusedClient()->raiseLower();
 			break;
 	}
 }
@@ -128,9 +129,10 @@ static void handle_key_press(XKeyEvent *e)
 static void handle_button_press(XButtonEvent *e)
 {
     auto& taskbar = Taskbar::instance();
+    auto& clients = ClientTracker::instance();
 	if (e->state & MODIFIER) {
-		if (focused_client  && focused_client != fullscreen_client) {
-            focused_client->resize(e->x_root, e->y_root);
+		if (clients.hasFocusedClient() && clients.getFocusedClient() != fullscreen_client) {
+            clients.getFocusedClient()->resize(e->x_root, e->y_root);
 		} else {
 			// pass event on
 			XAllowEvents(dsply, ReplayPointer, CurrentTime);

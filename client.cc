@@ -132,9 +132,9 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	if (c == fullscreen_client) {
 		fullscreen_client = nullptr;
 	}
-	if (c == focused_client) {
-		focused_client = nullptr;
-        ClientTracker::instance().checkFocus(ClientTracker::instance().getPreviousFocused());
+	if (c == _focusedClient) {
+        _focusedClient.reset();
+        checkFocus(getPreviousFocused());
 	}
 
 	XSync(dsply, False);
@@ -147,12 +147,13 @@ ClientTracker::remove(ClientPointer c, int mode) {
 void
 Client::redraw() noexcept {
     auto self = sharedReference();
+    auto& tracker = ClientTracker::instance();
     if (self == fullscreen_client) {
         return;
     }
     drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
-	if (self == focused_client) {
+	if (self == tracker.getFocusedClient()) {
 		XFillRectangle(dsply, _frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
 		XFillRectangle(dsply, _frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
@@ -160,7 +161,7 @@ Client::redraw() noexcept {
 	if (!_trans && _name) {
         drawString(_xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(_name));
 	}
-    auto background_gc = self == focused_client ? &active_gc : &inactive_gc;
+    auto background_gc = self == tracker.getFocusedClient() ? &active_gc : &inactive_gc;
     drawHideButton(&text_gc, background_gc);
     drawToggleDepthButton(&text_gc, background_gc);
     drawCloseButton(&text_gc, background_gc);
@@ -244,9 +245,9 @@ ClientTracker::checkFocus(ClientPointer c) {
 		XSetInputFocus(dsply, c->getWindow(), RevertToNone, CurrentTime);
 		XInstallColormap(dsply, c->getColormap());
 	}
-	if (c != focused_client) {
-		ClientPointer old_focused = focused_client;
-		focused_client = c;
+	if (c != _focusedClient) {
+		ClientPointer old_focused = _focusedClient;
+		_focusedClient = c;
 		focus_count++;
 		if (c) {
             c->setFocusOrder(focus_count);

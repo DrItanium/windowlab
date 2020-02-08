@@ -99,9 +99,9 @@ Client::makeNew(Window w) noexcept {
 	}
 
 	// if no client has focus give focus to the new client
-	if (!focused_client) {
+	if (!clients.hasFocusedClient()) {
         clients.checkFocus(c);
-		focused_client = c;
+        clients.setFocusedClient(c);
 	}
 
 	XSync(dsply, False);
