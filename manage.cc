@@ -123,24 +123,22 @@ void toggle_fullscreen(ClientPointer c)
 /* The name of this function is a bit misleading: if the client
  * doesn't listen to WM_DELETE then we just terminate it with extreme
  * prejudice. */
+void
+Client::sendWMDelete() noexcept {
+	int n, found = 0;
 
-void send_wm_delete(ClientPointer c)
-{
-	int i, n, found = 0;
-	Atom *protocols;
-
-	if (XGetWMProtocols(dsply, c->getWindow(), &protocols, &n)) {
-		for (i = 0; i < n; i++) {
+	if (Atom* protocols = nullptr; XGetWMProtocols(dsply, _window, &protocols, &n)) {
+		for (int i = 0; i < n; i++) {
 			if (protocols[i] == wm_delete) {
-				found++;
+				++found;
 			}
 		}
 		XFree(protocols);
 	}
 	if (found) {
-		send_xmessage(c->getWindow(), wm_protos, wm_delete);
+		send_xmessage(_window, wm_protos, wm_delete);
 	} else {
-		XKillClient(dsply, c->getWindow());
+		XKillClient(dsply, _window);
 	}
 }
 void

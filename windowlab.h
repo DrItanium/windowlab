@@ -230,6 +230,7 @@ struct Client {
 #ifdef DEBUG
         void dump() const noexcept;
 #endif
+        void sendWMDelete() noexcept;
     private:
         void setDimensions(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
@@ -426,12 +427,8 @@ extern unsigned int numlockmask;
 // events.c
 void doEventLoop();
 
-// client.c
-//void check_focus(ClientPointer);
-
 // manage.c
 void toggle_fullscreen(ClientPointer);
-void send_wm_delete(ClientPointer);
 
 // misc.c
 template<typename ... Args>

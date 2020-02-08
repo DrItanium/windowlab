@@ -216,10 +216,14 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		if (in_box) {
 			switch (in_box_up) {
 				case 0:
-					send_wm_delete(c);
+                    if (c) {
+                        c->sendWMDelete();
+                    }
 					break;
 				case 1:
-                    c->raiseLower();
+                    if (c) {
+                        c->raiseLower();
+                    }
 					break;
 				case 2:
                     if (c) {
