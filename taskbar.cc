@@ -331,8 +331,7 @@ Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 }
 
 float
-Taskbar::getButtonWidth()
-{
+Taskbar::getButtonWidth() {
     return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
 }
 void 

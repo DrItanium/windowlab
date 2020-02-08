@@ -89,7 +89,7 @@ Client::makeNew(Window w) noexcept {
 		XMapWindow(dsply, c->_window);
 		XMapRaised(dsply, c->_frame);
 
-		topmost_client = c;
+        clients.setTopmostClient(c);
 	} else {
         c->setHidden(true);
 		if(attr.map_state == IsViewable) {

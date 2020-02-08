@@ -379,6 +379,12 @@ class ClientTracker final {
         auto getFocusedClient() const noexcept { return _focusedClient; }
         void setFocusedClient(ClientPointer p) noexcept { _focusedClient = p; }
         bool hasFocusedClient() const noexcept { return static_cast<bool>(_focusedClient); }
+        auto getFullscreenClient() const noexcept { return _fullscreenClient; }
+        void setFullscreenClient(ClientPointer p) noexcept { _fullscreenClient = p; }
+        bool hasFullscreenClient() const noexcept { return static_cast<bool>(_fullscreenClient); }
+        auto getTopmostClient() const noexcept { return _topmostClient; }
+        void setTopmostClient(ClientPointer p) noexcept { _topmostClient = p; }
+        bool hasTopmostClient() const noexcept { return static_cast<bool>(_topmostClient); }
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -395,11 +401,11 @@ class ClientTracker final {
     private:
         std::vector<ClientPointer> _clients;
         ClientPointer _focusedClient;
+        ClientPointer _topmostClient;
+        ClientPointer _fullscreenClient;
 
 };
 
-
-extern ClientPointer topmost_client, fullscreen_client;
 extern bool in_taskbar, showing_taskbar;
 extern unsigned int focus_count;
 extern Rect fs_prevdims;

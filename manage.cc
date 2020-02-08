@@ -26,12 +26,13 @@ static bool get_incsize(ClientPointer , unsigned int *, unsigned int *, Rect *, 
 
 void 
 Client::raiseLower() noexcept {
-    if (auto self = sharedReference(); self == topmost_client) {
+    auto& ct = ClientTracker::instance();
+    if (auto self = sharedReference(); self == ct.getTopmostClient()) {
         lowerWindow();
-        topmost_client = nullptr; // lazy but amiwm does similar
+        ct.setTopmostClient(nullptr); // lazy but amiwm does similar
     } else {
         raiseWindow();
-        topmost_client = self;
+        ct.setTopmostClient(self);
     }
 }
 void raise_lower(ClientPointer c) {
@@ -47,8 +48,9 @@ Client::hide() noexcept {
     if (!_hidden) {
         ++_ignoreUnmap;
         _hidden = true;
-        if (sharedReference() == topmost_client) {
-            topmost_client = nullptr;
+        auto& ct = ClientTracker::instance();
+        if (sharedReference() == ct.getTopmostClient()) {
+            ct.setTopmostClient(nullptr);
         }
         XUnmapWindow(dsply, _frame);
         XUnmapWindow(dsply, _window);
@@ -61,7 +63,8 @@ void
 Client::unhide() noexcept {
     if (_hidden) {
         _hidden = false;
-        topmost_client = sharedReference();
+        auto& ct = ClientTracker::instance();
+        ct.setTopmostClient(sharedReference());
         XMapWindow(dsply, _window);
         XMapRaised(dsply, _frame);
         setWMState(NormalState);
@@ -83,23 +86,24 @@ void unhide(ClientPointer c) {
 void toggle_fullscreen(ClientPointer c)
 {
 	int xoffset, yoffset, maxwinwidth, maxwinheight;
+    auto& ctracker = ClientTracker::instance();
 	if (c  && !c->getTrans()) {
-		if (c == fullscreen_client) { // reset to original size
+        if (c == ctracker.getFullscreenClient()) { // reset to original size
             c->setDimensions(fs_prevdims);
 			XMoveResizeWindow(dsply, c->getFrame(), c->getX(), c->getY() - BARHEIGHT(), c->getWidth(), c->getHeight() + BARHEIGHT());
 			XMoveResizeWindow(dsply, c->getWindow(), 0, BARHEIGHT(), c->getWidth(), c->getHeight());
             c->sendConfig();
-			fullscreen_client = nullptr;
+            ctracker.setFullscreenClient(nullptr);
 			showing_taskbar = 1;
 		} else { // make fullscreen
 			xoffset = yoffset = 0;
 			maxwinwidth = DisplayWidth(dsply, screen);
 			maxwinheight = DisplayHeight(dsply, screen) - BARHEIGHT();
-			if (fullscreen_client) { // reset existing fullscreen window to original size
-                fullscreen_client->setDimensions(fs_prevdims);
-				XMoveResizeWindow(dsply, fullscreen_client->getFrame(), fullscreen_client->getX(), fullscreen_client->getY() - BARHEIGHT(), fullscreen_client->getWidth(), fullscreen_client->getHeight()+ BARHEIGHT());
-				XMoveResizeWindow(dsply, fullscreen_client->getWindow(), 0, BARHEIGHT(), fullscreen_client->getWidth(), fullscreen_client->getHeight());
-                fullscreen_client->sendConfig();
+			if (ctracker.hasFullscreenClient()) { // reset existing fullscreen window to original size
+                ctracker.getFullscreenClient()->setDimensions(fs_prevdims);
+				XMoveResizeWindow(dsply, ctracker.getFullscreenClient()->getFrame(), ctracker.getFullscreenClient()->getX(), ctracker.getFullscreenClient()->getY() - BARHEIGHT(), ctracker.getFullscreenClient()->getWidth(), ctracker.getFullscreenClient()->getHeight()+ BARHEIGHT());
+				XMoveResizeWindow(dsply, ctracker.getFullscreenClient()->getWindow(), 0, BARHEIGHT(), ctracker.getFullscreenClient()->getWidth(), ctracker.getFullscreenClient()->getHeight());
+                ctracker.getFullscreenClient()->sendConfig();
 			}
             fs_prevdims = c->getRect();
             c->setDimensions(0 - BORDERWIDTH(c), (BARHEIGHT() - BORDERWIDTH(c)), (maxwinwidth), maxwinheight);
@@ -120,7 +124,7 @@ void toggle_fullscreen(ClientPointer c)
 			XMoveResizeWindow(dsply, c->getFrame(), c->getX(), c->getY(), maxwinwidth, maxwinheight);
 			XMoveResizeWindow(dsply, c->getWindow(), xoffset, yoffset, c->getWidth(), c->getHeight());
             c->sendConfig();
-			fullscreen_client = c;
+            ctracker.setFullscreenClient(c);
 			showing_taskbar = in_taskbar;
 		}
         Taskbar::instance().redraw();

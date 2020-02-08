@@ -131,7 +131,7 @@ static void handle_button_press(XButtonEvent *e)
     auto& taskbar = Taskbar::instance();
     auto& clients = ClientTracker::instance();
 	if (e->state & MODIFIER) {
-		if (clients.hasFocusedClient() && clients.getFocusedClient() != fullscreen_client) {
+		if (clients.hasFocusedClient() && clients.getFocusedClient() != clients.getFullscreenClient()) {
             clients.getFocusedClient()->resize(e->x_root, e->y_root);
 		} else {
 			// pass event on
@@ -167,9 +167,9 @@ static void handle_button_press(XButtonEvent *e)
 			if (c) {
 				// click-to-focus
                 ClientTracker::instance().checkFocus(c);
-				if (e->y < BARHEIGHT() && c != fullscreen_client) {
-					handle_windowbar_click(e, c);
-				}
+                if (e->y < BARHEIGHT() && c != clients.getFullscreenClient()) {
+                    handle_windowbar_click(e, c);
+                }
 			}
 		} else if (e->button == Button3) {
             taskbar.rightClickRoot();
@@ -283,10 +283,11 @@ Client::drawButton(GC *detail_gc, GC *background_gc, unsigned int which_box) noe
  * requirements may not be met by the window manager. */
 
 static void handle_configure_request(XConfigureRequestEvent *e) {
-	ClientPointer c = ClientTracker::instance().find(e->window, WINDOW);
+    auto& ctracker = ClientTracker::instance();
+	ClientPointer c = ctracker.find(e->window, WINDOW);
 	XWindowChanges wc;
 
-	if (fullscreen_client  && c == fullscreen_client) {
+	if (ctracker.hasFullscreenClient() && c == ctracker.getFullscreenClient()) {
         fs_prevdims.setX(e->x, [e](int) { return e->value_mask & CWX; });
         fs_prevdims.setY(e->y, [e](int) { return e->value_mask & CWY; });
         fs_prevdims.setWidth(e->width, [e](int) { return e->value_mask & CWWidth; });
@@ -434,6 +435,7 @@ static void handle_property_change(XPropertyEvent *e) {
  * the third hand, is *not* X's default. */
 
 static void handle_enter_event(XCrossingEvent *e) {
+    auto& ctracker = ClientTracker::instance();
 	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
 		in_taskbar = true;
 		if (!showing_taskbar) {
@@ -442,7 +444,7 @@ static void handle_enter_event(XCrossingEvent *e) {
 		}
 	} else {
 		in_taskbar = false;
-		if (fullscreen_client ) {
+        if (ctracker.hasFullscreenClient()) {
 			if (showing_taskbar) {
 				showing_taskbar = false;
                 taskbar.redraw();

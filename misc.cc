@@ -162,7 +162,8 @@ Client::fixPosition() noexcept {
     printToStderr("fix_position(): client was (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
 #endif
 	
-	int titlebarheight = (fullscreen_client.get() == this) ? 0 : BARHEIGHT();
+    auto& ct = ClientTracker::instance();
+	int titlebarheight = (ct.getFullscreenClient().get() == this) ? 0 : BARHEIGHT();
 	int xmax = DisplayWidth(dsply, screen);
 	int ymax = DisplayHeight(dsply, screen);
 

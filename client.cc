@@ -129,8 +129,8 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	if (c->getSize()) {
 		XFree(c->getSize());
 	}
-	if (c == fullscreen_client) {
-		fullscreen_client = nullptr;
+    if (c == _fullscreenClient) {
+        _fullscreenClient.reset();
 	}
 	if (c == _focusedClient) {
         _focusedClient.reset();
@@ -148,7 +148,7 @@ void
 Client::redraw() noexcept {
     auto self = sharedReference();
     auto& tracker = ClientTracker::instance();
-    if (self == fullscreen_client) {
+    if (self == tracker.getFullscreenClient()) {
         return;
     }
     drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
