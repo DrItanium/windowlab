@@ -164,7 +164,7 @@ static void handle_button_press(XButtonEvent *e)
 			ClientPointer c = ClientTracker::instance().find(e->window, FRAME);
 			if (c) {
 				// click-to-focus
-				check_focus(c);
+                ClientTracker::instance().checkFocus(c);
 				if (e->y < BARHEIGHT() && c != fullscreen_client) {
 					handle_windowbar_click(e, c);
 				}

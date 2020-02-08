@@ -375,6 +375,7 @@ class ClientTracker final {
          */
         bool accept(std::function<bool(ClientPointer)> fn);
         void remove(ClientPointer, int);
+        void checkFocus(ClientPointer c);
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -415,8 +416,7 @@ extern unsigned int numlockmask;
 void doEventLoop();
 
 // client.c
-void check_focus(ClientPointer);
-ClientPointer get_prev_focused();
+//void check_focus(ClientPointer);
 
 // manage.c
 void hide(ClientPointer);

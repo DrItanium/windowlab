@@ -91,7 +91,7 @@ lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
             c->raiseLower();
 		}
 	}
-	check_focus(c);
+    ClientTracker::instance().checkFocus(c);
 }
 
 void

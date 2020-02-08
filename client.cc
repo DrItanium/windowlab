@@ -134,7 +134,7 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	}
 	if (c == focused_client) {
 		focused_client = nullptr;
-        check_focus(ClientTracker::instance().getPreviousFocused());
+        ClientTracker::instance().checkFocus(ClientTracker::instance().getPreviousFocused());
 	}
 
 	XSync(dsply, False);
@@ -238,8 +238,8 @@ Client::setShape() noexcept {
 }
 #endif
 
-void check_focus(ClientPointer c)
-{
+void
+ClientTracker::checkFocus(ClientPointer c) {
 	if (c) {
 		XSetInputFocus(dsply, c->getWindow(), RevertToNone, CurrentTime);
 		XInstallColormap(dsply, c->getColormap());

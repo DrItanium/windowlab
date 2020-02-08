@@ -100,7 +100,7 @@ Client::makeNew(Window w) noexcept {
 
 	// if no client has focus give focus to the new client
 	if (!focused_client) {
-		check_focus(c);
+        clients.checkFocus(c);
 		focused_client = c;
 	}
 
