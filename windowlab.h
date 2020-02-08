@@ -393,9 +393,6 @@ class ClientTracker final {
 
 };
 
-inline auto findClient(ClientPointer p) {
-    return ClientTracker::instance().find(p);
-}
 
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
 extern bool in_taskbar, showing_taskbar;

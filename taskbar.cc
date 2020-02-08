@@ -341,7 +341,7 @@ Taskbar::cyclePrevious() {
     if (ctracker.size() >= 2) { // at least 2 windows exist
         ClientPointer c = focused_client;
         ClientPointer original_c = c;
-        auto pos = findClient(c);
+        auto pos = ctracker.find(c);
         if (pos == ctracker.end() || pos == ctracker.begin()) {
             // we default to the front of the list and then go back one so it really is just list.back() if
             // the focused_client is not in the list. We also do the same thing if we are looking at
@@ -364,7 +364,7 @@ Taskbar::cycleNext()
 {
     if (auto& ctracker = ClientTracker::instance(); ctracker.size() >= 2) {
 	    ClientPointer c = focused_client;
-        auto pos = findClient(c);
+        auto pos = ctracker.find(c);
         if (pos != ctracker.end()) {
             if (auto next = ++pos; next == ctracker.end()) {
                 // we jump to the front if we encounter the end iterator
