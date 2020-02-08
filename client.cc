@@ -134,7 +134,7 @@ void remove_client(ClientPointer c, int mode)
 	}
 	if (c == focused_client) {
 		focused_client = nullptr;
-		check_focus(get_prev_focused());
+        check_focus(ClientTracker::instance().getPreviousFocused());
 	}
 
 	XSync(dsply, False);

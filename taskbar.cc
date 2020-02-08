@@ -103,7 +103,8 @@ Taskbar::leftClick(int x)
 
 	unsigned int button_clicked, old_button_clicked;
 	ClientPointer c, exposed_c, old_c;
-	if (!clients.empty()) {
+    auto& ctracker = ClientTracker::instance();
+	if (!ctracker.empty()) {
         ClientTracker::instance().accept([](ClientPointer p) { p->rememberHidden(); return false; });
 
         // unused?
@@ -121,7 +122,7 @@ Taskbar::leftClick(int x)
         auto buttonWidth = getButtonWidth();
 
 		button_clicked = (unsigned int)(x / buttonWidth);
-        c = clients[button_clicked];
+        auto c = ctracker.at(button_clicked);
 
 		lclick_taskbutton(nullptr, c);
 
@@ -140,7 +141,7 @@ Taskbar::leftClick(int x)
 					button_clicked = (unsigned int)(ev.xmotion.x / buttonWidth);
 					if (button_clicked != old_button_clicked) {
 						old_c = c;
-                        c = clients[button_clicked];
+                        c = ctracker.at(button_clicked);
 						lclick_taskbutton(old_c, c);
 					}
 					break;
@@ -249,23 +250,23 @@ Taskbar::redraw()
 	}
 
 	unsigned int i = 0;
-    for (auto & c : clients) {
-		auto button_startx = static_cast<int>(i * buttonWidth);
-		auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
-		if (button_startx != 0) {
-			XDrawLine(dsply, _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
-		}
-		if (c == focused_client) {
-			XFillRectangle(dsply, _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
-		} else {
-			XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
-		}
-		if (!c->getTrans() && c->getName()) {
-            drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->getName()));
-		}
-        ++i;
-	}
-
+    ClientTracker::instance().accept([this, &i, buttonWidth](ClientPointer c) {
+		        auto button_startx = static_cast<int>(i * buttonWidth);
+		        auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
+		        if (button_startx != 0) {
+		        	XDrawLine(dsply, _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
+		        }
+		        if (c == focused_client) {
+		        	XFillRectangle(dsply, _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+		        } else {
+		        	XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+		        }
+		        if (!c->getTrans() && c->getName()) {
+                    drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->getName()));
+		        }
+                ++i;
+                return false;
+            });
 }
 
 void 
@@ -332,19 +333,20 @@ Taskbar::drawMenuItem(unsigned int index, unsigned int active)
 float
 Taskbar::getButtonWidth()
 {
-    return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / clients.size();
+    return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
 }
 void 
 Taskbar::cyclePrevious() {
-    if (clients.size() >= 2) { // at least 2 windows exist
+    auto& ctracker = ClientTracker::instance();
+    if (ctracker.size() >= 2) { // at least 2 windows exist
         ClientPointer c = focused_client;
         ClientPointer original_c = c;
         auto pos = findClient(c);
-        if (pos == clients.end() || pos == clients.begin()) {
+        if (pos == ctracker.end() || pos == ctracker.begin()) {
             // we default to the front of the list and then go back one so it really is just list.back() if
             // the focused_client is not in the list. We also do the same thing if we are looking at
             // the front of the collection as well.
-            c = clients.back();
+            c = ctracker.back();
         } else {
             // otherwise we must go to the previous element
             c = *(--pos);
@@ -360,19 +362,19 @@ void cycle_previous(void)
 void
 Taskbar::cycleNext()
 {
-    if (clients.size() >= 2) {
+    if (auto& ctracker = ClientTracker::instance(); ctracker.size() >= 2) {
 	    ClientPointer c = focused_client;
         auto pos = findClient(c);
-        if (pos != clients.end()) {
-            if (auto next = ++pos; next == clients.end()) {
+        if (pos != ctracker.end()) {
+            if (auto next = ++pos; next == ctracker.end()) {
                 // we jump to the front if we encounter the end iterator
-                c = clients.front();
+                c = ctracker.front();
             } else {
                 c = *next;
             }
         } else {
             // we are looking at the end of the list so just default to the front as the "next"
-            c = clients.front();
+            c = ctracker.front();
         }
         lclick_taskbutton(nullptr, c);
 	}

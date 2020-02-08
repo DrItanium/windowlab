@@ -366,7 +366,14 @@ class ClientTracker final {
         void add(ClientPointer p) { _clients.emplace_back(p); }
         auto back() { return _clients.back(); }
         auto back() const { return _clients.back(); }
+        auto front() { return _clients.front(); }
+        auto front() const { return _clients.front(); }
         auto size() const noexcept { return _clients.size(); }
+        auto at(std::size_t index) noexcept { return _clients[index]; }
+        auto end() const noexcept { return _clients.end(); }
+        auto end() noexcept { return _clients.end(); }
+        auto begin() const noexcept { return _clients.begin(); }
+        auto begin() noexcept { return _clients.begin(); }
         [[nodiscard]] bool empty() const noexcept { return _clients.empty(); }
         ClientPointer getPreviousFocused();
         /**
@@ -374,7 +381,7 @@ class ClientTracker final {
          * @param fn The function to apply to each client
          * @return boolean value to signify if execution should terminate early (return true for it)
          */
-        bool accept(std::function<bool(ClientPointer)> fn) noexcept;
+        bool accept(std::function<bool(ClientPointer)> fn);
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;

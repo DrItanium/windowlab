@@ -53,7 +53,7 @@ Client::hide() noexcept {
         XUnmapWindow(dsply, _frame);
         XUnmapWindow(dsply, _window);
         setWMState(IconicState);
-        check_focus(get_prev_focused());
+        check_focus(ClientTracker::instance().getPreviousFocused());
     }
 }
 
