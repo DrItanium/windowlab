@@ -112,7 +112,7 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 	}
 
 	if (c) {
-		remove_client(c, WITHDRAW);
+        ClientTracker::instance().remove(c, WITHDRAW);
 	}
 	return 0;
 }
@@ -349,7 +349,7 @@ void quitNicely() {
 	for (i = 0; i < nwins; i++) {
 		c = ClientTracker::instance().find(wins[i], FRAME);
 		if (c) {
-			remove_client(c, REMAP);
+        ClientTracker::instance().remove(c, REMAP);
 		}
 	}
 	XFree(wins);

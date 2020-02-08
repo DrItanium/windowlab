@@ -103,8 +103,8 @@ Client::sendConfig() noexcept {
  * The 'withdrawing' argument specifies if the client is actually
  * (destroying itself||being destroyed by us) or if we are merely
  * cleaning up its data structures when we exit mid-session. */
-void remove_client(ClientPointer c, int mode)
-{
+void
+ClientTracker::remove(ClientPointer c, int mode) {
 	ClientPointer p;
 
 	XGrabServer(dsply);
@@ -125,7 +125,7 @@ void remove_client(ClientPointer c, int mode)
 	XftDrawDestroy(c->getXftDraw());
 	XRemoveFromSaveSet(dsply, c->getWindow());
 	XDestroyWindow(dsply, c->getFrame());
-    removeClientFromList(c);
+    remove(c);
 	if (c->getSize()) {
 		XFree(c->getSize());
 	}

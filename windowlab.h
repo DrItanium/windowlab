@@ -355,14 +355,6 @@ class ClientTracker final {
             return std::find(_clients.begin(), _clients.end(), p);
         }
         ClientPointer find(Window, int);
-        bool remove(ClientPointer p) {
-            if (auto loc = this->find(p); loc != _clients.end()) {
-                _clients.erase(loc);
-                return true;
-            } else {
-                return false;
-            }
-        }
         void add(ClientPointer p) { _clients.emplace_back(p); }
         auto back() { return _clients.back(); }
         auto back() const { return _clients.back(); }
@@ -382,11 +374,20 @@ class ClientTracker final {
          * @return boolean value to signify if execution should terminate early (return true for it)
          */
         bool accept(std::function<bool(ClientPointer)> fn);
+        void remove(ClientPointer, int);
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
     private:
         ClientTracker() = default;
+        bool remove(ClientPointer p) {
+            if (auto loc = this->find(p); loc != _clients.end()) {
+                _clients.erase(loc);
+                return true;
+            } else {
+                return false;
+            }
+        }
     private:
         std::vector<ClientPointer> _clients;
 
@@ -394,10 +395,6 @@ class ClientTracker final {
 
 inline auto findClient(ClientPointer p) {
     return ClientTracker::instance().find(p);
-}
-
-inline bool removeClientFromList(ClientPointer p) {
-    return ClientTracker::instance().remove(p);
 }
 
 extern ClientPointer focused_client, topmost_client, fullscreen_client;
@@ -421,7 +418,6 @@ extern unsigned int numlockmask;
 void doEventLoop();
 
 // client.c
-void remove_client(ClientPointer, int);
 void check_focus(ClientPointer);
 ClientPointer get_prev_focused();
 

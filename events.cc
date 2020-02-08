@@ -371,7 +371,7 @@ static void handle_unmap_event(XUnmapEvent *e) {
         if (c->getIgnoreUnmap()) {
             c->decrementIgnoreUnmap();
 		} else {
-			remove_client(c, WITHDRAW);
+            ClientTracker::instance().remove(c, WITHDRAW);
 		}
 	}
 }
@@ -382,7 +382,7 @@ static void handle_unmap_event(XUnmapEvent *e) {
 
 static void handle_destroy_event(XDestroyWindowEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
-		remove_client(c, WITHDRAW);
+        ClientTracker::instance().remove(c, WITHDRAW);
 	}
 }
 
