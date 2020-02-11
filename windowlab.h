@@ -263,7 +263,8 @@ struct Rect final {
     public:
         constexpr Rect() noexcept = default;
         constexpr Rect(int x, int y, int w, int h) noexcept : _x(x), _y(y), _width(w), _height(h) { }
-        constexpr Rect(const Rect& r) noexcept : Rect(r._x, r._y, r._width, r._height) { }
+        constexpr Rect(const Rect& r) noexcept : _x(r._x), _y(r._y), _width(r._width), _height(r._height) { }
+        constexpr Rect& operator=(const Rect&) = default;
         ~Rect() = default;
         constexpr auto getX() const noexcept { return _x; }
         constexpr auto getY() const noexcept { return _y; }

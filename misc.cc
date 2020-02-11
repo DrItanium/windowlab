@@ -341,18 +341,14 @@ ClientTracker::dump() {
 
 static 
 void quitNicely() {
-	unsigned int nwins, i;
+	unsigned int nwins;
 	Window dummyw1, dummyw2, *wins;
-	ClientPointer c;
-
     Menu::instance().clear();
-
 	XQueryTree(dsply, root, &dummyw1, &dummyw2, &wins, &nwins);
-	for (i = 0; i < nwins; i++) {
-		c = ClientTracker::instance().find(wins[i], FRAME);
-		if (c) {
-        ClientTracker::instance().remove(c, REMAP);
-		}
+	for (unsigned int i = 0; i < nwins; i++) {
+		if (auto c = ClientTracker::instance().find(wins[i], FRAME); c) {
+            ClientTracker::instance().remove(c, REMAP);
+        }
 	}
 	XFree(wins);
 
@@ -373,11 +369,13 @@ void quitNicely() {
 	exit(0);
 }
 
-Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept {
+Window 
+createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept {
     return XCreateWindow(disp, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, attributes);
 }
 
-void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string) {
+void 
+drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string) {
     auto ptr = string.c_str();
     auto length = string.length();
     XftDrawString8(d, color, font, x, y, (unsigned char*)ptr, length);
