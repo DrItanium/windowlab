@@ -52,18 +52,19 @@ Client::makeNew(Window w) noexcept {
 	XWindowAttributes attr;
 	long dummy = 0;
     auto& clients = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
     clients.add(ClientPointer(new Client(w)));
     auto c = clients.back();
-	XGrabServer(DisplayManager::instance().getDisplay());
+    dm.grabServer();
 
-	XGetTransientForHint(DisplayManager::instance().getDisplay(), w, &c->_trans);
-    auto [ status, opt ] = fetchName(DisplayManager::instance().getDisplay(), w);
+	XGetTransientForHint(dm.getDisplay(), w, &c->_trans);
+    auto [ status, opt ] = fetchName(dm.getDisplay(), w);
     c->setName(opt);
-	XGetWindowAttributes(DisplayManager::instance().getDisplay(), w, &attr);
+	XGetWindowAttributes(dm.getDisplay(), w, &attr);
     c->setDimensions(attr);
 	c->_size = XAllocSizeHints();
     c->_selfReference = c;
-	XGetWMNormalHints(DisplayManager::instance().getDisplay(), c->_window, c->_size, &dummy);
+	XGetWMNormalHints(dm.getDisplay(), c->_window, c->_size, &dummy);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	++c->_ignoreUnmap;
@@ -71,7 +72,7 @@ Client::makeNew(Window w) noexcept {
 	if (attr.map_state != IsViewable) {
         c->initPosition();
         c->setWMState(NormalState);
-		if (XWMHints* hints = XGetWMHints(DisplayManager::instance().getDisplay(), w); hints) {
+		if (XWMHints* hints = XGetWMHints(dm.getDisplay(), w); hints) {
 			if (hints->flags & StateHint) {
                 c->setWMState(hints->initial_state);
 			}
@@ -82,19 +83,19 @@ Client::makeNew(Window w) noexcept {
     c->fixPosition();
     c->gravitate(APPLY_GRAVITY);
     c->reparent();
+    c->_xftdraw = XftDrawCreate(dm.getDisplay(), (Drawable) c->_frame, dm.getDefaultVisual(), dm.getDefaultColormap());
 
-	c->_xftdraw = XftDrawCreate(DisplayManager::instance().getDisplay(), (Drawable) c->_frame, DefaultVisual(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())), DefaultColormap(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())));
 
 	if (c->getWMState() != IconicState) {
-		XMapWindow(DisplayManager::instance().getDisplay(), c->_window);
-		XMapRaised(DisplayManager::instance().getDisplay(), c->_frame);
+        dm.mapWindow(c->_window);
+        dm.mapRaised(c->_frame);
 
         clients.setTopmostClient(c);
 	} else {
         c->setHidden(true);
 		if(attr.map_state == IsViewable) {
 			++c->_ignoreUnmap;
-			XUnmapWindow(DisplayManager::instance().getDisplay(), c->_window);
+            dm.unmapWindow(c->_window);
 		}
 	}
 
@@ -104,8 +105,8 @@ Client::makeNew(Window w) noexcept {
         clients.setFocusedClient(c);
 	}
 
-	XSync(DisplayManager::instance().getDisplay(), False);
-	XUngrabServer(DisplayManager::instance().getDisplay());
+    dm.sync(False);
+    dm.ungrabServer();
 
     Taskbar::instance().redraw();
 }
@@ -150,6 +151,7 @@ Client::initPosition() noexcept {
 void
 Client::reparent() noexcept {
 	XSetWindowAttributes pattr;
+    auto& dm = DisplayManager::instance();
 
 	pattr.override_redirect = True;
 	pattr.background_pixel = empty_col.pixel;
@@ -168,7 +170,7 @@ Client::reparent() noexcept {
 	XSelectInput(DisplayManager::instance().getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);
 	XSetWindowBorderWidth(DisplayManager::instance().getDisplay(), _window, 0);
 	XResizeWindow(DisplayManager::instance().getDisplay(), _window, _width, _height);
-	XReparentWindow(DisplayManager::instance().getDisplay(), _window, _frame, 0, BARHEIGHT());
+    dm.reparentWindow(_window, _frame, 0, BARHEIGHT());
 
     sendConfig();
 }

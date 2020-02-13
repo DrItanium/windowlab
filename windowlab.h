@@ -353,7 +353,7 @@ class DisplayManager final {
         void setRoot(Window w) noexcept { _root = w; }
         auto getScreen() const noexcept { return _screen; }
         void setScreen(int screen) noexcept { _screen = screen; }
-        inline auto getDefaultScreen() noexcept {
+        auto getDefaultScreen() noexcept {
             return DefaultScreen(_display);
         }
         void grabServer() noexcept {
@@ -404,6 +404,10 @@ class DisplayManager final {
             return XMapRaised(_display, w);
         }
 
+        auto sync(Bool discard) noexcept {
+            return XSync(_display, discard);
+        }
+
         auto moveResizeWindow(Window w, int x, int y, unsigned int width, unsigned int height) noexcept {
             return XMoveResizeWindow(_display, w, x, y, width, height);
         }
@@ -441,6 +445,10 @@ class DisplayManager final {
 
         auto createGCForRoot(unsigned long valueMask, XGCValues& values) noexcept {
             return createGC(_root, valueMask, values);
+        }
+
+        auto getDefaultVisual() const noexcept {
+            return DefaultVisual(_display, _screen);
         }
 
     private:
