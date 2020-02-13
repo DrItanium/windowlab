@@ -92,12 +92,21 @@ Client::sendConfig() noexcept {
     XSendEvent(dsply, _window, False, StructureNotifyMask, (XEvent*)&ce);
 }
 
-Client::~Client()
-{
+Client::~Client() {
+	XftDrawDestroy(_xftdraw);
     if (_size) {
         XFree(_size);
         _size = nullptr;
     }
+}
+
+void
+Client::removeFromView() noexcept { 
+    gravitate(REMOVE_GRAVITY);
+	XReparentWindow(dsply, _window, root, _x, _y);
+	XSetWindowBorderWidth(dsply, _window, 1);
+    XRemoveFromSaveSet(dsply, _window);
+    XDestroyWindow(dsply, _frame);
 }
 
 /* After pulling my hair out trying to find some way to tell if a
@@ -112,8 +121,6 @@ Client::~Client()
  * cleaning up its data structures when we exit mid-session. */
 void
 ClientTracker::remove(ClientPointer c, int mode) {
-	ClientPointer p;
-
 	XGrabServer(dsply);
 	XSetErrorHandler(ignore_xerror);
 
@@ -126,12 +133,7 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	} else { //REMAP
 		XMapWindow(dsply, c->getWindow());
 	}
-    c->gravitate(REMOVE_GRAVITY);
-	XReparentWindow(dsply, c->getWindow(), root, c->getX(), c->getY());
-	XSetWindowBorderWidth(dsply, c->getWindow(), 1);
-	XftDrawDestroy(c->getXftDraw());
-	XRemoveFromSaveSet(dsply, c->getWindow());
-	XDestroyWindow(dsply, c->getFrame());
+    c->removeFromView();
     remove(c);
     if (c == _fullscreenClient) {
         _fullscreenClient.reset();
