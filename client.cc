@@ -92,6 +92,13 @@ Client::sendConfig() noexcept {
     XSendEvent(dsply, _window, False, StructureNotifyMask, (XEvent*)&ce);
 }
 
+Client::~Client()
+{
+    if (_size) {
+        XFree(_size);
+        _size = nullptr;
+    }
+}
 
 /* After pulling my hair out trying to find some way to tell if a
  * window is still valid, I've decided to instead carefully ignore any
@@ -126,9 +133,6 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	XRemoveFromSaveSet(dsply, c->getWindow());
 	XDestroyWindow(dsply, c->getFrame());
     remove(c);
-	if (c->getSize()) {
-		XFree(c->getSize());
-	}
     if (c == _fullscreenClient) {
         _fullscreenClient.reset();
 	}

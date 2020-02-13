@@ -231,6 +231,7 @@ struct Client {
         void dump() const noexcept;
 #endif
         void sendWMDelete() noexcept;
+        ~Client();
     private:
         void setDimensions(XWindowAttributes& attr) noexcept;
         Client(Window w) noexcept : _window(w) { };
