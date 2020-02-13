@@ -206,7 +206,7 @@ Client::resize(int x, int y)
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
     bool dragging_outwards = (x > _x + BORDERWIDTH(this)) && 
-                             (x < (_y + _width) - BORDERWIDTH(this)) && 
+                             (x < (_x + _width) - BORDERWIDTH(this)) && 
                              (y > (_y - BARHEIGHT()) + BORDERWIDTH(this)) && 
                              (y < (_y + _height) - BORDERWIDTH(this));
     if (dragging_outwards) {
