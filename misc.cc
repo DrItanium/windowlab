@@ -102,12 +102,12 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 {
 	ClientPointer c = ClientTracker::instance().find(e->resourceid, WINDOW);
 
-	if (e->error_code == BadAccess && e->resourceid == root) {
+	if (e->error_code == BadAccess && e->resourceid == DisplayManager::instance().getRoot()) {
 		err("root window unavailable (maybe another wm is running?)");
 		exit(1);
 	} else {
 		char msg[255];
-		XGetErrorText(dsply, e->error_code, msg, sizeof msg);
+		XGetErrorText(DisplayManager::instance().getDisplay(), e->error_code, msg, sizeof msg);
         err("X error (", e->resourceid, "): ", msg);
 	}
 
@@ -137,7 +137,7 @@ int send_xmessage(Window w, Atom a, long x)
 	e.data.l[0] = x;
 	e.data.l[1] = CurrentTime;
 
-	return XSendEvent(dsply, w, False, NoEventMask, (XEvent *)&e);
+	return XSendEvent(DisplayManager::instance().getDisplay(), w, False, NoEventMask, (XEvent *)&e);
 }
 
 std::tuple<int, int>
@@ -148,7 +148,7 @@ getMousePosition() {
     unsigned int mask = 0;
     int tmpX = 0;
     int tmpY = 0;
-    XQueryPointer(dsply, root, &mouseRoot, &mouseWin, &tmpX, &tmpY, &winX, &winY, &mask);
+    XQueryPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), &mouseRoot, &mouseWin, &tmpX, &tmpY, &winX, &winY, &mask);
     return std::make_tuple(tmpX, tmpY);
 }
 
@@ -164,8 +164,8 @@ Client::fixPosition() noexcept {
 	
     auto& ct = ClientTracker::instance();
 	int titlebarheight = (ct.getFullscreenClient().get() == this) ? 0 : BARHEIGHT();
-	int xmax = DisplayWidth(dsply, screen);
-	int ymax = DisplayHeight(dsply, screen);
+	int xmax = DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen());
+	int ymax = DisplayHeight(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen());
 
     if (_width < MINWINWIDTH()) {
         _width = MINWINWIDTH();
@@ -344,7 +344,7 @@ void quitNicely() {
 	unsigned int nwins;
 	Window dummyw1, dummyw2, *wins;
     Menu::instance().clear();
-	XQueryTree(dsply, root, &dummyw1, &dummyw2, &wins, &nwins);
+	XQueryTree(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
 	for (unsigned int i = 0; i < nwins; i++) {
 		if (auto c = ClientTracker::instance().find(wins[i], FRAME); c) {
             ClientTracker::instance().remove(c, REMAP);
@@ -353,19 +353,19 @@ void quitNicely() {
 	XFree(wins);
 
 	if (font) {
-		XFreeFont(dsply, font);
+		XFreeFont(DisplayManager::instance().getDisplay(), font);
 	}
 	if (xftfont) {
-		XftFontClose(dsply, xftfont);
+		XftFontClose(DisplayManager::instance().getDisplay(), xftfont);
 	}
-	XFreeCursor(dsply, resize_curs);
-	XFreeGC(dsply, border_gc);
-	XFreeGC(dsply, text_gc);
+	XFreeCursor(DisplayManager::instance().getDisplay(), resize_curs);
+	XFreeGC(DisplayManager::instance().getDisplay(), border_gc);
+	XFreeGC(DisplayManager::instance().getDisplay(), text_gc);
 
-	XInstallColormap(dsply, DefaultColormap(dsply, screen));
-	XSetInputFocus(dsply, PointerRoot, RevertToNone, CurrentTime);
+	XInstallColormap(DisplayManager::instance().getDisplay(), DefaultColormap(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()));
+	XSetInputFocus(DisplayManager::instance().getDisplay(), PointerRoot, RevertToNone, CurrentTime);
 
-	XCloseDisplay(dsply);
+	XCloseDisplay(DisplayManager::instance().getDisplay());
 	exit(0);
 }
 
@@ -397,24 +397,24 @@ fetchName(Display* disp, Window w) {
 
 void
 ungrab() noexcept {
-    XUngrabPointer(dsply, CurrentTime);
+    XUngrabPointer(DisplayManager::instance().getDisplay(), CurrentTime);
 }
 void
 setmouse(Window w, int x, int y) noexcept {
-    XWarpPointer(dsply, None, w, 0, 0, 0, 0, x, y);
+    XWarpPointer(DisplayManager::instance().getDisplay(), None, w, 0, 0, 0, 0, x, y);
 }
 
 bool
 grab(Window w, unsigned int mask, Cursor curs) noexcept {
-    return XGrabPointer(dsply, w, False, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
+    return XGrabPointer(DisplayManager::instance().getDisplay(), w, False, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
 }
 
 void
 grab_keysym(Window w, unsigned int mask, KeySym keysym) noexcept {
-	XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
-	XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+	XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
+	XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
 	if (numlockmask) { 
-		XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-		XGrabKey(dsply, XKeysymToKeycode(dsply, keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+		XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+		XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
 	}
 }
