@@ -416,9 +416,10 @@ static void handle_client_message(XClientMessageEvent *e) {
 
 static void handle_property_change(XPropertyEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
+        auto& dm = DisplayManager::instance();
 		switch (e->atom) {
             case XA_WM_NAME: {
-                                 auto [ status, opt ] = fetchName(dsply, c->getWindow());
+                                 auto [ status, opt ] = fetchName(dm.getDisplay(), c->getWindow());
                                  (void)status; // status isn't actually used but is returned in the tuple
                                  c->setName(opt);
                                  c->redraw();
@@ -427,7 +428,7 @@ static void handle_property_change(XPropertyEvent *e) {
                              }
             case XA_WM_NORMAL_HINTS: {
                                          long dummy = 0;
-                                         XGetWMNormalHints(dsply, c->getWindow(), c->getSize(), &dummy);
+                                         XGetWMNormalHints(dm.getDisplay(), c->getWindow(), c->getSize(), &dummy);
                                          break;
                                      }
 		}
@@ -467,7 +468,8 @@ static void handle_enter_event(XCrossingEvent *e) {
 		}
 
 		if (ClientPointer c = ClientTracker::instance().find(e->window, FRAME); c) {
-			XGrabButton(dsply, AnyButton, AnyModifier, c->getFrame(), False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
+            auto& dm = DisplayManager::instance();
+			XGrabButton(dm.getDisplay(), AnyButton, AnyModifier, c->getFrame(), False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
 	}
 }
@@ -483,8 +485,9 @@ static void handle_enter_event(XCrossingEvent *e) {
 
 static void handle_colormap_change(XColormapEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
+        auto& dm = DisplayManager::instance();
         c->setColormap(e->colormap);
-		XInstallColormap(dsply, c->getColormap());
+		XInstallColormap(dm.getDisplay(), c->getColormap());
 	}
 }
 
@@ -526,9 +529,11 @@ static void handle_shape_change(XShapeEvent *e) {
 
 static int interruptible_XNextEvent(XEvent *event) {
 	fd_set fds;
-	for (int dsply_fd = ConnectionNumber(dsply);;) {
-		if (XPending(dsply)) {
-			XNextEvent(dsply, event);
+    auto& dm = DisplayManager::instance();
+    auto disp = dm.getDisplay();
+	for (int dsply_fd = ConnectionNumber(disp);;) {
+		if (XPending(disp)) {
+			XNextEvent(disp, event);
 			return 1;
 		}
 		FD_ZERO(&fds);
