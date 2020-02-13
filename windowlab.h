@@ -451,6 +451,10 @@ class DisplayManager final {
             return DefaultVisual(_display, _screen);
         }
 
+        auto getModifierMapping() noexcept {
+            return XGetModifierMapping(_display);
+        }
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }

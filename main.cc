@@ -135,7 +135,6 @@ DisplayManager::instance() noexcept {
 static void setup_display() {
 	XGCValues gv;
 	XSetWindowAttributes sattr;
-	XModifierKeymap *modmap;
 	int i, j;
 #ifdef SHAPE
 	int dummy;
@@ -185,7 +184,7 @@ static void setup_display() {
 	resize_curs = XCreateFontCursor(dm.getDisplay(), XC_fleur);
 
 	/* find out which modifier is NumLock - we'll use this when grabbing every combination of modifiers we can think of */
-	modmap = XGetModifierMapping(dm.getDisplay());
+    auto modmap = dm.getModifierMapping();
 	for (i = 0; i < 8; i++) {
 		for (j = 0; j < modmap->max_keypermod; j++) {
 			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dm.getDisplay(), XK_Num_Lock)) {
