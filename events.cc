@@ -102,9 +102,10 @@ void doEventLoop()
 
 static void handle_key_press(XKeyEvent *e)
 {
-	KeySym key = XKeycodeToKeysym(dsply, e->keycode, 0);
     auto& taskbar = Taskbar::instance();
     auto& clients = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
+	KeySym key = XKeycodeToKeysym(dm.getDisplay(), e->keycode, 0);
 	switch (key) {
 		case KEY_CYCLEPREV:
             taskbar.cyclePrevious();
@@ -130,14 +131,15 @@ static void handle_button_press(XButtonEvent *e)
 {
     auto& taskbar = Taskbar::instance();
     auto& clients = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
 	if (e->state & MODIFIER) {
 		if (clients.hasFocusedClient() && clients.getFocusedClient() != clients.getFullscreenClient()) {
             clients.getFocusedClient()->resize(e->x_root, e->y_root);
 		} else {
 			// pass event on
-			XAllowEvents(dsply, ReplayPointer, CurrentTime);
+			XAllowEvents(dm.getDisplay(), ReplayPointer, CurrentTime);
 		}
-	} else if (e->window == root) {
+	} else if (e->window == dm.getRoot()) {
 #ifdef DEBUG
         clients.dump();
 #endif
@@ -161,12 +163,12 @@ static void handle_button_press(XButtonEvent *e)
 		}
 	} else {
 		// pass event on
-		XAllowEvents(dsply, ReplayPointer, CurrentTime);
+		XAllowEvents(dm.getDisplay(), ReplayPointer, CurrentTime);
 		if (e->button == Button1) {
-			ClientPointer c = ClientTracker::instance().find(e->window, FRAME);
+			ClientPointer c = clients.find(e->window, FRAME);
 			if (c) {
 				// click-to-focus
-                ClientTracker::instance().checkFocus(c);
+                clients.checkFocus(c);
                 if (e->y < BARHEIGHT() && c != clients.getFullscreenClient()) {
                     handle_windowbar_click(e, c);
                 }
@@ -182,13 +184,14 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 	static ClientPointer  first_click_c;
 	static Time first_click_time;
 	XEvent ev;
+    auto& dm = DisplayManager::instance();
 
     if (unsigned int in_box_down = c->boxClicked(e->x); in_box_down <= 2) {
-		if (!grab(root, MouseMask, None)) {
+		if (!grab(dm.getRoot(), MouseMask, None)) {
 			return;
 		}
 
-		XGrabServer(dsply);
+        dm.grabServer();
 
 		unsigned int in_box = 1;
         unsigned int in_box_up = 0;
@@ -196,7 +199,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		c->drawButton(&text_gc, &depressed_gc, in_box_down);
 		do
 		{
-			XMaskEvent(dsply, MouseMask, &ev);
+			XMaskEvent(dm.getDisplay(), MouseMask, &ev);
             in_box_up = c->boxClicked(ev.xbutton.x - (c->getX() + DEF_BORDERWIDTH));
 			int win_ypos = (ev.xbutton.y - c->getY()) + BARHEIGHT();
 			if (ev.type == MotionNotify) {
@@ -211,7 +214,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		} while (ev.type != ButtonRelease);
         c->drawButton(&text_gc, &active_gc, in_box_down);
 
-		XUngrabServer(dsply);
+        dm.ungrabServer();
 		ungrab();
 		if (in_box) {
 			switch (in_box_up) {
@@ -290,6 +293,7 @@ Client::drawButton(GC *detail_gc, GC *background_gc, unsigned int which_box) noe
 
 static void handle_configure_request(XConfigureRequestEvent *e) {
     auto& ctracker = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
 	ClientPointer c = ctracker.find(e->window, WINDOW);
 	XWindowChanges wc;
 
@@ -325,7 +329,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		wc.border_width = DEF_BORDERWIDTH;
 		//wc.sibling = e->above;
 		//wc.stack_mode = e->detail;
-		XConfigureWindow(dsply, c->getFrame(), e->value_mask, &wc);
+		XConfigureWindow(dm.getDisplay(), c->getFrame(), e->value_mask, &wc);
 #ifdef SHAPE
 		if (e->value_mask & (CWWidth|CWHeight)) {
             c->setShape();
@@ -344,7 +348,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 	wc.height = e->height;
 	//wc.sibling = e->above;
 	//wc.stack_mode = e->detail;
-	XConfigureWindow(dsply, e->window, e->value_mask, &wc);
+	XConfigureWindow(dm.getDisplay(), e->window, e->value_mask, &wc);
 }
 
 /* Two possibilities if a client is asking to be mapped. One is that

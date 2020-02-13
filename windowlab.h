@@ -359,6 +359,12 @@ class DisplayManager final {
         inline auto getDefaultScreen() noexcept {
             return DefaultScreen(_display);
         }
+        void grabServer() noexcept {
+            XGrabServer(_display);
+        }
+        void ungrabServer() noexcept {
+            XUngrabServer(_display);
+        }
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }
