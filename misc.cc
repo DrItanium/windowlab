@@ -107,7 +107,7 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 		exit(1);
 	} else {
 		char msg[255];
-		XGetErrorText(DisplayManager::instance().getDisplay(), e->error_code, msg, sizeof msg);
+		XGetErrorText(dsply, e->error_code, msg, sizeof msg);
         err("X error (", e->resourceid, "): ", msg);
 	}
 

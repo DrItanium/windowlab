@@ -133,7 +133,6 @@ DisplayManager::instance() noexcept {
 
 
 static void setup_display() {
-	XColor dummyc;
 	XGCValues gv;
 	XSetWindowAttributes sattr;
 	XModifierKeymap *modmap;
@@ -145,18 +144,18 @@ static void setup_display() {
     auto& dm = DisplayManager::instance();
 
 	XSetErrorHandler(handle_xerror);
-	wm_state = XInternAtom(dm.getDisplay(), "WM_STATE", False);
-	wm_change_state = XInternAtom(dm.getDisplay(), "WM_CHANGE_STATE", False);
-	wm_protos = XInternAtom(dm.getDisplay(), "WM_PROTOCOLS", False);
-	wm_delete = XInternAtom(dm.getDisplay(), "WM_DELETE_WINDOW", False);
-	wm_cmapwins = XInternAtom(dm.getDisplay(), "WM_COLORMAP_WINDOWS", False);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_border.c_str(), &border_col, &dummyc);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_text.c_str(), &text_col, &dummyc);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_active.c_str(), &active_col, &dummyc);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_inactive.c_str(), &inactive_col, &dummyc);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_menu.c_str(), &menu_col, &dummyc);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_selected.c_str(), &selected_col, &dummyc);
-	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), opt_empty.c_str(), &empty_col, &dummyc);
+	wm_state = dm.internAtom("WM_STATE", False);
+	wm_change_state = dm.internAtom("WM_CHANGE_STATE", False);
+	wm_protos = dm.internAtom("WM_PROTOCOLS", False);
+	wm_delete = dm.internAtom("WM_DELETE_WINDOW", False);
+	wm_cmapwins = dm.internAtom("WM_COLORMAP_WINDOWS", False);
+	dm.allocNamedColorFromDefaultColormap(opt_border, border_col);
+	dm.allocNamedColorFromDefaultColormap(opt_text, text_col);
+	dm.allocNamedColorFromDefaultColormap(opt_active, active_col);
+	dm.allocNamedColorFromDefaultColormap(opt_inactive, inactive_col);
+	dm.allocNamedColorFromDefaultColormap(opt_menu, menu_col);
+	dm.allocNamedColorFromDefaultColormap(opt_selected, selected_col);
+	dm.allocNamedColorFromDefaultColormap(opt_empty, empty_col);
 
 	depressed_col.pixel = active_col.pixel;
 	depressed_col.red = active_col.red - ACTIVE_SHADOW;
@@ -165,7 +164,7 @@ static void setup_display() {
 	depressed_col.red = depressed_col.red <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.red : 0;
 	depressed_col.green = depressed_col.green <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.green : 0;
 	depressed_col.blue = depressed_col.blue <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.blue : 0;
-	XAllocColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()), &depressed_col);
+    dm.allocColorFromDefaultColormap(depressed_col);
 
 	xft_detail.color.red = text_col.red;
 	xft_detail.color.green = text_col.green;
@@ -203,30 +202,30 @@ static void setup_display() {
 
 	gv.foreground = border_col.pixel;
 	gv.line_width = DEF_BORDERWIDTH;
-	border_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground|GCLineWidth, &gv);
+	border_gc = dm.createGCForRoot(GCFunction|GCForeground|GCLineWidth, gv);
 
 	gv.foreground = text_col.pixel;
 	gv.line_width = 1;
 
-	text_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	text_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	gv.foreground = active_col.pixel;
-	active_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	active_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	gv.foreground = depressed_col.pixel;
-	depressed_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	depressed_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	gv.foreground = inactive_col.pixel;
-	inactive_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	inactive_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	gv.foreground = menu_col.pixel;
-	menu_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	menu_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	gv.foreground = selected_col.pixel;
-	selected_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	selected_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	gv.foreground = empty_col.pixel;
-	empty_gc = XCreateGC(dm.getDisplay(), dm.getRoot(), GCFunction|GCForeground, &gv);
+	empty_gc = dm.createGCForRoot(GCFunction|GCForeground, gv);
 
 	sattr.event_mask = ChildMask|ColormapChangeMask|ButtonMask;
 	XChangeWindowAttributes(dm.getDisplay(), dm.getRoot(), CWEventMask, &sattr);

@@ -407,6 +407,41 @@ class DisplayManager final {
         auto moveResizeWindow(Window w, int x, int y, unsigned int width, unsigned int height) noexcept {
             return XMoveResizeWindow(_display, w, x, y, width, height);
         }
+        auto getDefaultColormap() const noexcept {
+            return DefaultColormap(_display, _screen);
+        }
+        auto allocNamedColor(Colormap colormap, const std::string& colorName, XColor& screenDefReturn, XColor& exactDefReturn) noexcept {
+            return XAllocNamedColor(_display, colormap, colorName.c_str(), &screenDefReturn, &exactDefReturn);
+        }
+        auto allocNamedColor(Colormap colormap, const std::string& colorName, XColor& screenDefReturn) noexcept {
+            XColor tmp;
+            return allocNamedColor(colormap, colorName, screenDefReturn, tmp);
+        }
+        auto allocNamedColorFromDefaultColormap(const std::string& colorName, XColor& screenDefReturn, XColor& exactDefReturn) noexcept {
+            return allocNamedColor(getDefaultColormap(), colorName, screenDefReturn, exactDefReturn);
+        }
+        auto allocNamedColorFromDefaultColormap(const std::string& colorName, XColor& screenDefReturn) noexcept {
+            return allocNamedColor(getDefaultColormap(), colorName, screenDefReturn);
+        }
+        auto internAtom(const std::string& str, Bool onlyIfExists) noexcept {
+            return XInternAtom(_display, str.c_str(), onlyIfExists);
+        }
+
+        auto allocColor(Colormap cm, XColor& screenInOut) noexcept {
+            return XAllocColor(_display, cm, &screenInOut);
+        }
+        auto allocColorFromDefaultColormap(XColor& screenInOut) noexcept {
+            return allocColor(getDefaultColormap(), screenInOut);
+        }
+
+        template<typename T>
+        auto createGC(T drawable, unsigned long valueMask, XGCValues& values) noexcept {
+            return XCreateGC(_display, drawable, valueMask, &values);
+        }
+
+        auto createGCForRoot(unsigned long valueMask, XGCValues& values) noexcept {
+            return createGC(_root, valueMask, values);
+        }
 
     private:
         DisplayManager() = default;
