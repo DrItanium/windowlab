@@ -116,6 +116,25 @@ static void scan_wins() {
 	XFree(wins);
 }
 
+DisplayManager& 
+DisplayManager::instance() noexcept {
+    static bool _mustInit = true;
+    static DisplayManager _dsp;
+    if (_mustInit) {
+        _mustInit = false;
+        _dsp._display = XOpenDisplay(opt_display.c_str());
+        if (!_dsp.getDisplay()) {
+            err("can't open display! check your DISPLAY variable.");
+            exit(1);
+        }
+        _dsp._screen = DefaultScreen(_dsp._display);
+        _dsp._root = RootWindow(_dsp._display, _dsp._screen);
+    }
+    return _dsp;
+}
+
+
+
 static void setup_display() {
 	XColor dummyc;
 	XGCValues gv;
@@ -125,30 +144,22 @@ static void setup_display() {
 #ifdef SHAPE
 	int dummy;
 #endif
-
-	dsply = XOpenDisplay(opt_display.c_str());
-
-	if (!dsply) {
-		err("can't open display! check your DISPLAY variable.");
-		exit(1);
-	}
+    // do the initial setup after this point
+    auto& dm = DisplayManager::instance();
 
 	XSetErrorHandler(handle_xerror);
-	screen = DefaultScreen(dsply);
-	root = RootWindow(dsply, screen);
-
-	wm_state = XInternAtom(dsply, "WM_STATE", False);
-	wm_change_state = XInternAtom(dsply, "WM_CHANGE_STATE", False);
-	wm_protos = XInternAtom(dsply, "WM_PROTOCOLS", False);
-	wm_delete = XInternAtom(dsply, "WM_DELETE_WINDOW", False);
-	wm_cmapwins = XInternAtom(dsply, "WM_COLORMAP_WINDOWS", False);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_border.c_str(), &border_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_text.c_str(), &text_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_active.c_str(), &active_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_inactive.c_str(), &inactive_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_menu.c_str(), &menu_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_selected.c_str(), &selected_col, &dummyc);
-	XAllocNamedColor(dsply, DefaultColormap(dsply, screen), opt_empty.c_str(), &empty_col, &dummyc);
+	wm_state = XInternAtom(dm.getDisplay(), "WM_STATE", False);
+	wm_change_state = XInternAtom(dm.getDisplay(), "WM_CHANGE_STATE", False);
+	wm_protos = XInternAtom(dm.getDisplay(), "WM_PROTOCOLS", False);
+	wm_delete = XInternAtom(dm.getDisplay(), "WM_DELETE_WINDOW", False);
+	wm_cmapwins = XInternAtom(dm.getDisplay(), "WM_COLORMAP_WINDOWS", False);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_border.c_str(), &border_col, &dummyc);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_text.c_str(), &text_col, &dummyc);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_active.c_str(), &active_col, &dummyc);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_inactive.c_str(), &inactive_col, &dummyc);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_menu.c_str(), &menu_col, &dummyc);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_selected.c_str(), &selected_col, &dummyc);
+	XAllocNamedColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), opt_empty.c_str(), &empty_col, &dummyc);
 
 	depressed_col.pixel = active_col.pixel;
 	depressed_col.red = active_col.red - ACTIVE_SHADOW;
@@ -157,7 +168,7 @@ static void setup_display() {
 	depressed_col.red = depressed_col.red <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.red : 0;
 	depressed_col.green = depressed_col.green <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.green : 0;
 	depressed_col.blue = depressed_col.blue <= (USHRT_MAX - ACTIVE_SHADOW) ? depressed_col.blue : 0;
-	XAllocColor(dsply, DefaultColormap(dsply, screen), &depressed_col);
+	XAllocColor(dm.getDisplay(), DefaultColormap(dm.getDisplay(), screen), &depressed_col);
 
 	xft_detail.color.red = text_col.red;
 	xft_detail.color.green = text_col.green;
@@ -165,23 +176,23 @@ static void setup_display() {
 	xft_detail.color.alpha = 0xffff;
 	xft_detail.pixel = text_col.pixel;
 
-	xftfont = XftFontOpenXlfd(dsply, DefaultScreen(dsply), opt_font.c_str());
+	xftfont = XftFontOpenXlfd(dm.getDisplay(), dm.getDefaultScreen(), opt_font.c_str());
 	if (!xftfont) {
         err("font '", opt_font, "' not found");
 		exit(1);
 	}
 
 #ifdef SHAPE
-	shape = XShapeQueryExtension(dsply, &shape_event, &dummy);
+	shape = XShapeQueryExtension(dm.getDisplay(), &shape_event, &dummy);
 #endif
 
-	resize_curs = XCreateFontCursor(dsply, XC_fleur);
+	resize_curs = XCreateFontCursor(dm.getDisplay(), XC_fleur);
 
 	/* find out which modifier is NumLock - we'll use this when grabbing every combination of modifiers we can think of */
-	modmap = XGetModifierMapping(dsply);
+	modmap = XGetModifierMapping(dm.getDisplay());
 	for (i = 0; i < 8; i++) {
 		for (j = 0; j < modmap->max_keypermod; j++) {
-			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dsply, XK_Num_Lock)) {
+			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dm.getDisplay(), XK_Num_Lock)) {
 				numlockmask = (1 << i);
 #ifdef DEBUG
                 std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
@@ -195,33 +206,33 @@ static void setup_display() {
 
 	gv.foreground = border_col.pixel;
 	gv.line_width = DEF_BORDERWIDTH;
-	border_gc = XCreateGC(dsply, root, GCFunction|GCForeground|GCLineWidth, &gv);
+	border_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground|GCLineWidth, &gv);
 
 	gv.foreground = text_col.pixel;
 	gv.line_width = 1;
 
-	text_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	text_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	gv.foreground = active_col.pixel;
-	active_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	active_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	gv.foreground = depressed_col.pixel;
-	depressed_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	depressed_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	gv.foreground = inactive_col.pixel;
-	inactive_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	inactive_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	gv.foreground = menu_col.pixel;
-	menu_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	menu_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	gv.foreground = selected_col.pixel;
-	selected_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	selected_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	gv.foreground = empty_col.pixel;
-	empty_gc = XCreateGC(dsply, root, GCFunction|GCForeground, &gv);
+	empty_gc = XCreateGC(dm.getDisplay(), root, GCFunction|GCForeground, &gv);
 
 	sattr.event_mask = ChildMask|ColormapChangeMask|ButtonMask;
-	XChangeWindowAttributes(dsply, root, CWEventMask, &sattr);
+	XChangeWindowAttributes(dm.getDisplay(), root, CWEventMask, &sattr);
 
 	grab_keysym(root, MODIFIER, KEY_CYCLEPREV);
 	grab_keysym(root, MODIFIER, KEY_CYCLENEXT);

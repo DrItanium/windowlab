@@ -344,9 +344,29 @@ struct MenuItem final {
 // Below here are (mainly generated with cproto) declarations and prototypes for each file.
 
 // main.c
-extern Display *dsply;
-extern Window root;
-extern int screen;
+//extern Display *dsply;
+//extern Window root;
+//extern int screen;
+class DisplayManager final {
+    public:
+        static DisplayManager& instance() noexcept;
+        Display* getDisplay() const noexcept { return _display; }
+        void setDisplay(Display* disp) noexcept { _display = disp; }
+        Window getRoot() const noexcept { return _root; }
+        void setRoot(Window w) noexcept { _root = w; }
+        auto getScreen() const noexcept { return _screen; }
+        void setScreen(int screen) noexcept { _screen = screen; }
+        inline auto getDefaultScreen() noexcept {
+            return DefaultScreen(_display);
+        }
+    private:
+        DisplayManager() = default;
+        //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }
+    private:
+        Display* _display = nullptr;
+        Window _root = 0;
+        int _screen = 0;
+};
 using ClientPointer = typename Client::Ptr;
 class ClientTracker final {
     public:
