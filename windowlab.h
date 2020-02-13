@@ -399,6 +399,18 @@ class DisplayManager final {
             return XUnmapWindow(_display, thing);
         }
 
+        auto mapWindow(Window w) noexcept {
+            return XMapWindow(_display, w);
+        }
+
+        auto mapRaised(Window w) noexcept {
+            return XMapRaised(_display, w);
+        }
+
+        auto moveResizeWindow(Window w, int x, int y, unsigned int width, unsigned int height) noexcept {
+            return XMoveResizeWindow(_display, w, x, y, width, height);
+        }
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }
