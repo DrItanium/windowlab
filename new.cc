@@ -54,16 +54,16 @@ Client::makeNew(Window w) noexcept {
     auto& clients = ClientTracker::instance();
     clients.add(ClientPointer(new Client(w)));
     auto c = clients.back();
-	XGrabServer(dsply);
+	XGrabServer(DisplayManager::instance().getDisplay());
 
-	XGetTransientForHint(dsply, w, &c->_trans);
-    auto [ status, opt ] = fetchName(dsply, w);
+	XGetTransientForHint(DisplayManager::instance().getDisplay(), w, &c->_trans);
+    auto [ status, opt ] = fetchName(DisplayManager::instance().getDisplay(), w);
     c->setName(opt);
-	XGetWindowAttributes(dsply, w, &attr);
+	XGetWindowAttributes(DisplayManager::instance().getDisplay(), w, &attr);
     c->setDimensions(attr);
 	c->_size = XAllocSizeHints();
     c->_selfReference = c;
-	XGetWMNormalHints(dsply, c->_window, c->_size, &dummy);
+	XGetWMNormalHints(DisplayManager::instance().getDisplay(), c->_window, c->_size, &dummy);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	++c->_ignoreUnmap;
@@ -71,7 +71,7 @@ Client::makeNew(Window w) noexcept {
 	if (attr.map_state != IsViewable) {
         c->initPosition();
         c->setWMState(NormalState);
-		if (XWMHints* hints = XGetWMHints(dsply, w); hints) {
+		if (XWMHints* hints = XGetWMHints(DisplayManager::instance().getDisplay(), w); hints) {
 			if (hints->flags & StateHint) {
                 c->setWMState(hints->initial_state);
 			}
@@ -83,18 +83,18 @@ Client::makeNew(Window w) noexcept {
     c->gravitate(APPLY_GRAVITY);
     c->reparent();
 
-	c->_xftdraw = XftDrawCreate(dsply, (Drawable) c->_frame, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
+	c->_xftdraw = XftDrawCreate(DisplayManager::instance().getDisplay(), (Drawable) c->_frame, DefaultVisual(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())), DefaultColormap(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())));
 
 	if (c->getWMState() != IconicState) {
-		XMapWindow(dsply, c->_window);
-		XMapRaised(dsply, c->_frame);
+		XMapWindow(DisplayManager::instance().getDisplay(), c->_window);
+		XMapRaised(DisplayManager::instance().getDisplay(), c->_frame);
 
         clients.setTopmostClient(c);
 	} else {
         c->setHidden(true);
 		if(attr.map_state == IsViewable) {
 			++c->_ignoreUnmap;
-			XUnmapWindow(dsply, c->_window);
+			XUnmapWindow(DisplayManager::instance().getDisplay(), c->_window);
 		}
 	}
 
@@ -104,8 +104,8 @@ Client::makeNew(Window w) noexcept {
         clients.setFocusedClient(c);
 	}
 
-	XSync(dsply, False);
-	XUngrabServer(dsply);
+	XSync(DisplayManager::instance().getDisplay(), False);
+	XUngrabServer(DisplayManager::instance().getDisplay());
 
     Taskbar::instance().redraw();
 }
@@ -155,20 +155,20 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_frame = XCreateWindow(dsply, root, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_frame = XCreateWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
 #ifdef SHAPE
 	if (shape) {
-		XShapeSelectInput(dsply, _window, ShapeNotifyMask);
+		XShapeSelectInput(DisplayManager::instance().getDisplay(), _window, ShapeNotifyMask);
         setShape();
 	}
 #endif
 
-	XAddToSaveSet(dsply, _window);
-	XSelectInput(dsply, _window, ColormapChangeMask|PropertyChangeMask);
-	XSetWindowBorderWidth(dsply, _window, 0);
-	XResizeWindow(dsply, _window, _width, _height);
-	XReparentWindow(dsply, _window, _frame, 0, BARHEIGHT());
+	XAddToSaveSet(DisplayManager::instance().getDisplay(), _window);
+	XSelectInput(DisplayManager::instance().getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);
+	XSetWindowBorderWidth(DisplayManager::instance().getDisplay(), _window, 0);
+	XResizeWindow(DisplayManager::instance().getDisplay(), _window, _width, _height);
+	XReparentWindow(DisplayManager::instance().getDisplay(), _window, _frame, 0, BARHEIGHT());
 
     sendConfig();
 }

@@ -49,8 +49,7 @@ Client::setWMState(int state) noexcept
 
 	data[0] = state;
 	data[1] = None; //Icon? We don't need no steenking icon.
-
-	XChangeProperty(dsply, _window, wm_state, wm_state, 32, PropModeReplace, (unsigned char *)data, 2);
+    DisplayManager::instance().changeProperty(_window, wm_state, wm_state, 32, PropModeReplace, (unsigned char*)data, 2);
 }
 
 long 
@@ -67,7 +66,7 @@ Client::getWMState() const noexcept
 	unsigned long items_read, items_left;
 	unsigned char *data;
 
-	if (XGetWindowProperty(dsply, _window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read) {
+    if (DisplayManager::instance().getWindowProperty(_window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read) {
 		state = *(long *)data;
 		XFree(data);
 	}
@@ -88,8 +87,7 @@ Client::sendConfig() noexcept {
     ce.border_width = 0;
     ce.above = None;
     ce.override_redirect = 0;
-
-    XSendEvent(dsply, _window, False, StructureNotifyMask, (XEvent*)&ce);
+    DisplayManager::instance().sendEvent(_window, False, StructureNotifyMask, ce);
 }
 
 Client::~Client() {
@@ -102,11 +100,12 @@ Client::~Client() {
 
 void
 Client::removeFromView() noexcept { 
+    auto& dm = DisplayManager::instance();
     gravitate(REMOVE_GRAVITY);
-	XReparentWindow(dsply, _window, root, _x, _y);
-	XSetWindowBorderWidth(dsply, _window, 1);
-    XRemoveFromSaveSet(dsply, _window);
-    XDestroyWindow(dsply, _frame);
+    dm.reparentWindow(_window, dm.getRoot(), _x, _y);
+	XSetWindowBorderWidth(dm.getDisplay(), _window, 1);
+    XRemoveFromSaveSet(dm.getDisplay(), _window);
+    XDestroyWindow(dm.getDisplay(), _frame);
 }
 
 /* After pulling my hair out trying to find some way to tell if a
@@ -121,17 +120,17 @@ Client::removeFromView() noexcept {
  * cleaning up its data structures when we exit mid-session. */
 void
 ClientTracker::remove(ClientPointer c, int mode) {
-	XGrabServer(dsply);
+	XGrabServer(DisplayManager::instance().getDisplay());
 	XSetErrorHandler(ignore_xerror);
 
 #ifdef DEBUG
-    err("removing ", (c->name ? *c->name : ""), ", ", mode, ": ", XPending(dsply), " left");
+    err("removing ", (c->name ? *c->name : ""), ", ", mode, ": ", XPending(DisplayManager::instance().getDisplay()), " left");
 #endif
 
 	if (mode == WITHDRAW) {
         c->setWMState(WithdrawnState);
 	} else { //REMAP
-		XMapWindow(dsply, c->getWindow());
+		XMapWindow(DisplayManager::instance().getDisplay(), c->getWindow());
 	}
     c->removeFromView();
     remove(c);
@@ -143,9 +142,9 @@ ClientTracker::remove(ClientPointer c, int mode) {
         checkFocus(getPreviousFocused());
 	}
 
-	XSync(dsply, False);
+	XSync(DisplayManager::instance().getDisplay(), False);
 	XSetErrorHandler(handle_xerror);
-	XUngrabServer(dsply);
+	XUngrabServer(DisplayManager::instance().getDisplay());
 
     Taskbar::instance().redraw();
 }
@@ -160,9 +159,9 @@ Client::redraw() noexcept {
     drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (self == tracker.getFocusedClient()) {
-		XFillRectangle(dsply, _frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(DisplayManager::instance().getDisplay(), _frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(dsply, _frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(DisplayManager::instance().getDisplay(), _frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	if (!_trans && _name) {
         drawString(_xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(_name));
@@ -216,20 +215,20 @@ Client::setShape() noexcept {
 	int n, order;
 	XRectangle temp;
 
-	auto dummy = XShapeGetRectangles(dsply, _window, ShapeBounding, &n, &order);
+	auto dummy = XShapeGetRectangles(DisplayManager::instance().getDisplay(), _window, ShapeBounding, &n, &order);
 	if (n > 1) {
-		XShapeCombineShape(dsply, _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
+		XShapeCombineShape(DisplayManager::instance().getDisplay(), _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
 		temp.x = -BORDERWIDTH(this);
 		temp.y = -BORDERWIDTH(this);
 		temp.width = _width + (2 * BORDERWIDTH(this));
 		temp.height = BARHEIGHT() + BORDERWIDTH(this);
-		XShapeCombineRectangles(dsply, _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
+		XShapeCombineRectangles(DisplayManager::instance().getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
         XRectangle temp2;
 		temp2.x = 0;
 		temp2.y = 0;
 		temp2.width = _width;
 		temp2.height = BARHEIGHT() - BORDERWIDTH(this);
-		XShapeCombineRectangles(dsply, _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
+		XShapeCombineRectangles(DisplayManager::instance().getDisplay(), _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
 		_hasBeenShaped = 1;
 	} else {
 		if (_hasBeenShaped) {
@@ -238,7 +237,7 @@ Client::setShape() noexcept {
 			temp.y = -BORDERWIDTH(this);
 			temp.width = _width + (2 * BORDERWIDTH(this));
 			temp.height = _height + BARHEIGHT() + (2 * BORDERWIDTH(this));
-			XShapeCombineRectangles(dsply, _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
+			XShapeCombineRectangles(DisplayManager::instance().getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}
 	XFree(dummy);
@@ -248,8 +247,8 @@ Client::setShape() noexcept {
 void
 ClientTracker::checkFocus(ClientPointer c) {
 	if (c) {
-		XSetInputFocus(dsply, c->getWindow(), RevertToNone, CurrentTime);
-		XInstallColormap(dsply, c->getColormap());
+		XSetInputFocus(DisplayManager::instance().getDisplay(), c->getWindow(), RevertToNone, CurrentTime);
+		XInstallColormap(DisplayManager::instance().getDisplay(), c->getColormap());
 	}
 	if (c != _focusedClient) {
 		ClientPointer old_focused = _focusedClient;
@@ -281,13 +280,13 @@ ClientTracker::getPreviousFocused() {
 }
 void
 Client::drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept {
-    XDrawLine(dsply, _frame, gc, x1, y1, x2, y2);
+    XDrawLine(DisplayManager::instance().getDisplay(), _frame, gc, x1, y1, x2, y2);
 }
 void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	drawLine(detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
 	drawLine(detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
@@ -304,10 +303,10 @@ void
 Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
 	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawRectangle(dsply, _frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
-	XDrawRectangle(dsply, _frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
+	XDrawRectangle(DisplayManager::instance().getDisplay(), _frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
+	XDrawRectangle(DisplayManager::instance().getDisplay(), _frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
 }
 
 
@@ -315,7 +314,7 @@ void
 Client::drawCloseButton(GC* detail, GC* background) noexcept {
 	int x = _width - (BARHEIGHT() - DEF_BORDERWIDTH);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(dsply, _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	drawLine(detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
 	drawLine(detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
@@ -329,13 +328,13 @@ Client::drawCloseButton(GC* detail, GC* background) noexcept {
 void
 Client::raiseWindow() noexcept {
     // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
-    (void)XRaiseWindow(dsply, _frame);
+    (void)XRaiseWindow(DisplayManager::instance().getDisplay(), _frame);
 }
 
 void 
 Client::lowerWindow() noexcept {
     // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
-    (void)XLowerWindow(dsply, _frame);
+    (void)XLowerWindow(DisplayManager::instance().getDisplay(), _frame);
 }
 
 Rect

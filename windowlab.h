@@ -365,6 +365,40 @@ class DisplayManager final {
         void ungrabServer() noexcept {
             XUngrabServer(_display);
         }
+        inline auto changeProperty(Window w, Atom property, Atom type, int format, int mode, unsigned char* data, int nelements) noexcept {
+            return XChangeProperty(_display, w, property, type, format, mode, data, nelements);
+        }
+        inline auto getWindowProperty(Window w, Atom property, long longOffset, long longLength, Bool shouldDelete, Atom reqType, Atom* actualTypeReturn, int* actualFormatReturn, unsigned long* nitemsReturn, unsigned long* bytesAfterReturn, unsigned char** propReturn) noexcept {
+            return XGetWindowProperty(_display, w, property, longOffset, longLength, shouldDelete, reqType, actualTypeReturn, actualFormatReturn, nitemsReturn, bytesAfterReturn, propReturn);
+        }
+        template<typename T>
+        inline auto sendEvent(Window w, Bool propagate, long eventMask, T& eventSend) noexcept {
+            return XSendEvent(_display, w, propagate, eventMask, (XEvent*)&eventSend);
+        }
+
+        inline auto reparentWindow(Window w, Window parent, int x, int y) noexcept {
+            return XReparentWindow(_display, w, parent, x, y);
+        }
+
+        auto getWidth() const noexcept {
+            return DisplayWidth(_display, _screen);
+        }
+        auto getHeight() const noexcept {
+            return DisplayHeight(_display, _screen);
+        }
+
+        auto getDimensions() const noexcept {
+            return std::make_tuple(getWidth(), getHeight());
+        }
+        auto getDefaultDepth() const noexcept {
+            return DefaultDepth(_display, _screen);
+        }
+
+        template<typename T>
+        auto unmapWindow(T thing) noexcept {
+            return XUnmapWindow(_display, thing);
+        }
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }

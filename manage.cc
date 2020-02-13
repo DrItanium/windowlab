@@ -49,13 +49,14 @@ Client::hide() noexcept {
         ++_ignoreUnmap;
         _hidden = true;
         auto& ct = ClientTracker::instance();
+        auto& dm = DisplayManager::instance();
         if (sharedReference() == ct.getTopmostClient()) {
             ct.setTopmostClient(nullptr);
         }
-        XUnmapWindow(dsply, _frame);
-        XUnmapWindow(dsply, _window);
+        dm.unmapWindow(_frame);
+        dm.unmapWindow(_window);
         setWMState(IconicState);
-        ClientTracker::instance().checkFocus(ClientTracker::instance().getPreviousFocused());
+        ct.checkFocus(ClientTracker::instance().getPreviousFocused());
     }
 }
 
@@ -64,6 +65,7 @@ Client::unhide() noexcept {
     if (_hidden) {
         _hidden = false;
         auto& ct = ClientTracker::instance();
+        auto& dm = DisplayManager::instance();
         ct.setTopmostClient(sharedReference());
         XMapWindow(dsply, _window);
         XMapRaised(dsply, _frame);
@@ -86,8 +88,8 @@ void toggle_fullscreen(ClientPointer c)
 			showing_taskbar = 1;
 		} else { // make fullscreen
 			xoffset = yoffset = 0;
-			maxwinwidth = DisplayWidth(dsply, screen);
-			maxwinheight = DisplayHeight(dsply, screen) - BARHEIGHT();
+			maxwinwidth = DisplayWidth(dsply, DisplayManager::instance().getScreen());
+			maxwinheight = DisplayHeight(dsply, DisplayManager::instance().getScreen()) - BARHEIGHT();
 			if (ctracker.hasFullscreenClient()) { // reset existing fullscreen window to original size
                 ctracker.getFullscreenClient()->setDimensions(fs_prevdims);
 				XMoveResizeWindow(dsply, ctracker.getFullscreenClient()->getFrame(), ctracker.getFullscreenClient()->getX(), ctracker.getFullscreenClient()->getY() - BARHEIGHT(), ctracker.getFullscreenClient()->getWidth(), ctracker.getFullscreenClient()->getHeight()+ BARHEIGHT());
@@ -149,8 +151,8 @@ Client::move() noexcept {
 	Rect bounddims;
 	XSetWindowAttributes pattr;
 
-	int dw = DisplayWidth(dsply, screen);
-	int dh = DisplayHeight(dsply, screen);
+	int dw = DisplayWidth(dsply, DisplayManager::instance().getScreen());
+	int dh = DisplayHeight(dsply, DisplayManager::instance().getScreen());
     auto [mousex, mousey] = getMousePosition();
 	bounddims.setX((mousex - _x) - BORDERWIDTH(this));
 	bounddims.setWidth((dw - bounddims.getX() - (getWidth() - bounddims.getX())) + 1);
@@ -203,9 +205,7 @@ Client::resize(int x, int y)
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
     bool dragging_outwards = x > _x + BORDERWIDTH(this) && x < (_y + _width) - BORDERWIDTH(this) && y > (_y - BARHEIGHT()) + BORDERWIDTH(this) && y < (_y + _height) - BORDERWIDTH(this);
-
-	unsigned int dw = DisplayWidth(dsply, screen);
-	unsigned int dh = DisplayHeight(dsply, screen);
+    auto [dw, dh] = DisplayManager::instance().getDimensions();
 
     Rect bounddims { 0, 0, static_cast<int>(dw), static_cast<int>(dh) };
 
@@ -224,14 +224,14 @@ Client::resize(int x, int y)
 	resize_pattr.background_pixel = menu_col.pixel;
 	resize_pattr.border_pixel = border_col.pixel;
 	resize_pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-    resize_win = createWindow(dsply, root, newdims, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resize_pattr);
+    resize_win = createWindow(dsply, root, newdims, DEF_BORDERWIDTH, DefaultDepth(dsply, DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(dsply, DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resize_pattr);
 	XMapRaised(dsply, resize_win);
 
 	resizebar_pattr.override_redirect = True;
 	resizebar_pattr.background_pixel = active_col.pixel;
 	resizebar_pattr.border_pixel = border_col.pixel;
 	resizebar_pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	resizebar_win = XCreateWindow(dsply, resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resizebar_pattr);
+	resizebar_win = XCreateWindow(dsply, resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(dsply, DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(dsply, DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resizebar_pattr);
 	XMapRaised(dsply, resizebar_win);
 
 	// temporarily swap drawables in order to draw on the resize window's XFT context
@@ -372,8 +372,7 @@ Client::resize(int x, int y)
 
 static void limit_size(ClientPointer c, Rect *newdims)
 {
-	auto dw = DisplayWidth(dsply, screen);
-	auto dh = DisplayHeight(dsply, screen);
+    auto [dw, dh] = DisplayManager::instance().getDimensions();
 
 	if (c->getSize()->flags & PMinSize) {
         newdims->setWidth(c->getSize()->min_width, [compare = c->getSize()->min_width](int width) { return width < compare; });
