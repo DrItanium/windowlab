@@ -460,6 +460,9 @@ class DisplayManager final {
         auto createWindow(const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
             return createWindow(_root, rect, borderWidth, depth, _class, v, valueMask, attributes);
         }
+        auto putbackEvent(XEvent& ev) noexcept {
+            return XPutBackEvent(_display, &ev);
+        }
 
     private:
         DisplayManager() = default;

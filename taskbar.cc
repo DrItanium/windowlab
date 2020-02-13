@@ -148,7 +148,7 @@ Taskbar::leftClick(int x)
 					}
 					break;
 				case KeyPress:
-					XPutBackEvent(dm.getDisplay(), &ev);
+                    dm.putbackEvent(ev);
 					break;
 			}
 		}
@@ -199,7 +199,7 @@ Taskbar::rightClick(int x)
 				}
 				break;
 			case KeyPress:
-				XPutBackEvent(dm.getDisplay(), &ev);
+                dm.putbackEvent(ev);
 				break;
 		}
 	} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
@@ -214,27 +214,23 @@ void
 Taskbar::rightClickRoot()
 {
     auto& dm = DisplayManager::instance();
-	if (!grab(dm.getRoot(), MouseMask, None))
-	{
+	if (!grab(dm.getRoot(), MouseMask, None)) {
 		return;
 	}
 	drawMenubar();
 	XEvent ev;
-	do
-	{
+	do {
 		XMaskEvent(dm.getDisplay(), MouseMask|KeyMask, &ev);
-		switch (ev.type)
-		{
+		switch (ev.type) {
 			case MotionNotify:
-				if (ev.xmotion.y < BARHEIGHT())
-				{
+				if (ev.xmotion.y < BARHEIGHT()) {
 					ungrab();
                     rightClick(ev.xmotion.x);
 					return;
 				}
 				break;
 			case KeyPress:
-				XPutBackEvent(dm.getDisplay(), &ev);
+                dm.putbackEvent(ev);
 				break;
 		}
 	}
