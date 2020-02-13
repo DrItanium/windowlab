@@ -344,9 +344,6 @@ struct MenuItem final {
 // Below here are (mainly generated with cproto) declarations and prototypes for each file.
 
 // main.c
-//extern Display *dsply;
-//extern Window root;
-//extern int screen;
 class DisplayManager final {
     public:
         static DisplayManager& instance() noexcept;
