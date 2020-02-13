@@ -205,7 +205,16 @@ Client::resize(int x, int y)
 
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
-    bool dragging_outwards = x > _x + BORDERWIDTH(this) && x < (_y + _width) - BORDERWIDTH(this) && y > (_y - BARHEIGHT()) + BORDERWIDTH(this) && y < (_y + _height) - BORDERWIDTH(this);
+    bool dragging_outwards = (x > _x + BORDERWIDTH(this)) && 
+                             (x < (_y + _width) - BORDERWIDTH(this)) && 
+                             (y > (_y - BARHEIGHT()) + BORDERWIDTH(this)) && 
+                             (y < (_y + _height) - BORDERWIDTH(this));
+    if (dragging_outwards) {
+        std::cout << "inside the window, dragging outwards";
+    } else {
+        std::cout << "outside the window, dragging inwards";
+    }
+    std::cout << "(" << x << ", " << y << ")" << std::endl;
     auto [dw, dh] = DisplayManager::instance().getDimensions();
 
     Rect bounddims { 0, 0, static_cast<int>(dw), static_cast<int>(dh) };
