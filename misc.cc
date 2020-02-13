@@ -369,11 +369,6 @@ void quitNicely() {
 	exit(0);
 }
 
-Window 
-createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept {
-    return XCreateWindow(disp, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, attributes);
-}
-
 void 
 drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string) {
     auto ptr = string.c_str();

@@ -105,18 +105,19 @@ Taskbar::leftClick(int x)
 	unsigned int button_clicked, old_button_clicked;
 	ClientPointer c, exposed_c, old_c;
     auto& ctracker = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
 	if (!ctracker.empty()) {
-        ClientTracker::instance().accept([](ClientPointer p) { p->rememberHidden(); return false; });
+        ctracker.accept([](ClientPointer p) { p->rememberHidden(); return false; });
 
         // unused?
         //auto [mousex, mousey] = getMousePosition();
-        Rect bounddims {0, 0, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT()};
+        Rect bounddims {0, 0, dm.getWidth(), BARHEIGHT() };
 
-		constraint_win = createWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
-		XMapWindow(DisplayManager::instance().getDisplay(), constraint_win);
+		constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
+		XMapWindow(dm.getDisplay(), constraint_win);
 
-		if (!(XGrabPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-			XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
+		if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+			XDestroyWindow(dm.getDisplay(), constraint_win);
 			return;
 		}
 
@@ -129,10 +130,10 @@ Taskbar::leftClick(int x)
 
 		do
 		{
-			XMaskEvent(DisplayManager::instance().getDisplay(), ExposureMask|MouseMask|KeyMask, &ev);
+			XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask|KeyMask, &ev);
 			switch (ev.type) {
 				case Expose:
-					exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME);
+					exposed_c = ctracker.find(ev.xexpose.window, FRAME);
 					if (exposed_c) {
                         exposed_c->redraw();
 					}
@@ -147,17 +148,17 @@ Taskbar::leftClick(int x)
 					}
 					break;
 				case KeyPress:
-					XPutBackEvent(DisplayManager::instance().getDisplay(), &ev);
+					XPutBackEvent(dm.getDisplay(), &ev);
 					break;
 			}
 		}
 		while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
-		XUnmapWindow(DisplayManager::instance().getDisplay(), constraint_win);
-		XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
+		XUnmapWindow(dm.getDisplay(), constraint_win);
+		XDestroyWindow(dm.getDisplay(), constraint_win);
 		ungrab();
 
-        ClientTracker::instance().accept([](ClientPointer p) { p->forgetHidden(); return false; });
+        ctracker.accept([](ClientPointer p) { p->forgetHidden(); return false; });
 	}
 }
 
@@ -167,15 +168,16 @@ Taskbar::rightClick(int x)
 	XEvent ev;
 	unsigned int current_item = UINT_MAX;
 	XSetWindowAttributes pattr;
+    auto& dm = DisplayManager::instance();
 
 	//auto [mousex, mousey] = getMousePosition();
-	Rect bounddims { 0, 0, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() };
+	Rect bounddims { 0, 0, dm.getWidth(), BARHEIGHT() };
 
-	auto constraint_win = createWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
-	XMapWindow(DisplayManager::instance().getDisplay(), constraint_win);
+	auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
+    dm.mapWindow(constraint_win);
 
-	if (!(XGrabPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-		XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
+	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+		XDestroyWindow(dm.getDisplay(), constraint_win);
 		return;
 	}
     drawMenubar();
@@ -183,7 +185,7 @@ Taskbar::rightClick(int x)
 	current_item = updateMenuItem(x);
 	do
 	{
-		XMaskEvent(DisplayManager::instance().getDisplay(), MouseMask|KeyMask, &ev);
+		XMaskEvent(dm.getDisplay(), MouseMask|KeyMask, &ev);
 		switch (ev.type)
 		{
 			case MotionNotify:
@@ -197,21 +199,22 @@ Taskbar::rightClick(int x)
 				}
 				break;
 			case KeyPress:
-				XPutBackEvent(DisplayManager::instance().getDisplay(), &ev);
+				XPutBackEvent(dm.getDisplay(), &ev);
 				break;
 		}
 	} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
     Taskbar::instance().redraw();
-	XUnmapWindow(DisplayManager::instance().getDisplay(), constraint_win);
-	XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
+	XUnmapWindow(dm.getDisplay(), constraint_win);
+	XDestroyWindow(dm.getDisplay(), constraint_win);
 	ungrab();
 }
 
 void
 Taskbar::rightClickRoot()
 {
-	if (!grab(DisplayManager::instance().getRoot(), MouseMask, None))
+    auto& dm = DisplayManager::instance();
+	if (!grab(dm.getRoot(), MouseMask, None))
 	{
 		return;
 	}
@@ -219,7 +222,7 @@ Taskbar::rightClickRoot()
 	XEvent ev;
 	do
 	{
-		XMaskEvent(DisplayManager::instance().getDisplay(), MouseMask|KeyMask, &ev);
+		XMaskEvent(dm.getDisplay(), MouseMask|KeyMask, &ev);
 		switch (ev.type)
 		{
 			case MotionNotify:
@@ -231,7 +234,7 @@ Taskbar::rightClickRoot()
 				}
 				break;
 			case KeyPress:
-				XPutBackEvent(DisplayManager::instance().getDisplay(), &ev);
+				XPutBackEvent(dm.getDisplay(), &ev);
 				break;
 		}
 	}
@@ -244,7 +247,8 @@ void
 Taskbar::redraw() 
 {
 	auto buttonWidth = getButtonWidth();
-	XClearWindow(DisplayManager::instance().getDisplay(), _taskbar);
+    auto& dm = DisplayManager::instance();
+	XClearWindow(dm.getDisplay(), _taskbar);
 
 	if (showing_taskbar == 0) {
 		return;
@@ -252,15 +256,17 @@ Taskbar::redraw()
 
 	unsigned int i = 0;
     ClientTracker::instance().accept([this, &i, buttonWidth](ClientPointer c) {
+                auto& dm = DisplayManager::instance();
+                auto& ct = ClientTracker::instance();
 		        auto button_startx = static_cast<int>(i * buttonWidth);
 		        auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
 		        if (button_startx != 0) {
-		        	XDrawLine(DisplayManager::instance().getDisplay(), _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
+		        	XDrawLine(dm.getDisplay(), _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
-		        if (c == ClientTracker::instance().getFocusedClient()) {
-		        	XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+		        if (c == ct.getFocusedClient()) {
+		        	XFillRectangle(dm.getDisplay(), _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        } else {
-		        	XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+		        	XFillRectangle(dm.getDisplay(), _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
 		        if (!c->getTrans() && c->getName()) {
                     drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->getName()));

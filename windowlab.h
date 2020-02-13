@@ -454,6 +454,12 @@ class DisplayManager final {
         auto getModifierMapping() noexcept {
             return XGetModifierMapping(_display);
         }
+        auto createWindow(Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
+            return XCreateWindow(_display, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, &attributes);
+        }
+        auto createWindow(const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
+            return createWindow(_root, rect, borderWidth, depth, _class, v, valueMask, attributes);
+        }
 
     private:
         DisplayManager() = default;
@@ -603,7 +609,6 @@ void showEvent(XEvent);
 void dumpClients();
 #endif
 
-Window createWindow(Display* disp, Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes* attributes) noexcept;
 void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string);
 std::tuple<Status, std::optional<std::string>> fetchName(Display* disp, Window w);
 
