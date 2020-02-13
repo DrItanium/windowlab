@@ -43,11 +43,11 @@ Taskbar::make() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_taskbar = XCreateWindow(dsply, root, 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(dsply, screen), CopyFromParent, DefaultVisual(dsply, screen), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_taskbar = XCreateWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
-	XMapWindow(dsply, _taskbar);
+	XMapWindow(DisplayManager::instance().getDisplay(), _taskbar);
 
-	_tbxftdraw = XftDrawCreate(dsply, (Drawable) _taskbar, DefaultVisual(dsply, DefaultScreen(dsply)), DefaultColormap(dsply, DefaultScreen(dsply)));
+	_tbxftdraw = XftDrawCreate(DisplayManager::instance().getDisplay(), (Drawable) _taskbar, DefaultVisual(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())), DefaultColormap(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())));
     _made = true;
 }
 
@@ -110,13 +110,13 @@ Taskbar::leftClick(int x)
 
         // unused?
         //auto [mousex, mousey] = getMousePosition();
-        Rect bounddims {0, 0, DisplayWidth(dsply, screen), BARHEIGHT()};
+        Rect bounddims {0, 0, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT()};
 
-		constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
-		XMapWindow(dsply, constraint_win);
+		constraint_win = createWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
+		XMapWindow(DisplayManager::instance().getDisplay(), constraint_win);
 
-		if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-			XDestroyWindow(dsply, constraint_win);
+		if (!(XGrabPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+			XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
 			return;
 		}
 
@@ -129,7 +129,7 @@ Taskbar::leftClick(int x)
 
 		do
 		{
-			XMaskEvent(dsply, ExposureMask|MouseMask|KeyMask, &ev);
+			XMaskEvent(DisplayManager::instance().getDisplay(), ExposureMask|MouseMask|KeyMask, &ev);
 			switch (ev.type) {
 				case Expose:
 					exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME);
@@ -147,14 +147,14 @@ Taskbar::leftClick(int x)
 					}
 					break;
 				case KeyPress:
-					XPutBackEvent(dsply, &ev);
+					XPutBackEvent(DisplayManager::instance().getDisplay(), &ev);
 					break;
 			}
 		}
 		while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
-		XUnmapWindow(dsply, constraint_win);
-		XDestroyWindow(dsply, constraint_win);
+		XUnmapWindow(DisplayManager::instance().getDisplay(), constraint_win);
+		XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
 		ungrab();
 
         ClientTracker::instance().accept([](ClientPointer p) { p->forgetHidden(); return false; });
@@ -169,13 +169,13 @@ Taskbar::rightClick(int x)
 	XSetWindowAttributes pattr;
 
 	//auto [mousex, mousey] = getMousePosition();
-	Rect bounddims { 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() };
+	Rect bounddims { 0, 0, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() };
 
-	auto constraint_win = createWindow(dsply, root, bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
-	XMapWindow(dsply, constraint_win);
+	auto constraint_win = createWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, &pattr);
+	XMapWindow(DisplayManager::instance().getDisplay(), constraint_win);
 
-	if (!(XGrabPointer(dsply, root, False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-		XDestroyWindow(dsply, constraint_win);
+	if (!(XGrabPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+		XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
 		return;
 	}
     drawMenubar();
@@ -183,7 +183,7 @@ Taskbar::rightClick(int x)
 	current_item = updateMenuItem(x);
 	do
 	{
-		XMaskEvent(dsply, MouseMask|KeyMask, &ev);
+		XMaskEvent(DisplayManager::instance().getDisplay(), MouseMask|KeyMask, &ev);
 		switch (ev.type)
 		{
 			case MotionNotify:
@@ -197,21 +197,21 @@ Taskbar::rightClick(int x)
 				}
 				break;
 			case KeyPress:
-				XPutBackEvent(dsply, &ev);
+				XPutBackEvent(DisplayManager::instance().getDisplay(), &ev);
 				break;
 		}
 	} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
     Taskbar::instance().redraw();
-	XUnmapWindow(dsply, constraint_win);
-	XDestroyWindow(dsply, constraint_win);
+	XUnmapWindow(DisplayManager::instance().getDisplay(), constraint_win);
+	XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
 	ungrab();
 }
 
 void
 Taskbar::rightClickRoot()
 {
-	if (!grab(root, MouseMask, None))
+	if (!grab(DisplayManager::instance().getRoot(), MouseMask, None))
 	{
 		return;
 	}
@@ -219,7 +219,7 @@ Taskbar::rightClickRoot()
 	XEvent ev;
 	do
 	{
-		XMaskEvent(dsply, MouseMask|KeyMask, &ev);
+		XMaskEvent(DisplayManager::instance().getDisplay(), MouseMask|KeyMask, &ev);
 		switch (ev.type)
 		{
 			case MotionNotify:
@@ -231,7 +231,7 @@ Taskbar::rightClickRoot()
 				}
 				break;
 			case KeyPress:
-				XPutBackEvent(dsply, &ev);
+				XPutBackEvent(DisplayManager::instance().getDisplay(), &ev);
 				break;
 		}
 	}
@@ -244,7 +244,7 @@ void
 Taskbar::redraw() 
 {
 	auto buttonWidth = getButtonWidth();
-	XClearWindow(dsply, _taskbar);
+	XClearWindow(DisplayManager::instance().getDisplay(), _taskbar);
 
 	if (showing_taskbar == 0) {
 		return;
@@ -255,12 +255,12 @@ Taskbar::redraw()
 		        auto button_startx = static_cast<int>(i * buttonWidth);
 		        auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
 		        if (button_startx != 0) {
-		        	XDrawLine(dsply, _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
+		        	XDrawLine(DisplayManager::instance().getDisplay(), _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
 		        if (c == ClientTracker::instance().getFocusedClient()) {
-		        	XFillRectangle(dsply, _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+		        	XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        } else {
-		        	XFillRectangle(dsply, _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+		        	XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
 		        if (!c->getTrans() && c->getName()) {
                     drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->getName()));
@@ -273,7 +273,7 @@ Taskbar::redraw()
 void 
 Taskbar::drawMenubar()
 {
-	XFillRectangle(dsply, _taskbar, menu_gc, 0, 0, DisplayWidth(dsply, screen), BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, menu_gc, 0, 0, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : Menu::instance()) {
         if (!menuItem->isEmpty()) {
@@ -324,16 +324,16 @@ Taskbar::drawMenuItem(unsigned int index, unsigned int active)
         return;
     }
 	if (active) {
-		XFillRectangle(dsply, _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(dsply, _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+		XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
 }
 
 float
 Taskbar::getButtonWidth() {
-    return ((float)(DisplayWidth(dsply, screen) + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
+    return ((float)(DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()) + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
 }
 void 
 Taskbar::cyclePrevious() {

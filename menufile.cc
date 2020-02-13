@@ -126,7 +126,7 @@ Menu::populate() noexcept {
     unsigned int buttonStartX = 0;
     for (auto& menuItem : _menuItems) {
         menuItem->setX(buttonStartX);
-		XftTextExtents8(dsply, xftfont, (unsigned char *)menuItem->getLabel().data(), menuItem->getLabel().size(), &extents);
+		XftTextExtents8(DisplayManager::instance().getDisplay(), xftfont, (unsigned char *)menuItem->getLabel().data(), menuItem->getLabel().size(), &extents);
         menuItem->setWidth(extents.width + (SPACE * 4));
         buttonStartX += menuItem->getWidth()+ 1;
 	}
