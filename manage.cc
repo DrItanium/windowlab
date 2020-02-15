@@ -35,12 +35,6 @@ Client::raiseLower() noexcept {
         ct.setTopmostClient(self);
     }
 }
-void raise_lower(ClientPointer c) {
-    if (c) {
-        c->raiseLower();
-    }
-}
-
 /* increment ignore_unmap here and decrement it in handle_unmap_event in events.c */
 
 void
@@ -227,12 +221,7 @@ Client::resize(int x, int y)
 	resize_pattr.background_pixel = menu_col.pixel;
 	resize_pattr.border_pixel = border_col.pixel;
 	resize_pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-    resize_win = dm.createWindow(newdims, 
-            DEF_BORDERWIDTH, 
-            dm.getDefaultDepth(),
-            CopyFromParent, 
-            dm.getDefaultVisual(),
-            CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, resize_pattr);
+    resize_win = dm.createWindow(newdims, DEF_BORDERWIDTH, dm.getDefaultDepth(), CopyFromParent, dm.getDefaultVisual(), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, resize_pattr);
     dm.mapRaised(resize_win);
 
 	resizebar_pattr.override_redirect = True;
@@ -262,17 +251,18 @@ Client::resize(int x, int y)
 				}
 				break;
 			case MotionNotify: {
-					unsigned int in_taskbar = 1, leftedge_changed = 0, rightedge_changed = 0, topedge_changed = 0, bottomedge_changed = 0;
+                    bool in_taskbar = true;
+					unsigned int leftedge_changed = 0, rightedge_changed = 0, topedge_changed = 0, bottomedge_changed = 0;
 					int newwidth, newheight;
 					// warping the pointer is wrong - wait until it leaves the taskbar
 					if (ev.xmotion.y < BARHEIGHT()) {
-						in_taskbar = 1;
+						in_taskbar = true;
 					} else {
-						if (in_taskbar == 1) { // first time outside taskbar
-							in_taskbar = 0;
+						if (in_taskbar) { // first time outside taskbar
+							in_taskbar = false;
                             bounddims = { 0, BARHEIGHT(), static_cast<int>(dw), static_cast<int>(dh - BARHEIGHT()) };
 							XMoveResizeWindow(dm.getDisplay(), constraint_win, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight());
-							in_taskbar = 0;
+							in_taskbar = false;
 						}
 						// inside the window, dragging outwards
 						if (dragging_outwards) {
