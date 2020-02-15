@@ -301,20 +301,22 @@ Client::drawHideButton(GC* detail, GC* background) noexcept {
 
 void
 Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
+    auto& dm = DisplayManager::instance();
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
 	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-	XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dm.getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawRectangle(DisplayManager::instance().getDisplay(), _frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
-	XDrawRectangle(DisplayManager::instance().getDisplay(), _frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
+	XDrawRectangle(dm.getDisplay(), _frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
+	XDrawRectangle(dm.getDisplay(), _frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
 }
 
 
 void
 Client::drawCloseButton(GC* detail, GC* background) noexcept {
+    auto& dm = DisplayManager::instance();
 	int x = _width - (BARHEIGHT() - DEF_BORDERWIDTH);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	XFillRectangle(dm.getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	drawLine(detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
 	drawLine(detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);

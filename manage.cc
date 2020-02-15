@@ -129,8 +129,8 @@ void toggle_fullscreen(ClientPointer c)
 void
 Client::sendWMDelete() noexcept {
 	int n, found = 0;
-
-	if (Atom* protocols = nullptr; XGetWMProtocols(DisplayManager::instance().getDisplay(), _window, &protocols, &n)) {
+    auto& dm = DisplayManager::instance();
+	if (Atom* protocols = nullptr; XGetWMProtocols(dm.getDisplay(), _window, &protocols, &n)) {
 		for (int i = 0; i < n; i++) {
 			if (protocols[i] == wm_delete) {
 				++found;
@@ -141,7 +141,7 @@ Client::sendWMDelete() noexcept {
 	if (found) {
 		send_xmessage(_window, wm_protos, wm_delete);
 	} else {
-		XKillClient(DisplayManager::instance().getDisplay(), _window);
+		XKillClient(dm.getDisplay(), _window);
 	}
 }
 void
@@ -215,8 +215,8 @@ Client::resize(int x, int y)
 	auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
     dm.mapWindow(constraint_win);
 
-	if (!(XGrabPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, resize_curs, CurrentTime) == GrabSuccess)) {
-		XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
+	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, resize_curs, CurrentTime) == GrabSuccess)) {
+		XDestroyWindow(dm.getDisplay(), constraint_win);
 		return;
 	}
     Rect newdims { _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT() };
@@ -239,7 +239,7 @@ Client::resize(int x, int y)
 	resizebar_pattr.background_pixel = active_col.pixel;
 	resizebar_pattr.border_pixel = border_col.pixel;
 	resizebar_pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	resizebar_win = XCreateWindow(DisplayManager::instance().getDisplay(), resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resizebar_pattr);
+	resizebar_win = XCreateWindow(dm.getDisplay(), resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &resizebar_pattr);
     dm.mapRaised(resizebar_win);
 
 	// temporarily swap drawables in order to draw on the resize window's XFT context
@@ -249,7 +249,7 @@ Client::resize(int x, int y)
     dm.unmapWindow(_frame);
 
 	do {
-		XMaskEvent(DisplayManager::instance().getDisplay(), ExposureMask|MouseMask, &ev);
+		XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask, &ev);
 		switch (ev.type) {
 			case Expose:
 				if (ev.xexpose.window == resizebar_win) {
@@ -271,7 +271,7 @@ Client::resize(int x, int y)
 						if (in_taskbar == 1) { // first time outside taskbar
 							in_taskbar = 0;
                             bounddims = { 0, BARHEIGHT(), static_cast<int>(dw), static_cast<int>(dh - BARHEIGHT()) };
-							XMoveResizeWindow(DisplayManager::instance().getDisplay(), constraint_win, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight());
+							XMoveResizeWindow(dm.getDisplay(), constraint_win, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight());
 							in_taskbar = 0;
 						}
 						// inside the window, dragging outwards
@@ -347,8 +347,8 @@ Client::resize(int x, int y)
                             recalceddims.addToHeight(BARHEIGHT());
 							limit_size(sharedReference(), &recalceddims);
 
-							XMoveResizeWindow(DisplayManager::instance().getDisplay(), resize_win, recalceddims.getX(), recalceddims.getY(), recalceddims.getWidth(), recalceddims.getHeight());
-							XResizeWindow(DisplayManager::instance().getDisplay(), resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+							XMoveResizeWindow(dm.getDisplay(), resize_win, recalceddims.getX(), recalceddims.getY(), recalceddims.getWidth(), recalceddims.getHeight());
+							XResizeWindow(dm.getDisplay(), resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 						}
 					}
 				}
@@ -356,26 +356,26 @@ Client::resize(int x, int y)
 		}
 	} while (ev.type != ButtonRelease);
 
-	XUngrabServer(DisplayManager::instance().getDisplay());
+    dm.ungrabServer();
 	ungrab();
     setDimensions(recalceddims.getX(), recalceddims.getY() + BARHEIGHT(),
             recalceddims.getWidth(), recalceddims.getHeight() - BARHEIGHT());
-	XMoveResizeWindow(DisplayManager::instance().getDisplay(), _frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());
-	XResizeWindow(DisplayManager::instance().getDisplay(), _window, _width, _height);
+	XMoveResizeWindow(dm.getDisplay(), _frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());
+	XResizeWindow(dm.getDisplay(), _window, _width, _height);
 
 	// unhide real window's frame
-	XMapWindow(DisplayManager::instance().getDisplay(), _frame);
+	XMapWindow(dm.getDisplay(), _frame);
     
-	XSetInputFocus(DisplayManager::instance().getDisplay(), _window, RevertToNone, CurrentTime);
+	XSetInputFocus(dm.getDisplay(), _window, RevertToNone, CurrentTime);
 
     sendConfig();
-	XDestroyWindow(DisplayManager::instance().getDisplay(), constraint_win);
+	XDestroyWindow(dm.getDisplay(), constraint_win);
 
 	// reset the drawable
 	XftDrawChange(_xftdraw, static_cast<Drawable>(_frame));
 	
-	XDestroyWindow(DisplayManager::instance().getDisplay(), resizebar_win);
-	XDestroyWindow(DisplayManager::instance().getDisplay(), resize_win);
+	XDestroyWindow(dm.getDisplay(), resizebar_win);
+	XDestroyWindow(dm.getDisplay(), resize_win);
 }
 
 static void limit_size(ClientPointer c, Rect *newdims)
