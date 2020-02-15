@@ -88,12 +88,6 @@ template<typename...>
 inline constexpr bool false_v = false;
 
 
-// shorthand for wordy function calls
-void setmouse(Window w, int x, int y) noexcept;
-void ungrab() noexcept;
-bool grab(Window w, unsigned int mask, Cursor curs) noexcept;
-void grab_keysym(Window w, unsigned int mask, KeySym keysym) noexcept;
-
 template<typename T>
 constexpr auto BORDERWIDTH(T) noexcept {
     return DEF_BORDERWIDTH;
@@ -362,6 +356,20 @@ class DisplayManager final {
         void ungrabServer() noexcept {
             XUngrabServer(_display);
         }
+        void setMouse(Window w, int x, int y) noexcept {
+            XWarpPointer(_display, None, w, 0, 0, 0, 0, x, y);
+        }
+        void ungrab() noexcept {
+            XUngrabPointer(_display, CurrentTime);
+        }
+        bool grab(Window w, unsigned int mask, Cursor curs) noexcept {
+            return grabPointer(w, false, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
+        }
+        auto grab(unsigned int mask, Cursor curs) noexcept {
+            return grab(_root, mask, curs);
+        }
+
+        void grabKeysym(Window w, unsigned int mask, KeySym keysym) noexcept;
         inline auto changeProperty(Window w, Atom property, Atom type, int format, int mode, unsigned char* data, int nelements) noexcept {
             return XChangeProperty(_display, w, property, type, format, mode, data, nelements);
         }
@@ -489,7 +497,7 @@ class DisplayManager final {
             return XSetErrorHandler(fn);
         }
 
-        auto grabPointer(Window grabWindow, bool ownerEvents, unsigned int eventMask, int pointerMode, int keyboardMode, Window confineTo, Cursor cursor, Time time) noexcept {
+        int grabPointer(Window grabWindow, bool ownerEvents, unsigned int eventMask, int pointerMode, int keyboardMode, Window confineTo, Cursor cursor, Time time) noexcept {
             return XGrabPointer(_display, grabWindow, ownerEvents ? True : False, eventMask, pointerMode, keyboardMode, confineTo, cursor, time);
         }
         auto grabPointer(bool ownerEvents, unsigned int eventMask, int pointerMode, int keyboardMode, Window confineTo, Cursor cursor, Time time) noexcept { 
@@ -507,6 +515,9 @@ class DisplayManager final {
             // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
             (void) XLowerWindow(_display, w);
         }
+
+        void grabKeysym(unsigned int mask, KeySym keysym) noexcept;
+
 
 
     private:

@@ -183,7 +183,7 @@ Client::move() noexcept {
 		}
 	} while (ev.type != ButtonRelease);
 
-	ungrab();
+    dm.ungrab();
     dm.destroyWindow(constraint_win);
 }
 
@@ -346,7 +346,7 @@ Client::resize(int x, int y)
 	} while (ev.type != ButtonRelease);
 
     dm.ungrabServer();
-	ungrab();
+	dm.ungrab();
     setDimensions(recalceddims.getX(), recalceddims.getY() + BARHEIGHT(),
             recalceddims.getWidth(), recalceddims.getHeight() - BARHEIGHT());
 	XMoveResizeWindow(dm.getDisplay(), _frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());

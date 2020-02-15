@@ -391,27 +391,16 @@ fetchName(Display* disp, Window w) {
     return std::make_tuple(status, returned);
 }
 
-void
-ungrab() noexcept {
-    XUngrabPointer(DisplayManager::instance().getDisplay(), CurrentTime);
+void 
+DisplayManager::grabKeysym(Window w, unsigned int mask, KeySym keysym) noexcept {
+    XGrabKey(_display, XKeysymToKeycode(_display, keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
+    XGrabKey(_display, XKeysymToKeycode(_display, keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+    if (numlockmask) { 
+        XGrabKey(_display, XKeysymToKeycode(_display, keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+        XGrabKey(_display, XKeysymToKeycode(_display, keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+    }
 }
-void
-setmouse(Window w, int x, int y) noexcept {
-    XWarpPointer(DisplayManager::instance().getDisplay(), None, w, 0, 0, 0, 0, x, y);
-}
-
-bool
-grab(Window w, unsigned int mask, Cursor curs) noexcept {
-    return DisplayManager::instance().grabPointer(w, false, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
-}
-
-void
-grab_keysym(Window w, unsigned int mask, KeySym keysym) noexcept {
-    auto& dm = DisplayManager::instance();
-	XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
-	XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-	if (numlockmask) { 
-		XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-		XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-	}
+void 
+DisplayManager::grabKeysym(unsigned int mask, KeySym keysym) noexcept {
+    grabKeysym(_root, mask, keysym);
 }

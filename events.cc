@@ -187,7 +187,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
     auto& dm = DisplayManager::instance();
 
     if (unsigned int in_box_down = c->boxClicked(e->x); in_box_down <= 2) {
-		if (!grab(dm.getRoot(), MouseMask, None)) {
+		if (!dm.grab(MouseMask, None)) {
 			return;
 		}
 
@@ -215,7 +215,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
         c->drawButton(&text_gc, &active_gc, in_box_down);
 
         dm.ungrabServer();
-		ungrab();
+        dm.ungrab();
 		if (in_box) {
             if (c) {
                 switch (in_box_up) {

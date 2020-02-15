@@ -148,7 +148,7 @@ Taskbar::leftClick(int x) {
 		} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
         dm.unmapWindow(constraint_win);
         dm.destroyWindow(constraint_win);
-		ungrab();
+		dm.ungrab();
 
         ctracker.accept([](ClientPointer p) { p->forgetHidden(); return false; });
 	}
@@ -197,13 +197,13 @@ Taskbar::rightClick(int x) {
     Taskbar::instance().redraw();
     dm.unmapWindow(constraint_win);
     dm.destroyWindow(constraint_win);
-	ungrab();
+	dm.ungrab();
 }
 
 void
 Taskbar::rightClickRoot() {
     auto& dm = DisplayManager::instance();
-	if (!grab(dm.getRoot(), MouseMask, None)) {
+	if (!dm.grab(MouseMask, None)) {
 		return;
 	}
 	drawMenubar();
@@ -213,7 +213,7 @@ Taskbar::rightClickRoot() {
 		switch (ev.type) {
 			case MotionNotify:
 				if (ev.xmotion.y < BARHEIGHT()) {
-					ungrab();
+					dm.ungrab();
                     rightClick(ev.xmotion.x);
 					return;
 				}
@@ -225,7 +225,7 @@ Taskbar::rightClickRoot() {
 	} while (ev.type != ButtonRelease && ev.type != KeyPress);
 
     redraw();
-	ungrab();
+	dm.ungrab();
 }
 
 void

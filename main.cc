@@ -229,10 +229,10 @@ static void setup_display() {
 	sattr.event_mask = ChildMask|ColormapChangeMask|ButtonMask;
 	XChangeWindowAttributes(dm.getDisplay(), dm.getRoot(), CWEventMask, &sattr);
 
-	grab_keysym(dm.getRoot(), MODIFIER, KEY_CYCLEPREV);
-	grab_keysym(dm.getRoot(), MODIFIER, KEY_CYCLENEXT);
-	grab_keysym(dm.getRoot(), MODIFIER, KEY_FULLSCREEN);
-	grab_keysym(dm.getRoot(), MODIFIER, KEY_TOGGLEZ);
+    dm.grabKeysym(MODIFIER, KEY_CYCLEPREV);
+	dm.grabKeysym(MODIFIER, KEY_CYCLENEXT);
+	dm.grabKeysym(MODIFIER, KEY_FULLSCREEN);
+	dm.grabKeysym(MODIFIER, KEY_TOGGLEZ);
 }
 int BARHEIGHT() noexcept {
     return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
