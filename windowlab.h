@@ -464,6 +464,13 @@ class DisplayManager final {
             return XPutBackEvent(_display, &ev);
         }
 
+        auto drawRectangle(Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height) noexcept {
+            return XDrawRectangle(_display, d, gc, x, y, width, height);
+        }
+        auto drawLine(Drawable d, GC gc, int x1, int y1, int x2, int y2) noexcept {
+            return XDrawLine(_display, d, gc, x1, y1, x2, y2);
+        }
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }

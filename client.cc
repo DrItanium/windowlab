@@ -280,7 +280,7 @@ ClientTracker::getPreviousFocused() {
 }
 void
 Client::drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept {
-    XDrawLine(DisplayManager::instance().getDisplay(), _frame, gc, x1, y1, x2, y2);
+    DisplayManager::instance().drawLine(_frame, gc, x1, y1, x2, y2);
 }
 void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
@@ -306,8 +306,8 @@ Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
 	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
 	XFillRectangle(dm.getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	XDrawRectangle(dm.getDisplay(), _frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
-	XDrawRectangle(dm.getDisplay(), _frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
+	dm.drawRectangle(_frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
+	dm.drawRectangle(_frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
 }
 
 
