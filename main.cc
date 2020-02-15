@@ -141,7 +141,7 @@ static void setup_display() {
     // do the initial setup after this point
     auto& dm = DisplayManager::instance();
 
-	XSetErrorHandler(handle_xerror);
+    dm.setErrorHandler(handle_xerror);
 	wm_state = dm.internAtom("WM_STATE", False);
 	wm_change_state = dm.internAtom("WM_CHANGE_STATE", False);
 	wm_protos = dm.internAtom("WM_PROTOCOLS", False);

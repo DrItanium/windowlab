@@ -485,6 +485,11 @@ class DisplayManager final {
         auto destroyWindow(Window w) noexcept {
             return XDestroyWindow(_display, w);
         }
+
+        template<typename Fn>
+        auto setErrorHandler(Fn fn) noexcept {
+            return XSetErrorHandler(fn);
+        }
         
 
     private:

@@ -122,7 +122,7 @@ void
 ClientTracker::remove(ClientPointer c, int mode) {
     auto& dm = DisplayManager::instance();
     dm.grabServer();
-	XSetErrorHandler(ignore_xerror);
+    dm.setErrorHandler(ignore_xerror);
 
 #ifdef DEBUG
     err("removing ", (c->name ? *c->name : ""), ", ", mode, ": ", XPending(DisplayManager::instance().getDisplay()), " left");
@@ -144,7 +144,7 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	}
 
     dm.sync(False);
-	XSetErrorHandler(handle_xerror);
+    dm.setErrorHandler(handle_xerror);
     dm.ungrabServer();
 
     Taskbar::instance().redraw();
