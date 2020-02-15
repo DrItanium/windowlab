@@ -462,8 +462,14 @@ class DisplayManager final {
         auto getModifierMapping() noexcept {
             return XGetModifierMapping(_display);
         }
+        auto createWindow(Window parent, int x, int y, unsigned int width, unsigned int height, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
+            return XCreateWindow(_display, parent, x, y, width, height, borderWidth, depth, _class, v, valueMask, &attributes);
+        }
+        auto createWindow(int x, int y, unsigned int width, unsigned int height, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
+            return createWindow(_root, x, y, width, height, borderWidth, depth, _class, v, valueMask, attributes);
+        }
         auto createWindow(Window parent, const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
-            return XCreateWindow(_display, parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, &attributes);
+            return createWindow(parent, rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), borderWidth, depth, _class, v, valueMask, attributes);
         }
         auto createWindow(const Rect& rect, unsigned int borderWidth, int depth, unsigned int _class, Visual* v, unsigned long valueMask, XSetWindowAttributes& attributes) noexcept {
             return createWindow(_root, rect, borderWidth, depth, _class, v, valueMask, attributes);
@@ -490,7 +496,13 @@ class DisplayManager final {
         auto setErrorHandler(Fn fn) noexcept {
             return XSetErrorHandler(fn);
         }
-        
+
+        auto grabPointer(Window grabWindow, bool ownerEvents, unsigned int eventMask, int pointerMode, int keyboardMode, Window confineTo, Cursor cursor, Time time) noexcept {
+            return XGrabPointer(_display, grabWindow, ownerEvents ? True : False, eventMask, pointerMode, keyboardMode, confineTo, cursor, time);
+        }
+        auto grabPointer(bool ownerEvents, unsigned int eventMask, int pointerMode, int keyboardMode, Window confineTo, Cursor cursor, Time time) noexcept { 
+            return grabPointer(_root, ownerEvents, eventMask, pointerMode, keyboardMode, confineTo, cursor, time);
+        }
 
     private:
         DisplayManager() = default;

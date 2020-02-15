@@ -161,7 +161,7 @@ Client::move() noexcept {
 #endif
     dm.mapWindow(constraint_win);
 
-	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+	if (!(dm.grabPointer(false, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
         dm.destroyWindow(constraint_win);
 		return;
 	}
@@ -209,7 +209,7 @@ Client::resize(int x, int y)
 	auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
     dm.mapWindow(constraint_win);
 
-	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, resize_curs, CurrentTime) == GrabSuccess)) {
+	if (!(dm.grabPointer(false, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, resize_curs, CurrentTime) == GrabSuccess)) {
         dm.destroyWindow(constraint_win);
 		return;
 	}

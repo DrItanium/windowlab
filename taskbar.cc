@@ -113,7 +113,7 @@ Taskbar::leftClick(int x) {
 		auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
         dm.mapWindow(constraint_win);
 
-		if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+        if (!(dm.grabPointer(false, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
             dm.destroyWindow(constraint_win);
 			return;
 		}
@@ -170,7 +170,7 @@ Taskbar::rightClick(int x) {
 	auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
     dm.mapWindow(constraint_win);
 
-	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
+	if (!(dm.grabPointer(false, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
         dm.destroyWindow(constraint_win);
 		return;
 	}

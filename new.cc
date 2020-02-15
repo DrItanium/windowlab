@@ -157,7 +157,7 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_frame = XCreateWindow(dm.getDisplay(), dm.getRoot(), _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dm.getDisplay(), dm.getScreen()), CopyFromParent, DefaultVisual(dm.getDisplay(), dm.getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+    _frame = dm.createWindow(_x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dm.getDisplay(), dm.getScreen()), CopyFromParent, DefaultVisual(dm.getDisplay(), dm.getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
 
 #ifdef SHAPE
 	if (shape) {

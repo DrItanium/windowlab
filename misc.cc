@@ -402,7 +402,7 @@ setmouse(Window w, int x, int y) noexcept {
 
 bool
 grab(Window w, unsigned int mask, Cursor curs) noexcept {
-    return XGrabPointer(DisplayManager::instance().getDisplay(), w, False, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
+    return DisplayManager::instance().grabPointer(w, false, mask, GrabModeAsync, GrabModeAsync, None, curs, CurrentTime) == GrabSuccess;
 }
 
 void
