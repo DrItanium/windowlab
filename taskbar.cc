@@ -43,13 +43,10 @@ Taskbar::make() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_taskbar = XCreateWindow(dm.getDisplay(), dm.getRoot(), 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+    _taskbar = dm.createWindow(0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, dm.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, dm.getDefaultDepth(), CopyFromParent, dm.getDefaultVisual(), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
     dm.mapWindow(_taskbar);
 
-	_tbxftdraw = XftDrawCreate(dm.getDisplay(), 
-            (Drawable) _taskbar, 
-            DefaultVisual(dm.getDisplay(), DefaultScreen(dm.getDisplay())), 
-            DefaultColormap(dm.getDisplay(), DefaultScreen(dm.getDisplay())));
+	_tbxftdraw = XftDrawCreate(dm.getDisplay(), (Drawable) _taskbar, dm.getDefaultVisual(), dm.getDefaultColormap());
     _made = true;
 }
 
