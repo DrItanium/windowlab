@@ -158,9 +158,9 @@ getMousePosition() {
 void
 Client::fixPosition() noexcept {
 
-#ifdef DEBUG
-    printToStderr("fix_position(): client was (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
-#endif
+    if constexpr (debugActive()) {
+        printToStderr("fix_position(): client was (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
+    }
 	
     auto& ct = ClientTracker::instance();
 	int titlebarheight = (ct.getFullscreenClient().get() == this) ? 0 : BARHEIGHT();
@@ -195,9 +195,9 @@ Client::fixPosition() noexcept {
         _y = (ymax - _height) - BARHEIGHT();
 	}
 
-#ifdef DEBUG
-    printToStderr("fix_position(): client is (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
-#endif
+    if constexpr (debugActive()) {
+        printToStderr("fix_position(): client is (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
+    }
 
     _x -= BORDERWIDTH(this);
     _y -= BORDERWIDTH(this);
@@ -225,7 +225,6 @@ Client::refixPosition(XConfigureRequestEvent *e) {
 	}
 }
 
-#ifdef DEBUG
 
 /* Bleh, stupid macro names. I'm not feeling creative today. */
 
@@ -238,103 +237,111 @@ Client::refixPosition(XConfigureRequestEvent *e) {
 	case name: \
 		return #name;
 
-void showEvent(XEvent e)
-{
-	char *s, buf[20];
-	Window w;
-	ClientPointer c;
+void showEvent(XEvent e) {
+    if constexpr (debugActive()) {
+        std::string s;
+        Window w;
+        ClientPointer c;
 
-	switch (e.type)
-	{
-		SHOW_EV(ButtonPress, xbutton)
-		SHOW_EV(ButtonRelease, xbutton)
-		SHOW_EV(ClientMessage, xclient)
-		SHOW_EV(ColormapNotify, xcolormap)
-		SHOW_EV(ConfigureNotify, xconfigure)
-		SHOW_EV(ConfigureRequest, xconfigurerequest)
-		SHOW_EV(CreateNotify, xcreatewindow)
-		SHOW_EV(DestroyNotify, xdestroywindow)
-		SHOW_EV(EnterNotify, xcrossing)
-		SHOW_EV(Expose, xexpose)
-		SHOW_EV(MapNotify, xmap)
-		SHOW_EV(MapRequest, xmaprequest)
-		SHOW_EV(MappingNotify, xmapping)
-		SHOW_EV(MotionNotify, xmotion)
-		SHOW_EV(PropertyNotify, xproperty)
-		SHOW_EV(ReparentNotify, xreparent)
-		SHOW_EV(ResizeRequest, xresizerequest)
-		SHOW_EV(UnmapNotify, xunmap)
-		default:
-			if (shape && e.type == shape_event) {
-				s = "ShapeNotify";
-				w = ((XShapeEvent *)&e)->window;
-			} else {
-				s = "unknown event";
-				w = None;
-			}
-			break;
-	}
+        switch (e.type)
+        {
+            SHOW_EV(ButtonPress, xbutton)
+            SHOW_EV(ButtonRelease, xbutton)
+            SHOW_EV(ClientMessage, xclient)
+            SHOW_EV(ColormapNotify, xcolormap)
+            SHOW_EV(ConfigureNotify, xconfigure)
+            SHOW_EV(ConfigureRequest, xconfigurerequest)
+            SHOW_EV(CreateNotify, xcreatewindow)
+            SHOW_EV(DestroyNotify, xdestroywindow)
+            SHOW_EV(EnterNotify, xcrossing)
+            SHOW_EV(Expose, xexpose)
+            SHOW_EV(MapNotify, xmap)
+            SHOW_EV(MapRequest, xmaprequest)
+            SHOW_EV(MappingNotify, xmapping)
+            SHOW_EV(MotionNotify, xmotion)
+            SHOW_EV(PropertyNotify, xproperty)
+            SHOW_EV(ReparentNotify, xreparent)
+            SHOW_EV(ResizeRequest, xresizerequest)
+            SHOW_EV(UnmapNotify, xunmap)
+            default:
+                if (shape && e.type == shape_event) {
+                    s = "ShapeNotify";
+                    w = ((XShapeEvent *)&e)->window;
+                } else {
+                    s = "unknown event";
+                    w = None;
+                }
+                break;
+        }
 
-	c = ClientTracker::instance().find(w, WINDOW);
-    err(w, ": ", ((c && c->name) ? *(c->name) : "(none)"), ": ", s);
+        c = ClientTracker::instance().find(w, WINDOW);
+        err(w, ": ", ((c && c->getName()) ? *(c->getName()) : "(none)"), ": ", s);
+    }
 }
 
 static 
 std::string 
 showState(ClientPointer c) {
-	switch (c->getWMState()) {
-		SHOW(WithdrawnState)
-		SHOW(NormalState)
-		SHOW(IconicState)
-		default: return "unknown state";
-	}
+    if constexpr (debugActive()) {
+        switch (c->getWMState()) {
+            SHOW(WithdrawnState)
+            SHOW(NormalState)
+            SHOW(IconicState)
+            default: return "unknown state";
+        }
+    }
 }
 
 static 
 std::string 
-show_grav(ClientPointer c) {
-	if (!c->size || !(c->size->flags & PWinGravity)) {
-		return "no grav (NW)";
-	}
+showGravity(ClientPointer c) {
+    if constexpr (debugActive()) {
+	    if (!c->getSize() || !(c->getSize()->flags & PWinGravity)) {
+	    	return "no grav (NW)";
+	    }
 
-	switch (c->size->win_gravity)
-	{
-		SHOW(UnmapGravity)
-		SHOW(NorthWestGravity)
-		SHOW(NorthGravity)
-		SHOW(NorthEastGravity)
-		SHOW(WestGravity)
-		SHOW(CenterGravity)
-		SHOW(EastGravity)
-		SHOW(SouthWestGravity)
-		SHOW(SouthGravity)
-		SHOW(SouthEastGravity)
-		SHOW(StaticGravity)
-		default: return "unknown grav";
-	}
+	    switch (c->getSize()->win_gravity) {
+	    	SHOW(UnmapGravity)
+	    	SHOW(NorthWestGravity)
+	    	SHOW(NorthGravity)
+	    	SHOW(NorthEastGravity)
+	    	SHOW(WestGravity)
+	    	SHOW(CenterGravity)
+	    	SHOW(EastGravity)
+	    	SHOW(SouthWestGravity)
+	    	SHOW(SouthGravity)
+	    	SHOW(SouthEastGravity)
+	    	SHOW(StaticGravity)
+	    	default: return "unknown grav";
+	    }
+    }
 }
 
 void 
 Client::dump() const noexcept {
-    err((_name ? *_name : ""), "\n\t", 
-            show_state(c), ",", show_grav(c), 
-            ", ignore ", _ignoreUnmap, 
-            ", was_hidden ", _wasHidden, 
-            "\n\tframe ", _frame, 
-            ", win ", _window, 
-            ", geom ", 
-            _width, "x", _height, "+", _x, "+", _y);
+    if constexpr (debugActive()) {
+        err((_name ? *_name : ""), "\n\t", 
+                showState(sharedReference()), ",", 
+                showGravity(sharedReference()), 
+                ", ignore ", _ignoreUnmap, 
+                ", was_hidden ", _wasHidden, 
+                "\n\tframe ", _frame, 
+                ", win ", _window, 
+                ", geom ", 
+                _width, "x", _height, "+", _x, "+", _y);
+    }
 }
 
 void
 ClientTracker::dump() {
-    for (const auto& c : _clients) {
-        if (c) {
-            c->dump();
+    if constexpr (debugActive()) {
+        for (const auto& c : _clients) {
+            if (c) {
+                c->dump();
+            }
         }
     }
 }
-#endif
 
 /* We use XQueryTree here to preserve the window stacking order,
  * since the order in our linked list is different. */
@@ -373,7 +380,6 @@ void quitNicely() {
 void 
 drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string) {
     auto ptr = string.c_str();
-    auto length = string.length();
     XftDrawString8(d, color, font, x, y, (unsigned char*)ptr, string.length());
 }
 

@@ -47,9 +47,9 @@ void doEventLoop()
 
 	for (;;) {
 		interruptible_XNextEvent(&ev);
-#ifdef DEBUG
-		show_event(ev);
-#endif
+        if constexpr (debugActive()) {
+            showEvent(ev);
+        }
 		/* check to see if menu rebuild has been requested */
         if (Menu::instance().shouldRepopulate()) {
             Menu::instance().populate();
@@ -136,9 +136,9 @@ static void handle_button_press(XButtonEvent *e)
 			XAllowEvents(dm.getDisplay(), ReplayPointer, CurrentTime);
 		}
 	} else if (e->window == dm.getRoot()) {
-#ifdef DEBUG
-        clients.dump();
-#endif
+        if constexpr (debugActive()) {
+            clients.dump();
+        }
 		if (e->button == Button3) {
             taskbar.rightClickRoot();
 		}

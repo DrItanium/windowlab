@@ -156,9 +156,9 @@ Client::move() noexcept {
 	bounddims.addToHeight(getHeight() - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
 
     auto constraint_win = dm.createWindow( bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
-#ifdef DEBUG
-    std::cerr << "Client::move() : constraint_win is (" << bounddims.getX() << ", " << bounddims.getY() << ")-(" << (bounddims.getX() + bounddims.getWidth()) << ", " << (bounddims.getY() + bounddims.getHeight()) << ")" << std::endl;
-#endif
+    if constexpr (debugActive()) {
+        std::cerr << "Client::move() : constraint_win is (" << bounddims.getX() << ", " << bounddims.getY() << ")-(" << (bounddims.getX() + bounddims.getWidth()) << ", " << (bounddims.getY() + bounddims.getHeight()) << ")" << std::endl;
+    }
     dm.mapWindow(constraint_win);
 
 	if (!(dm.grabPointer(false, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {

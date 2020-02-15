@@ -209,9 +209,7 @@ struct Client {
         void resize(int, int);
         void fixPosition() noexcept;
         void refixPosition(XConfigureRequestEvent*);
-#ifdef DEBUG
         void dump() const noexcept;
-#endif
         void sendWMDelete() noexcept;
         void removeFromView() noexcept;
         ~Client();
@@ -566,9 +564,7 @@ class ClientTracker final {
         auto getTopmostClient() const noexcept { return _topmostClient; }
         void setTopmostClient(ClientPointer p) noexcept { _topmostClient = p; }
         bool hasTopmostClient() const noexcept { return static_cast<bool>(_topmostClient); }
-#ifdef DEBUG
         void dump();
-#endif
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -656,10 +652,8 @@ int handle_xerror(Display *, XErrorEvent *);
 int ignore_xerror(Display *, XErrorEvent *);
 int send_xmessage(Window, Atom, long);
 std::tuple<int, int> getMousePosition();
-#ifdef DEBUG
 void showEvent(XEvent);
 void dumpClients();
-#endif
 
 void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string);
 std::tuple<Status, std::optional<std::string>> fetchName(Display* disp, Window w);
@@ -690,5 +684,12 @@ class Menu final {
         bool _updateMenuItems = true;
 };
 const std::filesystem::path& getDefMenuRc() noexcept;
+constexpr auto debugActive() noexcept {
+#ifdef DEBUG
+    return true;
+#else
+    return false;
+#endif
+}
 
 #endif /* WINDOWLAB_H */

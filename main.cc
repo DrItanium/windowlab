@@ -181,9 +181,9 @@ static void setup_display() {
 		for (auto j = 0; j < modmap->max_keypermod; j++) {
 			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dm.getDisplay(), XK_Num_Lock)) {
                 dm.setNumLockMask((1 << i));
-#ifdef DEBUG
-                std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
-#endif
+                if constexpr (debugActive()) {
+                    std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
+                }
 			}
 		}
 	}

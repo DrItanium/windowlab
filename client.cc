@@ -124,9 +124,9 @@ ClientTracker::remove(ClientPointer c, int mode) {
     dm.grabServer();
     dm.setErrorHandler(ignore_xerror);
 
-#ifdef DEBUG
-    err("removing ", (c->name ? *c->name : ""), ", ", mode, ": ", XPending(DisplayManager::instance().getDisplay()), " left");
-#endif
+    if constexpr (debugActive()) {
+        err("removing ", (c->getName() ? *c->getName(): ""), ", ", mode, ": ", XPending(DisplayManager::instance().getDisplay()), " left");
+    }
 
 	if (mode == WITHDRAW) {
         c->setWMState(WithdrawnState);
