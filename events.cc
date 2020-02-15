@@ -199,7 +199,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		c->drawButton(&text_gc, &depressed_gc, in_box_down);
 		do
 		{
-			XMaskEvent(dm.getDisplay(), MouseMask, &ev);
+            dm.maskEvent(MouseMask, ev);
             in_box_up = c->boxClicked(ev.xbutton.x - (c->getX() + DEF_BORDERWIDTH));
 			int win_ypos = (ev.xbutton.y - c->getY()) + BARHEIGHT();
 			if (ev.type == MotionNotify) {

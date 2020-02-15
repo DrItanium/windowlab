@@ -175,7 +175,7 @@ Taskbar::rightClick(int x) {
     updateMenuItem(INT_MAX); // force initial highlight
 	current_item = updateMenuItem(x);
 	do {
-		XMaskEvent(dm.getDisplay(), MouseMask|KeyMask, &ev);
+        dm.maskEvent(MouseMask|KeyMask, ev);
 		switch (ev.type)
 		{
 			case MotionNotify:
@@ -209,7 +209,7 @@ Taskbar::rightClickRoot() {
 	drawMenubar();
 	XEvent ev;
 	do {
-		XMaskEvent(dm.getDisplay(), MouseMask|KeyMask, &ev);
+		dm.maskEvent(MouseMask|KeyMask, ev);
 		switch (ev.type) {
 			case MotionNotify:
 				if (ev.xmotion.y < BARHEIGHT()) {

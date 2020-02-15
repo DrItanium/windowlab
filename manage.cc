@@ -166,9 +166,8 @@ Client::move() noexcept {
 		return;
 	}
 
-	do
-	{
-		XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask, &ev);
+	do {
+		dm.maskEvent(ExposureMask|MouseMask, ev);
 		switch (ev.type) {
 			case Expose:
 				if (ClientPointer exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME); exposed_c) {
@@ -238,7 +237,7 @@ Client::resize(int x, int y)
     dm.unmapWindow(_frame);
 
 	do {
-		XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask, &ev);
+        dm.maskEvent(ExposureMask|MouseMask, ev);
 		switch (ev.type) {
 			case Expose:
 				if (ev.xexpose.window == resizebar_win) {
