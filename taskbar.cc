@@ -38,16 +38,19 @@ Taskbar::make() noexcept {
         return;
     }
 	XSetWindowAttributes pattr;
-
+    auto& dm = DisplayManager::instance();
 	pattr.override_redirect = True;
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_taskbar = XCreateWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_taskbar = XCreateWindow(dm.getDisplay(), dm.getRoot(), 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
-	XMapWindow(DisplayManager::instance().getDisplay(), _taskbar);
+	XMapWindow(dm.getDisplay(), _taskbar);
 
-	_tbxftdraw = XftDrawCreate(DisplayManager::instance().getDisplay(), (Drawable) _taskbar, DefaultVisual(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())), DefaultColormap(DisplayManager::instance().getDisplay(), DefaultScreen(DisplayManager::instance().getDisplay())));
+	_tbxftdraw = XftDrawCreate(dm.getDisplay(), 
+            (Drawable) _taskbar, 
+            DefaultVisual(dm.getDisplay(), DefaultScreen(dm.getDisplay())), 
+            DefaultColormap(dm.getDisplay(), DefaultScreen(dm.getDisplay())));
     _made = true;
 }
 
@@ -71,7 +74,7 @@ Client::rememberHidden() noexcept {
 
 void
 Client::forgetHidden() noexcept {
-    _wasHidden = (this == ClientTracker::instance().getFocusedClient().get()) ? _hidden : false;
+    _wasHidden = (sharedReference() == ClientTracker::instance().getFocusedClient()) ? _hidden : false;
 }
 
 void 
@@ -96,24 +99,19 @@ lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
 }
 
 void
-Taskbar::leftClick(int x) 
-{
-	XEvent ev;
-	Window constraint_win;
-	XSetWindowAttributes pattr;
+Taskbar::leftClick(int x) {
 
-	unsigned int button_clicked, old_button_clicked;
-	ClientPointer c, exposed_c, old_c;
     auto& ctracker = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
 	if (!ctracker.empty()) {
+        XSetWindowAttributes pattr;
         ctracker.accept([](ClientPointer p) { p->rememberHidden(); return false; });
 
         // unused?
         //auto [mousex, mousey] = getMousePosition();
         Rect bounddims {0, 0, dm.getWidth(), BARHEIGHT() };
 
-		constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
+		auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
 		XMapWindow(dm.getDisplay(), constraint_win);
 
 		if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
@@ -123,29 +121,30 @@ Taskbar::leftClick(int x)
 
         auto buttonWidth = getButtonWidth();
 
-		button_clicked = (unsigned int)(x / buttonWidth);
+		auto button_clicked = (unsigned int)(x / buttonWidth);
         auto c = ctracker.at(button_clicked);
 
 		lclick_taskbutton(nullptr, c);
-
+        XEvent ev;
 		do {
 			XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask|KeyMask, &ev);
 			switch (ev.type) {
-				case Expose:
-					exposed_c = ctracker.find(ev.xexpose.window, FRAME);
-					if (exposed_c) {
-                        exposed_c->redraw();
-					}
-					break;
-				case MotionNotify:
-					old_button_clicked = button_clicked;
-					button_clicked = (unsigned int)(ev.xmotion.x / buttonWidth);
-					if (button_clicked != old_button_clicked) {
-						old_c = c;
-                        c = ctracker.at(button_clicked);
-						lclick_taskbutton(old_c, c);
-					}
-					break;
+                case Expose: {
+                                 if (auto exposed_c = ctracker.find(ev.xexpose.window, FRAME); exposed_c) {
+                                     exposed_c->redraw();
+                                 }
+                                 break;
+                             }
+				case MotionNotify: {
+                                       auto old_button_clicked = button_clicked;
+                                       button_clicked = (unsigned int)(ev.xmotion.x / buttonWidth);
+                                       if (button_clicked != old_button_clicked) {
+                                           auto old_c = c;
+                                           c = ctracker.at(button_clicked);
+                                           lclick_taskbutton(old_c, c);
+                                       }
+                                       break;
+                                   }
 				case KeyPress:
                     dm.putbackEvent(ev);
 					break;
@@ -283,11 +282,12 @@ Taskbar::updateMenuItem (int mousex) {
     //std::cout << "enter update_menuitem" << std::endl;
 	static unsigned int last_item = UINT_MAX; // retain value from last call
 	unsigned int i = 0;
+    auto& menu = Menu::instance();
 	if (mousex == INT_MAX) { // entered function to set last_item
-        last_item = Menu::instance().size();
+        last_item = menu.size();
 		return UINT_MAX;
 	}
-    for (const auto& menuItem : Menu::instance()) {
+    for (const auto& menuItem : menu) {
 		if ((mousex >= menuItem->getX()) && (mousex <= (menuItem->getX() + menuItem->getWidth()))) {
 			break;
 		}
@@ -295,16 +295,16 @@ Taskbar::updateMenuItem (int mousex) {
 	}
 
 	if (i != last_item) /* don't redraw if same */ {
-		if (last_item != Menu::instance().size()) {
+		if (last_item != menu.size()) {
 			drawMenuItem(last_item, 0);
 		}
-		if (i != Menu::instance().size()) {
+		if (i != menu.size()) {
 			drawMenuItem(i, 1);
 		}
 		last_item = i; // set to new menu item
 	}
 
-	if (i != Menu::instance().size()) {
+	if (i != menu.size()) {
 		return i;
 	} else /* no item selected */ {
 		return UINT_MAX;
