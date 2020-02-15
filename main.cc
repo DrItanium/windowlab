@@ -48,7 +48,6 @@ std::string opt_display;
 Bool shape;
 int shape_event = 0;
 #endif
-unsigned int numlockmask = 0;
 
 static void scan_wins(void);
 static void setup_display(void);
@@ -187,7 +186,7 @@ static void setup_display() {
 	for (auto i = 0; i < 8; i++) {
 		for (auto j = 0; j < modmap->max_keypermod; j++) {
 			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dm.getDisplay(), XK_Num_Lock)) {
-				numlockmask = (1 << i);
+                dm.setNumLockMask((1 << i));
 #ifdef DEBUG
                 std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
 #endif

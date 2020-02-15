@@ -519,7 +519,8 @@ class DisplayManager final {
         void grabKeysym(unsigned int mask, KeySym keysym) noexcept;
 
 
-
+        constexpr auto getNumLockMask() const noexcept { return _numLockMask; }
+        void setNumLockMask(unsigned int value) noexcept { _numLockMask = value; }
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }
@@ -527,6 +528,7 @@ class DisplayManager final {
         Display* _display = nullptr;
         Window _root = 0;
         int _screen = 0;
+        unsigned int _numLockMask;
 };
 using ClientPointer = typename Client::Ptr;
 class ClientTracker final {
@@ -633,7 +635,6 @@ extern std::string opt_font, opt_border, opt_text, opt_active, opt_inactive, opt
 #ifdef SHAPE
 extern int shape, shape_event;
 #endif
-extern unsigned int numlockmask;
 
 // events.c
 void doEventLoop();

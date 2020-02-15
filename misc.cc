@@ -395,9 +395,9 @@ void
 DisplayManager::grabKeysym(Window w, unsigned int mask, KeySym keysym) noexcept {
     XGrabKey(_display, XKeysymToKeycode(_display, keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
     XGrabKey(_display, XKeysymToKeycode(_display, keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-    if (numlockmask) { 
-        XGrabKey(_display, XKeysymToKeycode(_display, keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-        XGrabKey(_display, XKeysymToKeycode(_display, keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+    if (_numLockMask) { 
+        XGrabKey(_display, XKeysymToKeycode(_display, keysym), _numLockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+        XGrabKey(_display, XKeysymToKeycode(_display, keysym), _numLockMask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
     }
 }
 void 
