@@ -332,14 +332,12 @@ Client::drawCloseButton(GC* detail, GC* background) noexcept {
 
 void
 Client::raiseWindow() noexcept {
-    // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
-    (void)XRaiseWindow(DisplayManager::instance().getDisplay(), _frame);
+    DisplayManager::instance().raiseWindow(_frame);
 }
 
 void 
 Client::lowerWindow() noexcept {
-    // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
-    (void)XLowerWindow(DisplayManager::instance().getDisplay(), _frame);
+    DisplayManager::instance().lowerWindow(_frame);
 }
 
 Rect

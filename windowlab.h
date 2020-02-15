@@ -87,14 +87,6 @@ constexpr auto KeyMask = (KeyPressMask|KeyReleaseMask);
 template<typename...>
 inline constexpr bool false_v = false;
 
-template<typename T>
-constexpr T ABS(T x) noexcept {
-    if constexpr (std::is_integral_v<std::decay_t<T>>) {
-        return x < 0 ? -x : x;
-    } else {
-        static_assert(false_v<T>, "ABS not implemented for given type!");
-    }
-}
 
 // shorthand for wordy function calls
 void setmouse(Window w, int x, int y) noexcept;
@@ -506,6 +498,16 @@ class DisplayManager final {
         void maskEvent(long eventMask, XEvent& ev) noexcept {
             XMaskEvent(_display, eventMask, &ev);
         }
+
+        void raiseWindow(Window w) noexcept {
+            // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
+            (void) XRaiseWindow(_display, w);
+        }
+        void lowerWindow(Window w) noexcept {
+            // I agree with Nick Gravgaard, who is the moron who marked this X function as implicit int return...
+            (void) XLowerWindow(_display, w);
+        }
+
 
     private:
         DisplayManager() = default;
