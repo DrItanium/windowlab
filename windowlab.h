@@ -503,6 +503,9 @@ class DisplayManager final {
         auto grabPointer(bool ownerEvents, unsigned int eventMask, int pointerMode, int keyboardMode, Window confineTo, Cursor cursor, Time time) noexcept { 
             return grabPointer(_root, ownerEvents, eventMask, pointerMode, keyboardMode, confineTo, cursor, time);
         }
+        void maskEvent(long eventMask, XEvent& ev) noexcept {
+            XMaskEvent(_display, eventMask, &ev);
+        }
 
     private:
         DisplayManager() = default;

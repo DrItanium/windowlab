@@ -123,7 +123,7 @@ Taskbar::leftClick(int x) {
 		lclick_taskbutton(nullptr, c);
         XEvent ev;
 		do {
-			XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask|KeyMask, &ev);
+            dm.maskEvent(ExposureMask|MouseMask|KeyMask, ev);
 			switch (ev.type) {
                 case Expose: {
                                  if (auto exposed_c = ctracker.find(ev.xexpose.window, FRAME); exposed_c) {
