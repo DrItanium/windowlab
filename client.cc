@@ -120,7 +120,8 @@ Client::removeFromView() noexcept {
  * cleaning up its data structures when we exit mid-session. */
 void
 ClientTracker::remove(ClientPointer c, int mode) {
-	XGrabServer(DisplayManager::instance().getDisplay());
+    auto& dm = DisplayManager::instance();
+    dm.grabServer();
 	XSetErrorHandler(ignore_xerror);
 
 #ifdef DEBUG
@@ -142,9 +143,9 @@ ClientTracker::remove(ClientPointer c, int mode) {
         checkFocus(getPreviousFocused());
 	}
 
-	XSync(DisplayManager::instance().getDisplay(), False);
+    dm.sync(False);
 	XSetErrorHandler(handle_xerror);
-	XUngrabServer(DisplayManager::instance().getDisplay());
+    dm.ungrabServer();
 
     Taskbar::instance().redraw();
 }
@@ -153,15 +154,16 @@ void
 Client::redraw() noexcept {
     auto self = sharedReference();
     auto& tracker = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
     if (self == tracker.getFullscreenClient()) {
         return;
     }
     drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (self == tracker.getFocusedClient()) {
-		XFillRectangle(DisplayManager::instance().getDisplay(), _frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+        dm.fillRectangle(_frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	} else {
-		XFillRectangle(DisplayManager::instance().getDisplay(), _frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+        dm.fillRectangle(_frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
 	}
 	if (!_trans && _name) {
         drawString(_xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(_name));
@@ -286,7 +288,6 @@ void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	//XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
     DisplayManager::instance().fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 

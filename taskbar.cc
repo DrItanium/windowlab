@@ -249,12 +249,12 @@ Taskbar::redraw() {
 		        auto button_startx = static_cast<int>(i * buttonWidth);
 		        auto button_iwidth = static_cast<unsigned int>(((i + 1) * buttonWidth) - button_startx);
 		        if (button_startx != 0) {
-		        	XDrawLine(dm.getDisplay(), _taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
+		        	dm.drawLine(_taskbar, border_gc, button_startx - 1, 0, button_startx - 1, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
 		        if (c == ct.getFocusedClient()) {
-		        	XFillRectangle(dm.getDisplay(), _taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+                    dm.fillRectangle(_taskbar, active_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        } else {
-		        	XFillRectangle(dm.getDisplay(), _taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
+                    dm.fillRectangle(_taskbar, inactive_gc, button_startx, 0, button_iwidth, BARHEIGHT() - DEF_BORDERWIDTH);
 		        }
 		        if (!c->getTrans() && c->getName()) {
                     drawString(_tbxftdraw, &xft_detail, xftfont, button_startx + SPACE, SPACE + xftfont->ascent, *(c->getName()));
@@ -267,7 +267,7 @@ Taskbar::redraw() {
 void 
 Taskbar::drawMenubar() {
     auto& dm = DisplayManager::instance();
-	XFillRectangle(dm.getDisplay(), _taskbar, menu_gc, 0, 0, DisplayWidth(dm.getDisplay(), dm.getScreen()), BARHEIGHT() - DEF_BORDERWIDTH);
+    dm.fillRectangle(_taskbar, menu_gc, 0, 0, dm.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : Menu::instance()) {
         if (!menuItem->isEmpty()) {
@@ -316,9 +316,9 @@ Taskbar::drawMenuItem(unsigned int index, bool active) {
         return;
     } else {
         if (auto& dm = DisplayManager::instance(); active) {
-            XFillRectangle(dm.getDisplay(), _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+            dm.fillRectangle(_taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
         } else {
-            XFillRectangle(dm.getDisplay(), _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+            dm.fillRectangle(_taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
         }
         drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
     }
