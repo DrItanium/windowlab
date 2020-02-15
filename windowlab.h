@@ -261,7 +261,7 @@ struct Client {
         WeakPtr _selfReference;
 };
 
-struct Rect final {
+class Rect final {
     public:
         constexpr Rect() noexcept = default;
         constexpr Rect(int x, int y, int w, int h) noexcept : _x(x), _y(y), _width(w), _height(h) { }
@@ -310,6 +310,14 @@ struct Rect final {
         }
         void subtractFromWidth(int amount = 1) noexcept {
             setWidth(getWidth() - amount);
+        }
+        explicit operator XRectangle() const {
+            XRectangle out;
+            out.x = _x;
+            out.y = _y;
+            out.width = _width;
+            out.height = _height;
+            return out;
         }
     private:
         int _x = 0;
@@ -470,6 +478,10 @@ class DisplayManager final {
         auto drawLine(Drawable d, GC gc, int x1, int y1, int x2, int y2) noexcept {
             return XDrawLine(_display, d, gc, x1, y1, x2, y2);
         }
+        auto fillRectangle(Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height) noexcept {
+            return XFillRectangle(_display, d, gc, x, y, width, height);
+        }
+        
 
     private:
         DisplayManager() = default;

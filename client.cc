@@ -286,7 +286,9 @@ void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	//XFillRectangle(DisplayManager::instance().getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+    DisplayManager::instance().fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+
 
 	drawLine(detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
 	drawLine(detail, x + topleft_offset + 6, topleft_offset + 2, x + topleft_offset + 7, topleft_offset + 1);
@@ -304,7 +306,7 @@ Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
     auto& dm = DisplayManager::instance();
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
 	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-	XFillRectangle(dm.getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+    dm.fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	dm.drawRectangle(_frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
 	dm.drawRectangle(_frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
@@ -316,7 +318,7 @@ Client::drawCloseButton(GC* detail, GC* background) noexcept {
     auto& dm = DisplayManager::instance();
 	int x = _width - (BARHEIGHT() - DEF_BORDERWIDTH);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	XFillRectangle(dm.getDisplay(), _frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	dm.fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 	drawLine(detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
 	drawLine(detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
