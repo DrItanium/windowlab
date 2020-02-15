@@ -553,7 +553,7 @@ class Taskbar final {
     private:
         void drawMenubar();
         unsigned int updateMenuItem(int mousex);
-        void drawMenuItem(unsigned int index, unsigned int active);
+        void drawMenuItem(unsigned int index, bool active);
 
     public:
         void make() noexcept;

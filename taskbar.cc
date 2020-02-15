@@ -128,8 +128,7 @@ Taskbar::leftClick(int x)
 
 		lclick_taskbutton(nullptr, c);
 
-		do
-		{
+		do {
 			XMaskEvent(dm.getDisplay(), ExposureMask|MouseMask|KeyMask, &ev);
 			switch (ev.type) {
 				case Expose:
@@ -151,8 +150,7 @@ Taskbar::leftClick(int x)
                     dm.putbackEvent(ev);
 					break;
 			}
-		}
-		while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
+		} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
 		XUnmapWindow(dm.getDisplay(), constraint_win);
 		XDestroyWindow(dm.getDisplay(), constraint_win);
@@ -163,8 +161,7 @@ Taskbar::leftClick(int x)
 }
 
 void
-Taskbar::rightClick(int x)
-{
+Taskbar::rightClick(int x) {
 	XEvent ev;
 	unsigned int current_item = UINT_MAX;
 	XSetWindowAttributes pattr;
@@ -183,8 +180,7 @@ Taskbar::rightClick(int x)
     drawMenubar();
     updateMenuItem(INT_MAX); // force initial highlight
 	current_item = updateMenuItem(x);
-	do
-	{
+	do {
 		XMaskEvent(dm.getDisplay(), MouseMask|KeyMask, &ev);
 		switch (ev.type)
 		{
@@ -211,8 +207,7 @@ Taskbar::rightClick(int x)
 }
 
 void
-Taskbar::rightClickRoot()
-{
+Taskbar::rightClickRoot() {
     auto& dm = DisplayManager::instance();
 	if (!grab(dm.getRoot(), MouseMask, None)) {
 		return;
@@ -233,15 +228,14 @@ Taskbar::rightClickRoot()
                 dm.putbackEvent(ev);
 				break;
 		}
-	}
-	while (ev.type != ButtonRelease && ev.type != KeyPress);
+	} while (ev.type != ButtonRelease && ev.type != KeyPress);
 
     redraw();
 	ungrab();
 }
+
 void
-Taskbar::redraw() 
-{
+Taskbar::redraw() {
 	auto buttonWidth = getButtonWidth();
     auto& dm = DisplayManager::instance();
 	XClearWindow(dm.getDisplay(), _taskbar);
@@ -285,8 +279,7 @@ Taskbar::drawMenubar()
 }
 
 unsigned int 
-Taskbar::updateMenuItem (int mousex)
-{
+Taskbar::updateMenuItem (int mousex) {
     //std::cout << "enter update_menuitem" << std::endl;
 	static unsigned int last_item = UINT_MAX; // retain value from last call
 	unsigned int i = 0;
@@ -319,30 +312,29 @@ Taskbar::updateMenuItem (int mousex)
 }
 
 void
-Taskbar::drawMenuItem(unsigned int index, unsigned int active)
-{
-    auto menuItem = Menu::instance().at(index);
-    if (!menuItem) {
+Taskbar::drawMenuItem(unsigned int index, bool active) {
+    if (auto menuItem = Menu::instance().at(index); !menuItem) {
         return;
+    } else {
+        if (active) {
+            XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+        } else {
+            XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+        }
+        drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
     }
-	if (active) {
-		XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
-	} else {
-		XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
-	}
-	drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
 }
 
 float
 Taskbar::getButtonWidth() {
-    return ((float)(DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()) + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
+    auto& dm = DisplayManager::instance();
+    return ((float)(dm.getWidth() + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
 }
 void 
 Taskbar::cyclePrevious() {
     auto& ctracker = ClientTracker::instance();
     if (ctracker.size() >= 2) { // at least 2 windows exist
         ClientPointer c = ctracker.getFocusedClient();
-        ClientPointer original_c = c;
         auto pos = ctracker.find(c);
         if (pos == ctracker.end() || pos == ctracker.begin()) {
             // we default to the front of the list and then go back one so it really is just list.back() if
@@ -355,10 +347,6 @@ Taskbar::cyclePrevious() {
         }
         lclick_taskbutton(nullptr, c);
     }
-}
-void cycle_previous(void)
-{
-    Taskbar::instance().cyclePrevious();
 }
 
 void
