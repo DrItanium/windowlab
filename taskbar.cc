@@ -44,8 +44,7 @@ Taskbar::make() noexcept {
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
 	_taskbar = XCreateWindow(dm.getDisplay(), dm.getRoot(), 0 - DEF_BORDERWIDTH, 0 - DEF_BORDERWIDTH, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
-
-	XMapWindow(dm.getDisplay(), _taskbar);
+    dm.mapWindow(_taskbar);
 
 	_tbxftdraw = XftDrawCreate(dm.getDisplay(), 
             (Drawable) _taskbar, 
@@ -112,7 +111,7 @@ Taskbar::leftClick(int x) {
         Rect bounddims {0, 0, dm.getWidth(), BARHEIGHT() };
 
 		auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
-		XMapWindow(dm.getDisplay(), constraint_win);
+        dm.mapWindow(constraint_win);
 
 		if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
             dm.destroyWindow(constraint_win);

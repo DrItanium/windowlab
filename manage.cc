@@ -354,7 +354,7 @@ Client::resize(int x, int y)
 	XResizeWindow(dm.getDisplay(), _window, _width, _height);
 
 	// unhide real window's frame
-	XMapWindow(dm.getDisplay(), _frame);
+    dm.mapWindow(_frame);
     
 	XSetInputFocus(dm.getDisplay(), _window, RevertToNone, CurrentTime);
 

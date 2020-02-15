@@ -131,7 +131,7 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	if (mode == WITHDRAW) {
         c->setWMState(WithdrawnState);
 	} else { //REMAP
-		XMapWindow(DisplayManager::instance().getDisplay(), c->getWindow());
+        dm.mapWindow(c->getWindow());
 	}
     c->removeFromView();
     remove(c);
