@@ -102,10 +102,11 @@ static void scan_wins() {
 	unsigned int nwins, i;
 	Window dummyw1, dummyw2, *wins;
 	XWindowAttributes attr;
+    auto& dm = DisplayManager::instance();
 
-	XQueryTree(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
+	XQueryTree(dm.getDisplay(), dm.getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
 	for (i = 0; i < nwins; i++) {
-		XGetWindowAttributes(DisplayManager::instance().getDisplay(), wins[i], &attr);
+		XGetWindowAttributes(dm.getDisplay(), wins[i], &attr);
 		if (!attr.override_redirect && attr.map_state == IsViewable) {
             Client::makeNew(wins[i]);
 		}

@@ -266,9 +266,9 @@ Taskbar::redraw() {
 }
 
 void 
-Taskbar::drawMenubar()
-{
-	XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, menu_gc, 0, 0, DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), BARHEIGHT() - DEF_BORDERWIDTH);
+Taskbar::drawMenubar() {
+    auto& dm = DisplayManager::instance();
+	XFillRectangle(dm.getDisplay(), _taskbar, menu_gc, 0, 0, DisplayWidth(dm.getDisplay(), dm.getScreen()), BARHEIGHT() - DEF_BORDERWIDTH);
 
     for (auto& menuItem : Menu::instance()) {
         if (!menuItem->isEmpty()) {
@@ -316,10 +316,10 @@ Taskbar::drawMenuItem(unsigned int index, bool active) {
     if (auto menuItem = Menu::instance().at(index); !menuItem) {
         return;
     } else {
-        if (active) {
-            XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+        if (auto& dm = DisplayManager::instance(); active) {
+            XFillRectangle(dm.getDisplay(), _taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
         } else {
-            XFillRectangle(DisplayManager::instance().getDisplay(), _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+            XFillRectangle(dm.getDisplay(), _taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
         }
         drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
     }

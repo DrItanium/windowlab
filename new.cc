@@ -157,19 +157,19 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-	_frame = XCreateWindow(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
+	_frame = XCreateWindow(dm.getDisplay(), dm.getRoot(), _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dm.getDisplay(), dm.getScreen()), CopyFromParent, DefaultVisual(dm.getDisplay(), dm.getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, &pattr);
 
 #ifdef SHAPE
 	if (shape) {
-		XShapeSelectInput(DisplayManager::instance().getDisplay(), _window, ShapeNotifyMask);
+		XShapeSelectInput(dm.getDisplay(), _window, ShapeNotifyMask);
         setShape();
 	}
 #endif
 
-	XAddToSaveSet(DisplayManager::instance().getDisplay(), _window);
-	XSelectInput(DisplayManager::instance().getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);
-	XSetWindowBorderWidth(DisplayManager::instance().getDisplay(), _window, 0);
-	XResizeWindow(DisplayManager::instance().getDisplay(), _window, _width, _height);
+	XAddToSaveSet(dm.getDisplay(), _window);
+	XSelectInput(dm.getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);
+	XSetWindowBorderWidth(dm.getDisplay(), _window, 0);
+	XResizeWindow(dm.getDisplay(), _window, _width, _height);
     dm.reparentWindow(_window, _frame, 0, BARHEIGHT());
 
     sendConfig();

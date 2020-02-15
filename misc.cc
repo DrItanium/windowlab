@@ -344,7 +344,8 @@ void quitNicely() {
 	unsigned int nwins;
 	Window dummyw1, dummyw2, *wins;
     Menu::instance().clear();
-	XQueryTree(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
+    auto& dm = DisplayManager::instance();
+	XQueryTree(dm.getDisplay(), dm.getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
 	for (unsigned int i = 0; i < nwins; i++) {
 		if (auto c = ClientTracker::instance().find(wins[i], FRAME); c) {
             ClientTracker::instance().remove(c, REMAP);
@@ -353,19 +354,19 @@ void quitNicely() {
 	XFree(wins);
 
 	if (font) {
-		XFreeFont(DisplayManager::instance().getDisplay(), font);
+		XFreeFont(dm.getDisplay(), font);
 	}
 	if (xftfont) {
-		XftFontClose(DisplayManager::instance().getDisplay(), xftfont);
+		XftFontClose(dm.getDisplay(), xftfont);
 	}
-	XFreeCursor(DisplayManager::instance().getDisplay(), resize_curs);
-	XFreeGC(DisplayManager::instance().getDisplay(), border_gc);
-	XFreeGC(DisplayManager::instance().getDisplay(), text_gc);
+	XFreeCursor(dm.getDisplay(), resize_curs);
+	XFreeGC(dm.getDisplay(), border_gc);
+	XFreeGC(dm.getDisplay(), text_gc);
 
-	XInstallColormap(DisplayManager::instance().getDisplay(), DefaultColormap(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()));
-	XSetInputFocus(DisplayManager::instance().getDisplay(), PointerRoot, RevertToNone, CurrentTime);
+	XInstallColormap(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()));
+	XSetInputFocus(dm.getDisplay(), PointerRoot, RevertToNone, CurrentTime);
 
-	XCloseDisplay(DisplayManager::instance().getDisplay());
+	XCloseDisplay(dm.getDisplay());
 	exit(0);
 }
 
@@ -406,10 +407,11 @@ grab(Window w, unsigned int mask, Cursor curs) noexcept {
 
 void
 grab_keysym(Window w, unsigned int mask, KeySym keysym) noexcept {
-	XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
-	XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+    auto& dm = DisplayManager::instance();
+	XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), mask, w, True, GrabModeAsync, GrabModeAsync);
+	XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
 	if (numlockmask) { 
-		XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
-		XGrabKey(DisplayManager::instance().getDisplay(), XKeysymToKeycode(DisplayManager::instance().getDisplay(), keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+		XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), numlockmask|mask, w, True, GrabModeAsync, GrabModeAsync); 
+		XGrabKey(dm.getDisplay(), XKeysymToKeycode(dm.getDisplay(), keysym), numlockmask|LockMask|mask, w, True, GrabModeAsync, GrabModeAsync); 
 	}
 }
