@@ -350,8 +350,7 @@ Taskbar::cyclePrevious() {
 }
 
 void
-Taskbar::cycleNext()
-{
+Taskbar::cycleNext() {
     if (auto& ctracker = ClientTracker::instance(); ctracker.size() >= 2) {
         ClientPointer c = ctracker.getFocusedClient();
         auto pos = ctracker.find(c);
@@ -368,8 +367,4 @@ Taskbar::cycleNext()
         }
         lclick_taskbutton(nullptr, c);
 	}
-}
-void cycle_next(void)
-{
-    Taskbar::instance().cycleNext();
 }
