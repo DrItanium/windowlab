@@ -56,7 +56,7 @@ WindowLab is Free Software and has been released under the GPL. Please see the L
 
 ## Installation
 
-Before compiling, check the default (DEF_foo) options in windowlab.h, and the defines in the Makefile. DEF_FONT is of particular interest; make sure that it is defined to something that exists on your system. You can turn -DSHAPE off if you don't have the Shape extension, and -DMWM_HINTS on if you have the Lesstif or Motif headers installed.
+Before compiling, check the default (DEF_foo) options in windowlab.h, and the defines in the Makefile. DEF_FONT is of particular interest; make sure that it is defined to something that exists on your system. SHAPE extension is now required
 
 "make" will compile everything, and "make install" will install it.
 
