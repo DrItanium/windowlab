@@ -105,7 +105,7 @@ Client::removeFromView() noexcept {
     dm.reparentWindow(_window, dm.getRoot(), _x, _y);
 	XSetWindowBorderWidth(dm.getDisplay(), _window, 1);
     XRemoveFromSaveSet(dm.getDisplay(), _window);
-    XDestroyWindow(dm.getDisplay(), _frame);
+    dm.destroyWindow(_frame);
 }
 
 /* After pulling my hair out trying to find some way to tell if a

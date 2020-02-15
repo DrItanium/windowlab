@@ -162,7 +162,7 @@ Client::move() noexcept {
     dm.mapWindow(constraint_win);
 
 	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-		XDestroyWindow(dm.getDisplay(), constraint_win);
+        dm.destroyWindow(constraint_win);
 		return;
 	}
 
@@ -185,7 +185,7 @@ Client::move() noexcept {
 	} while (ev.type != ButtonRelease);
 
 	ungrab();
-	XDestroyWindow(dm.getDisplay(), constraint_win);
+    dm.destroyWindow(constraint_win);
 }
 
 void 
@@ -210,7 +210,7 @@ Client::resize(int x, int y)
     dm.mapWindow(constraint_win);
 
 	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, resize_curs, CurrentTime) == GrabSuccess)) {
-		XDestroyWindow(dm.getDisplay(), constraint_win);
+        dm.destroyWindow(constraint_win);
 		return;
 	}
     Rect newdims { _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT() };
@@ -359,13 +359,13 @@ Client::resize(int x, int y)
 	XSetInputFocus(dm.getDisplay(), _window, RevertToNone, CurrentTime);
 
     sendConfig();
-	XDestroyWindow(dm.getDisplay(), constraint_win);
+    dm.destroyWindow(constraint_win);
 
 	// reset the drawable
 	XftDrawChange(_xftdraw, static_cast<Drawable>(_frame));
 	
-	XDestroyWindow(dm.getDisplay(), resizebar_win);
-	XDestroyWindow(dm.getDisplay(), resize_win);
+    dm.destroyWindow(resizebar_win);
+    dm.destroyWindow(resize_win);
 }
 
 static void limit_size(ClientPointer c, Rect *newdims)

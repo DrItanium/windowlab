@@ -481,6 +481,10 @@ class DisplayManager final {
         auto fillRectangle(Drawable d, GC gc, int x, int y, unsigned int width, unsigned int height) noexcept {
             return XFillRectangle(_display, d, gc, x, y, width, height);
         }
+
+        auto destroyWindow(Window w) noexcept {
+            return XDestroyWindow(_display, w);
+        }
         
 
     private:

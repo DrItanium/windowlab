@@ -115,7 +115,7 @@ Taskbar::leftClick(int x) {
 		XMapWindow(dm.getDisplay(), constraint_win);
 
 		if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-			XDestroyWindow(dm.getDisplay(), constraint_win);
+            dm.destroyWindow(constraint_win);
 			return;
 		}
 
@@ -150,9 +150,8 @@ Taskbar::leftClick(int x) {
 					break;
 			}
 		} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
-
-		XUnmapWindow(dm.getDisplay(), constraint_win);
-		XDestroyWindow(dm.getDisplay(), constraint_win);
+        dm.unmapWindow(constraint_win);
+        dm.destroyWindow(constraint_win);
 		ungrab();
 
         ctracker.accept([](ClientPointer p) { p->forgetHidden(); return false; });
@@ -173,7 +172,7 @@ Taskbar::rightClick(int x) {
     dm.mapWindow(constraint_win);
 
 	if (!(XGrabPointer(dm.getDisplay(), dm.getRoot(), False, MouseMask, GrabModeAsync, GrabModeAsync, constraint_win, None, CurrentTime) == GrabSuccess)) {
-		XDestroyWindow(dm.getDisplay(), constraint_win);
+        dm.destroyWindow(constraint_win);
 		return;
 	}
     drawMenubar();
@@ -200,8 +199,8 @@ Taskbar::rightClick(int x) {
 	} while (ev.type != ButtonPress && ev.type != ButtonRelease && ev.type != KeyPress);
 
     Taskbar::instance().redraw();
-	XUnmapWindow(dm.getDisplay(), constraint_win);
-	XDestroyWindow(dm.getDisplay(), constraint_win);
+    dm.unmapWindow(constraint_win);
+    dm.destroyWindow(constraint_win);
 	ungrab();
 }
 

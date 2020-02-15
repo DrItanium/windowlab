@@ -217,23 +217,19 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
         dm.ungrabServer();
 		ungrab();
 		if (in_box) {
-			switch (in_box_up) {
-				case 0:
-                    if (c) {
+            if (c) {
+                switch (in_box_up) {
+                    case 0:
                         c->sendWMDelete();
-                    }
-					break;
-				case 1:
-                    if (c) {
+                        break;
+                    case 1:
                         c->raiseLower();
-                    }
-					break;
-				case 2:
-                    if (c) {
+                        break;
+                    case 2:
                         c->hide();
-                    }
-					break;
-			}
+                        break;
+                }
+            }
 		}
 	} else if (in_box_down != UINT_MAX) {
 		if (first_click_c == c && (e->time - first_click_time) < DEF_DBLCLKTIME) {
@@ -394,8 +390,9 @@ static void handle_unmap_event(XUnmapEvent *e) {
  * already unmapped. */
 
 static void handle_destroy_event(XDestroyWindowEvent *e) {
-	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
-        ClientTracker::instance().remove(c, WITHDRAW);
+    auto& ct = ClientTracker::instance();
+	if (auto c = ct.find(e->window, WINDOW); c) {
+        ct.remove(c, WITHDRAW);
 	}
 }
 
@@ -404,7 +401,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e) {
  * but there's nothing else required by the ICCCM. */
 
 static void handle_client_message(XClientMessageEvent *e) {
-	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
+	if (auto c = ClientTracker::instance().find(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
         c->hide();
 	}
 }
@@ -467,7 +464,7 @@ static void handle_enter_event(XCrossingEvent *e) {
 			}
 		}
 
-		if (ClientPointer c = ClientTracker::instance().find(e->window, FRAME); c) {
+		if (ClientPointer c = ctracker.find(e->window, FRAME); c) {
             auto& dm = DisplayManager::instance();
 			XGrabButton(dm.getDisplay(), AnyButton, AnyModifier, c->getFrame(), False, ButtonMask, GrabModeSync, GrabModeSync, None, None);
 		}
