@@ -159,12 +159,10 @@ Client::reparent() noexcept {
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
     _frame = dm.createWindow(_x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dm.getDisplay(), dm.getScreen()), CopyFromParent, DefaultVisual(dm.getDisplay(), dm.getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
 
-#ifdef SHAPE
 	if (shape) {
 		XShapeSelectInput(dm.getDisplay(), _window, ShapeNotifyMask);
         setShape();
 	}
-#endif
 
 	XAddToSaveSet(dm.getDisplay(), _window);
 	XSelectInput(dm.getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);

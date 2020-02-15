@@ -44,10 +44,8 @@ std::string opt_menu = DEF_MENU;
 std::string opt_selected = DEF_SELECTED;
 std::string opt_empty = DEF_EMPTY;
 std::string opt_display;
-#ifdef SHAPE
 Bool shape;
 int shape_event = 0;
-#endif
 
 static void scan_wins(void);
 static void setup_display(void);
@@ -134,9 +132,7 @@ DisplayManager::instance() noexcept {
 
 static void setup_display() {
 	XSetWindowAttributes sattr;
-#ifdef SHAPE
 	int dummy;
-#endif
     // do the initial setup after this point
     auto& dm = DisplayManager::instance();
 
@@ -175,9 +171,7 @@ static void setup_display() {
 		exit(1);
 	}
 
-#ifdef SHAPE
 	shape = XShapeQueryExtension(dm.getDisplay(), &shape_event, &dummy);
-#endif
 
 	resize_curs = XCreateFontCursor(dm.getDisplay(), XC_fleur);
 

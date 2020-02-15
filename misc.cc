@@ -374,7 +374,7 @@ void
 drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string) {
     auto ptr = string.c_str();
     auto length = string.length();
-    XftDrawString8(d, color, font, x, y, (unsigned char*)ptr, length);
+    XftDrawString8(d, color, font, x, y, (unsigned char*)ptr, string.length());
 }
 
 std::tuple<Status, std::optional<std::string>> 

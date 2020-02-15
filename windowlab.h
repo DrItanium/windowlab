@@ -42,9 +42,7 @@
 #include <filesystem>
 #include <iostream>
 #include <functional>
-#ifdef SHAPE
 #include <X11/extensions/shape.h>
-#endif
 #include <X11/Xft/Xft.h>
 
 
@@ -162,9 +160,7 @@ struct Client {
         void raiseWindow() noexcept;
         void sendConfig() noexcept;
         void reparent() noexcept;
-#ifdef SHAPE
         void setShape() noexcept;
-#endif
         void redraw() noexcept;
         void rememberHidden() noexcept;
         void forgetHidden() noexcept;
@@ -231,9 +227,7 @@ struct Client {
         Window _trans;
         std::optional<std::string> _name;
 	    unsigned int _focus_order = 0u;
-#ifdef SHAPE
         Bool _hasBeenShaped = 0;
-#endif
         XSizeHints* _size = nullptr;
         Colormap _cmap = 0;
         XftDraw* _xftdraw = nullptr;
@@ -632,9 +626,7 @@ extern XColor border_col, text_col, active_col, depressed_col, inactive_col, men
 extern Cursor resize_curs;
 extern Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
 extern std::string opt_font, opt_border, opt_text, opt_active, opt_inactive, opt_menu, opt_selected, opt_empty;
-#ifdef SHAPE
 extern int shape, shape_event;
-#endif
 
 // events.c
 void doEventLoop();

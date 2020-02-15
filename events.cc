@@ -34,9 +34,7 @@ static void handle_property_change(XPropertyEvent *);
 static void handle_enter_event(XCrossingEvent *);
 static void handle_colormap_change(XColormapEvent *);
 static void handle_expose_event(XExposeEvent *);
-#ifdef SHAPE
 static void handle_shape_change(XShapeEvent *);
-#endif
 
 static int interruptible_XNextEvent(XEvent *event);
 
@@ -90,12 +88,10 @@ void doEventLoop()
 			case Expose:
 				handle_expose_event(&ev.xexpose);
 				break;
-#ifdef SHAPE
 			default:
 				if (shape && ev.type == shape_event) {
 					handle_shape_change((XShapeEvent *)&ev);
 				}
-#endif
 		}
 	}
 }
@@ -326,11 +322,9 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		//wc.sibling = e->above;
 		//wc.stack_mode = e->detail;
 		XConfigureWindow(dm.getDisplay(), c->getFrame(), e->value_mask, &wc);
-#ifdef SHAPE
 		if (e->value_mask & (CWWidth|CWHeight)) {
             c->setShape();
 		}
-#endif
 		c->sendConfig();
 		// start setting up the next call
 		wc.x = 0;
@@ -504,13 +498,11 @@ static void handle_expose_event(XExposeEvent *e) {
 	}
 }
 
-#ifdef SHAPE
 static void handle_shape_change(XShapeEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
         c->setShape();
 	}
 }
-#endif
 
 /* interruptibleXNextEvent() was originally taken from Blender's source code
  * and came with the following copyright notice: */

@@ -211,7 +211,6 @@ Client::gravitate(int multiplier) noexcept {
  * server will paint the border in the region between the two. (I knew
  * that using X borders would get me eventually... ;-)) */
 
-#ifdef SHAPE
 void
 Client::setShape() noexcept {
 	int n, order;
@@ -244,7 +243,6 @@ Client::setShape() noexcept {
 	}
 	XFree(dummy);
 }
-#endif
 
 void
 ClientTracker::checkFocus(ClientPointer c) {

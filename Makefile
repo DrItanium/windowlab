@@ -1,8 +1,5 @@
 # Makefile for WindowLab
 
-# Comment out to remove shape support (for X11R5 or just a tiny bin)
-DEFINES += -DSHAPE
-
 # Set this to the hardcoded location of all files if it's not /
 PREFIX = /usr/local
 
