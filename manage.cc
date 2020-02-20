@@ -68,9 +68,8 @@ Client::unhide() noexcept {
 }
 
 
-void toggle_fullscreen(ClientPointer c)
-{
-	int xoffset, yoffset, maxwinwidth, maxwinheight;
+void 
+toggle_fullscreen(ClientPointer c) {
     auto& ctracker = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
 	if (c  && !c->getTrans()) {
@@ -82,9 +81,10 @@ void toggle_fullscreen(ClientPointer c)
             ctracker.setFullscreenClient(nullptr);
 			showing_taskbar = 1;
 		} else { // make fullscreen
-			xoffset = yoffset = 0;
-            maxwinwidth = dm.getWidth();
-            maxwinheight = dm.getHeight() - BARHEIGHT();
+			int xoffset = 0;
+            int yoffset = 0;
+            int maxwinwidth = dm.getWidth();
+            int maxwinheight = dm.getHeight() - BARHEIGHT();
 			if (ctracker.hasFullscreenClient()) { // reset existing fullscreen window to original size
                 ctracker.getFullscreenClient()->setDimensions(fs_prevdims);
 				dm.moveResizeWindow(ctracker.getFullscreenClient()->getFrame(), ctracker.getFullscreenClient()->getX(), ctracker.getFullscreenClient()->getY() - BARHEIGHT(), ctracker.getFullscreenClient()->getWidth(), ctracker.getFullscreenClient()->getHeight()+ BARHEIGHT());
@@ -122,7 +122,8 @@ void toggle_fullscreen(ClientPointer c)
  * prejudice. */
 void
 Client::sendWMDelete() noexcept {
-	int n, found = 0;
+	int n = 0;
+    int found = 0;
     auto& dm = DisplayManager::instance();
 	if (Atom* protocols = nullptr; XGetWMProtocols(dm.getDisplay(), _window, &protocols, &n)) {
 		for (int i = 0; i < n; i++) {
@@ -143,17 +144,15 @@ Client::move() noexcept {
 	XEvent ev;
 	int old_cx = _x;
 	int old_cy = _y;
-	Rect bounddims;
 	XSetWindowAttributes pattr;
     auto& dm = DisplayManager::instance();
     auto& ct = ClientTracker::instance();
     auto [dw, dh] = dm.getDimensions();
     auto [mousex, mousey] = dm.getMousePosition();
-	bounddims.setX((mousex - _x) - BORDERWIDTH(this));
+	Rect bounddims((mousex - _x) - BORDERWIDTH(this),
+                   (mousey - _y) + ((BARHEIGHT() * 2) - BORDERWIDTH(this)));
 	bounddims.setWidth((dw - bounddims.getX() - (getWidth() - bounddims.getX())) + 1);
-	bounddims.setY(mousey - _y);
 	bounddims.setHeight((dh - bounddims.getY() - (getHeight() - bounddims.getY())) + 1);
-	bounddims.addToY((BARHEIGHT() * 2) - BORDERWIDTH(this));
 	bounddims.addToHeight(getHeight() - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
 
     auto constraint_win = dm.createWindow( bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
