@@ -321,7 +321,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		wc.border_width = DEF_BORDERWIDTH;
 		//wc.sibling = e->above;
 		//wc.stack_mode = e->detail;
-		XConfigureWindow(dm.getDisplay(), c->getFrame(), e->value_mask, &wc);
+        dm.configureWindow(c->getFrame(), e->value_mask, wc);
 		if (e->value_mask & (CWWidth|CWHeight)) {
             c->setShape();
 		}
@@ -338,7 +338,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 	wc.height = e->height;
 	//wc.sibling = e->above;
 	//wc.stack_mode = e->detail;
-	XConfigureWindow(dm.getDisplay(), e->window, e->value_mask, &wc);
+    dm.configureWindow(e->window, e->value_mask, wc);
 }
 
 /* Two possibilities if a client is asking to be mapped. One is that

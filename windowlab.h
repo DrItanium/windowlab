@@ -556,6 +556,9 @@ class DisplayManager final {
         auto clearWindow(Window w) noexcept {
             return XClearWindow(_display, w);
         }
+        auto configureWindow(Window w, unsigned int valueMask, XWindowChanges& values) noexcept {
+            return XConfigureWindow(_display, w, valueMask, &values);
+        }
 
     private:
         DisplayManager() = default;
