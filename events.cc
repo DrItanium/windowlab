@@ -133,7 +133,7 @@ static void handle_button_press(XButtonEvent *e)
             clients.getFocusedClient()->resize(e->x_root, e->y_root);
 		} else {
 			// pass event on
-			XAllowEvents(dm.getDisplay(), ReplayPointer, CurrentTime);
+            dm.allowEvents(ReplayPointer, CurrentTime);
 		}
 	} else if (e->window == dm.getRoot()) {
         if constexpr (debugActive()) {
@@ -159,7 +159,7 @@ static void handle_button_press(XButtonEvent *e)
 		}
 	} else {
 		// pass event on
-		XAllowEvents(dm.getDisplay(), ReplayPointer, CurrentTime);
+        dm.allowEvents(ReplayPointer, CurrentTime);
 		if (e->button == Button1) {
 			ClientPointer c = clients.find(e->window, FRAME);
 			if (c) {

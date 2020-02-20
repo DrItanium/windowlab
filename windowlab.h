@@ -550,6 +550,12 @@ class DisplayManager final {
         auto moveWindow(Window w, int x, int y) noexcept {
             return XMoveWindow(_display, w, x, y);
         }
+        auto allowEvents(int eventMode, Time time = CurrentTime) noexcept {
+            return XAllowEvents(_display, eventMode, time);
+        }
+        auto clearWindow(Window w) noexcept {
+            return XClearWindow(_display, w);
+        }
 
     private:
         DisplayManager() = default;

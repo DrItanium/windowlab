@@ -164,9 +164,10 @@ Client::fixPosition() noexcept {
     }
 	
     auto& ct = ClientTracker::instance();
+    auto& dm = DisplayManager::instance();
 	int titlebarheight = (ct.getFullscreenClient().get() == this) ? 0 : BARHEIGHT();
-	int xmax = DisplayWidth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen());
-	int ymax = DisplayHeight(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen());
+    int xmax = dm.getWidth();
+    int ymax = dm.getHeight();
 
     if (_width < MINWINWIDTH()) {
         _width = MINWINWIDTH();

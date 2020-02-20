@@ -187,8 +187,7 @@ Client::move() noexcept {
 }
 
 void 
-Client::resize(int x, int y)
-{
+Client::resize(int x, int y) {
 	XEvent ev;
 	ClientPointer exposed_c;
 	Window resize_win, resizebar_win;

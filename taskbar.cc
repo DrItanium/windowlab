@@ -232,7 +232,7 @@ void
 Taskbar::redraw() {
 	auto buttonWidth = getButtonWidth();
     auto& dm = DisplayManager::instance();
-	XClearWindow(dm.getDisplay(), _taskbar);
+    dm.clearWindow(_taskbar);
 
 	if (showing_taskbar == 0) {
 		return;
