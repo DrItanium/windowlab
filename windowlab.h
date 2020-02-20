@@ -559,6 +559,13 @@ class DisplayManager final {
         auto configureWindow(Window w, unsigned int valueMask, XWindowChanges& values) noexcept {
             return XConfigureWindow(_display, w, valueMask, &values);
         }
+        auto connectionNumber() const noexcept { return ConnectionNumber(_display); }
+        auto pending() noexcept {
+            return XPending(_display);
+        }
+        auto nextEvent(XEvent* evt) noexcept {
+            XNextEvent(_display, evt);
+        }
 
     private:
         DisplayManager() = default;

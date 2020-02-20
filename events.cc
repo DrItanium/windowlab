@@ -519,10 +519,9 @@ static void handle_shape_change(XShapeEvent *e) {
 static int interruptible_XNextEvent(XEvent *event) {
 	fd_set fds;
     auto& dm = DisplayManager::instance();
-    auto disp = dm.getDisplay();
-	for (int dsply_fd = ConnectionNumber(disp);;) {
-		if (XPending(disp)) {
-			XNextEvent(disp, event);
+    for (int dsply_fd = dm.connectionNumber();;) {
+        if (dm.pending()) {
+            dm.nextEvent(event);
 			return 1;
 		}
 		FD_ZERO(&fds);
