@@ -47,7 +47,7 @@ std::string opt_display;
 Bool shape;
 int shape_event = 0;
 
-static void scan_wins(void);
+static void scanWindows(void);
 static void setup_display(void);
 
 int main(int argc, char **argv) {
@@ -90,19 +90,19 @@ int main(int argc, char **argv) {
     Menu::instance().populate();
     // exploit the side effects
     Taskbar::instance().make();
-	scan_wins();
+	scanWindows();
 	doEventLoop();
 	return 1; // just another brick in the -Wall
 }
 
-static void scan_wins() {
-	unsigned int nwins, i;
+static void
+scanWindows() {
+	unsigned int nwins = 0;
 	Window dummyw1, dummyw2, *wins;
 	XWindowAttributes attr;
     auto& dm = DisplayManager::instance();
-
-	XQueryTree(dm.getDisplay(), dm.getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
-	for (i = 0; i < nwins; i++) {
+    dm.queryTree(&dummyw1, &dummyw2, &wins, &nwins);
+	for (unsigned int i = 0; i < nwins; i++) {
 		XGetWindowAttributes(dm.getDisplay(), wins[i], &attr);
 		if (!attr.override_redirect && attr.map_state == IsViewable) {
             Client::makeNew(wins[i]);

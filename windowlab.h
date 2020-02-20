@@ -538,6 +538,12 @@ class DisplayManager final {
             }
         }
 
+        auto queryTree(Window w, Window* rootReturn, Window* parentReturn, Window** childrenReturn, unsigned int* numberOfChildrenReturn) noexcept {
+            return XQueryTree(_display, w, rootReturn, parentReturn, childrenReturn, numberOfChildrenReturn);
+        }
+        auto queryTree(Window* rootReturn, Window* parentReturn, Window** childrenReturn, unsigned int* numberOfChildrenReturn) noexcept {
+            return queryTree(_root, rootReturn, parentReturn, childrenReturn, numberOfChildrenReturn);
+        }
 
     private:
         DisplayManager() = default;

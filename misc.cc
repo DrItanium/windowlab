@@ -354,7 +354,7 @@ void quitNicely() {
     Menu::instance().clear();
     auto& dm = DisplayManager::instance();
     auto& ct = ClientTracker::instance();
-	XQueryTree(dm.getDisplay(), dm.getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
+    dm.queryTree(&dummyw1, &dummyw2, &wins, &nwins);
 	for (unsigned int i = 0; i < nwins; i++) {
 		if (auto c = ct.find(wins[i], FRAME); c) {
             ct.remove(c, REMAP);
