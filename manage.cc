@@ -149,13 +149,12 @@ Client::move() noexcept {
     auto& ct = ClientTracker::instance();
     auto [dw, dh] = dm.getDimensions();
     auto [mousex, mousey] = dm.getMousePosition();
-	Rect bounddims((mousex - _x) - BORDERWIDTH(this),
-                   (mousey - _y) + ((BARHEIGHT() * 2) - BORDERWIDTH(this)));
-	bounddims.setWidth((dw - bounddims.getX() - (getWidth() - bounddims.getX())) + 1);
-	bounddims.setHeight((dh - bounddims.getY() - (getHeight() - bounddims.getY())) + 1);
-	bounddims.addToHeight(getHeight() - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
-
-    auto constraint_win = dm.createWindow( bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
+    auto bdx = (mousex - _x) - BORDERWIDTH(this);
+    auto bdy = (mousey - _y) + ((BARHEIGHT() * 2) - BORDERWIDTH(this));
+    auto bdw = (dw - bdx - (getWidth() - bdx)) + 1;
+    auto bdh = ((dh - bdy - (getHeight() - bdy)) + 1) + (getHeight() - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
+    Rect bounddims(bdx, bdy, bdw, bdh);
+    auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
     if constexpr (debugActive()) {
         std::cerr << "Client::move() : constraint_win is (" << bounddims.getX() << ", " << bounddims.getY() << ")-(" << (bounddims.getX() + bounddims.getWidth()) << ", " << (bounddims.getY() + bounddims.getHeight()) << ")" << std::endl;
     }
