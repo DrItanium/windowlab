@@ -103,7 +103,7 @@ scanWindows() {
     auto& dm = DisplayManager::instance();
     dm.queryTree(&dummyw1, &dummyw2, &wins, &nwins);
 	for (unsigned int i = 0; i < nwins; i++) {
-		XGetWindowAttributes(dm.getDisplay(), wins[i], &attr);
+        dm.getWindowAttributes(wins[i], attr);
 		if (!attr.override_redirect && attr.map_state == IsViewable) {
             Client::makeNew(wins[i]);
 		}

@@ -60,7 +60,7 @@ Client::makeNew(Window w) noexcept {
 	XGetTransientForHint(dm.getDisplay(), w, &c->_trans);
     auto [ status, opt ] = fetchName(dm.getDisplay(), w);
     c->setName(opt);
-	XGetWindowAttributes(dm.getDisplay(), w, &attr);
+    dm.getWindowAttributes(w, attr);
     c->setDimensions(attr);
 	c->_size = XAllocSizeHints();
     c->_selfReference = c;

@@ -566,6 +566,9 @@ class DisplayManager final {
         auto nextEvent(XEvent* evt) noexcept {
             XNextEvent(_display, evt);
         }
+        auto getWindowAttributes(Window w, XWindowAttributes& windowAttributesReturn) noexcept {
+            return XGetWindowAttributes(_display, w, &windowAttributesReturn);
+        }
 
     private:
         DisplayManager() = default;
