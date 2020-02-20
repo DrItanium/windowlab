@@ -547,6 +547,9 @@ class DisplayManager final {
         auto killClient(XID resource) noexcept {
             return XKillClient(_display, resource);
         }
+        auto moveWindow(Window w, int x, int y) noexcept {
+            return XMoveWindow(_display, w, x, y);
+        }
 
     private:
         DisplayManager() = default;

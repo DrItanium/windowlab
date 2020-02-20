@@ -176,7 +176,7 @@ Client::move() noexcept {
 			case MotionNotify:
 				_x = old_cx + (ev.xmotion.x - mousex);
 				_y = old_cy + (ev.xmotion.y - mousey);
-				XMoveWindow(dm.getDisplay(), _frame, _x, _y - BARHEIGHT());
+                dm.moveWindow(_frame, _x, _y - BARHEIGHT());
                 sendConfig();
 				break;
 		}
