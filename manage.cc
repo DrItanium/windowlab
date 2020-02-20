@@ -136,7 +136,7 @@ Client::sendWMDelete() noexcept {
 	if (found) {
 		send_xmessage(_window, wm_protos, wm_delete);
 	} else {
-		XKillClient(dm.getDisplay(), _window);
+        dm.killClient(_window);
 	}
 }
 void

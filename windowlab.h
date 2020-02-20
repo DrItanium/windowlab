@@ -544,6 +544,9 @@ class DisplayManager final {
         auto queryTree(Window* rootReturn, Window* parentReturn, Window** childrenReturn, unsigned int* numberOfChildrenReturn) noexcept {
             return queryTree(_root, rootReturn, parentReturn, childrenReturn, numberOfChildrenReturn);
         }
+        auto killClient(XID resource) noexcept {
+            return XKillClient(_display, resource);
+        }
 
     private:
         DisplayManager() = default;
