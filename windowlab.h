@@ -513,6 +513,8 @@ class DisplayManager final {
 
         constexpr auto getNumLockMask() const noexcept { return _numLockMask; }
         void setNumLockMask(unsigned int value) noexcept { _numLockMask = value; }
+        std::tuple<int, int> getMousePosition() noexcept;
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }
@@ -651,7 +653,6 @@ void sig_handler(int);
 int handle_xerror(Display *, XErrorEvent *);
 int ignore_xerror(Display *, XErrorEvent *);
 int send_xmessage(Window, Atom, long);
-std::tuple<int, int> getMousePosition();
 void showEvent(XEvent);
 void dumpClients();
 

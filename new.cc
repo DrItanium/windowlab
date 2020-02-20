@@ -141,7 +141,7 @@ Client::initPosition() noexcept {
 	}
 
 	if (_x == 0 && _y == 0) {
-        auto [mousex, mousey] = getMousePosition();
+        auto [mousex, mousey] = DisplayManager::instance().getMousePosition();
 		_x = mousex;
 		_y = mousey + BARHEIGHT();
         gravitate(REMOVE_GRAVITY);

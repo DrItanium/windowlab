@@ -274,14 +274,13 @@ Taskbar::drawMenubar() {
 
 unsigned int 
 Taskbar::updateMenuItem (int mousex) {
-    //std::cout << "enter update_menuitem" << std::endl;
 	static unsigned int last_item = UINT_MAX; // retain value from last call
-	unsigned int i = 0;
     auto& menu = Menu::instance();
 	if (mousex == INT_MAX) { // entered function to set last_item
         last_item = menu.size();
 		return UINT_MAX;
 	}
+	unsigned int i = 0;
     for (const auto& menuItem : menu) {
 		if ((mousex >= menuItem->getX()) && (mousex <= (menuItem->getX() + menuItem->getWidth()))) {
 			break;
@@ -311,12 +310,14 @@ Taskbar::drawMenuItem(unsigned int index, bool active) {
     if (auto menuItem = Menu::instance().at(index); !menuItem) {
         return;
     } else {
+        auto x = menuItem->getX();
+        auto width = menuItem->getWidth();
         if (auto& dm = DisplayManager::instance(); active) {
-            dm.fillRectangle(_taskbar, selected_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+            dm.fillRectangle(_taskbar, selected_gc, x, 0, width, BARHEIGHT() - DEF_BORDERWIDTH);
         } else {
-            dm.fillRectangle(_taskbar, menu_gc, menuItem->getX(), 0, menuItem->getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+            dm.fillRectangle(_taskbar, menu_gc, x, 0, width, BARHEIGHT() - DEF_BORDERWIDTH);
         }
-        drawString(_tbxftdraw, &xft_detail, xftfont, menuItem->getX() + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
+        drawString(_tbxftdraw, &xft_detail, xftfont,x + (SPACE * 2), xftfont->ascent + SPACE, menuItem->getLabel());
     }
 }
 
@@ -330,8 +331,7 @@ Taskbar::cyclePrevious() {
     auto& ctracker = ClientTracker::instance();
     if (ctracker.size() >= 2) { // at least 2 windows exist
         ClientPointer c = ctracker.getFocusedClient();
-        auto pos = ctracker.find(c);
-        if (pos == ctracker.end() || pos == ctracker.begin()) {
+        if (auto pos = ctracker.find(c); pos == ctracker.end() || pos == ctracker.begin()) {
             // we default to the front of the list and then go back one so it really is just list.back() if
             // the focused_client is not in the list. We also do the same thing if we are looking at
             // the front of the collection as well.
@@ -348,8 +348,7 @@ void
 Taskbar::cycleNext() {
     if (auto& ctracker = ClientTracker::instance(); ctracker.size() >= 2) {
         ClientPointer c = ctracker.getFocusedClient();
-        auto pos = ctracker.find(c);
-        if (pos != ctracker.end()) {
+        if (auto pos = ctracker.find(c); pos != ctracker.end()) {
             if (auto next = ++pos; next == ctracker.end()) {
                 // we jump to the front if we encounter the end iterator
                 c = ctracker.front();

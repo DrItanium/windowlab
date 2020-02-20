@@ -140,15 +140,16 @@ int send_xmessage(Window w, Atom a, long x)
 	return XSendEvent(DisplayManager::instance().getDisplay(), w, False, NoEventMask, (XEvent *)&e);
 }
 
+
 std::tuple<int, int>
-getMousePosition() {
+DisplayManager::getMousePosition() noexcept {
     Window mouseRoot, mouseWin;
     int winX = 0;
     int winY = 0;
     unsigned int mask = 0;
     int tmpX = 0;
     int tmpY = 0;
-    XQueryPointer(DisplayManager::instance().getDisplay(), DisplayManager::instance().getRoot(), &mouseRoot, &mouseWin, &tmpX, &tmpY, &winX, &winY, &mask);
+    XQueryPointer(_display, _root, &mouseRoot, &mouseWin, &tmpX, &tmpY, &winX, &winY, &mask);
     return std::make_tuple(tmpX, tmpY);
 }
 

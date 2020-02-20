@@ -147,7 +147,7 @@ Client::move() noexcept {
 	XSetWindowAttributes pattr;
     auto& dm = DisplayManager::instance();
     auto [dw, dh] = dm.getDimensions();
-    auto [mousex, mousey] = getMousePosition();
+    auto [mousex, mousey] = dm.getMousePosition();
 	bounddims.setX((mousex - _x) - BORDERWIDTH(this));
 	bounddims.setWidth((dw - bounddims.getX() - (getWidth() - bounddims.getX())) + 1);
 	bounddims.setY(mousey - _y);
