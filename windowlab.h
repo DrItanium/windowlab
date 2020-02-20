@@ -645,6 +645,7 @@ class ClientTracker final {
 class Taskbar final {
     public:
         static Taskbar& instance() noexcept;
+        static inline void performRedraw() noexcept { instance().redraw(); }
         void cyclePrevious();
         void cycleNext();
         void leftClick(int);

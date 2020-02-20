@@ -113,7 +113,7 @@ toggle_fullscreen(ClientPointer c) {
             ctracker.setFullscreenClient(c);
 			showing_taskbar = in_taskbar;
 		}
-        Taskbar::instance().redraw();
+        Taskbar::performRedraw();
 	}
 }
 

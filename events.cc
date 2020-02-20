@@ -414,7 +414,7 @@ static void handle_property_change(XPropertyEvent *e) {
                                  (void)status; // status isn't actually used but is returned in the tuple
                                  c->setName(opt);
                                  c->redraw();
-                                 Taskbar::instance().redraw();
+                                 Taskbar::performRedraw();
                                  break;
                              }
             case XA_WM_NORMAL_HINTS: {

@@ -108,7 +108,7 @@ Client::makeNew(Window w) noexcept {
     dm.sync(False);
     dm.ungrabServer();
 
-    Taskbar::instance().redraw();
+    Taskbar::performRedraw();
 }
 
 /* This one does *not* free the data coming back from Xlib; it just

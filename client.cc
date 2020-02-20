@@ -147,7 +147,7 @@ ClientTracker::remove(ClientPointer c, int mode) {
     dm.setErrorHandler(handle_xerror);
     dm.ungrabServer();
 
-    Taskbar::instance().redraw();
+    Taskbar::performRedraw();
 }
 
 void
@@ -262,7 +262,7 @@ ClientTracker::checkFocus(ClientPointer c) {
 		if (old_focused) {
             old_focused->redraw();
 		}
-        Taskbar::instance().redraw();
+        Taskbar::performRedraw();
 	}
 }
 
