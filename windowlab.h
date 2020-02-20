@@ -526,6 +526,18 @@ class DisplayManager final {
             return XSetInputFocus(_display, focus, revertTo, time);
         }
 
+        auto free(GC gc) noexcept {
+            return XFreeGC(_display, gc);
+        }
+        auto free(Cursor curs) noexcept {
+            return XFreeCursor(_display, curs);
+        }
+        void free(XFontStruct* font) noexcept {
+            if (font) {
+                XFreeFont(_display, font);
+            }
+        }
+
 
     private:
         DisplayManager() = default;

@@ -353,23 +353,22 @@ void quitNicely() {
 	Window dummyw1, dummyw2, *wins;
     Menu::instance().clear();
     auto& dm = DisplayManager::instance();
+    auto& ct = ClientTracker::instance();
 	XQueryTree(dm.getDisplay(), dm.getRoot(), &dummyw1, &dummyw2, &wins, &nwins);
 	for (unsigned int i = 0; i < nwins; i++) {
-		if (auto c = ClientTracker::instance().find(wins[i], FRAME); c) {
-            ClientTracker::instance().remove(c, REMAP);
+		if (auto c = ct.find(wins[i], FRAME); c) {
+            ct.remove(c, REMAP);
         }
 	}
 	XFree(wins);
 
-	if (font) {
-		XFreeFont(dm.getDisplay(), font);
-	}
+    dm.free(font);
 	if (xftfont) {
 		XftFontClose(dm.getDisplay(), xftfont);
 	}
-	XFreeCursor(dm.getDisplay(), resize_curs);
-	XFreeGC(dm.getDisplay(), border_gc);
-	XFreeGC(dm.getDisplay(), text_gc);
+    dm.free(resize_curs);
+    dm.free(border_gc);
+    dm.free(text_gc);
 
 	XInstallColormap(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()));
     dm.setInputFocus(PointerRoot);
