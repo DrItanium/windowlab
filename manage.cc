@@ -50,7 +50,7 @@ Client::hide() noexcept {
         dm.unmapWindow(_frame);
         dm.unmapWindow(_window);
         setWMState(IconicState);
-        ct.checkFocus(ClientTracker::instance().getPreviousFocused());
+        ct.checkFocus(ct.getPreviousFocused());
     }
 }
 
@@ -146,6 +146,7 @@ Client::move() noexcept {
 	Rect bounddims;
 	XSetWindowAttributes pattr;
     auto& dm = DisplayManager::instance();
+    auto& ct = ClientTracker::instance();
     auto [dw, dh] = dm.getDimensions();
     auto [mousex, mousey] = dm.getMousePosition();
 	bounddims.setX((mousex - _x) - BORDERWIDTH(this));
@@ -170,7 +171,7 @@ Client::move() noexcept {
 		dm.maskEvent(ExposureMask|MouseMask, ev);
 		switch (ev.type) {
 			case Expose:
-				if (ClientPointer exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME); exposed_c) {
+				if (ClientPointer exposed_c = ct.find(ev.xexpose.window, FRAME); exposed_c) {
                     exposed_c->redraw();
 				}
 				break;
@@ -194,6 +195,7 @@ Client::resize(int x, int y)
 	ClientPointer exposed_c;
 	Window resize_win, resizebar_win;
 	XSetWindowAttributes pattr, resize_pattr, resizebar_pattr;
+    auto& ct = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
@@ -243,7 +245,7 @@ Client::resize(int x, int y)
 				if (ev.xexpose.window == resizebar_win) {
                     writeTitleText(resizebar_win);
 				} else {
-					exposed_c = ClientTracker::instance().find(ev.xexpose.window, FRAME);
+					exposed_c = ct.find(ev.xexpose.window, FRAME);
 					if (exposed_c) {
                         exposed_c->redraw();
 					}
