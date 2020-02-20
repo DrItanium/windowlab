@@ -251,8 +251,12 @@ Client::resize(int x, int y)
 				break;
 			case MotionNotify: {
                     bool in_taskbar = true;
-					unsigned int leftedge_changed = 0, rightedge_changed = 0, topedge_changed = 0, bottomedge_changed = 0;
-					int newwidth, newheight;
+					unsigned int leftedge_changed = 0; 
+                    unsigned int rightedge_changed = 0; 
+                    unsigned int topedge_changed = 0; 
+                    unsigned int bottomedge_changed = 0;
+					int newwidth = 0;
+                    int newheight = 0;
 					// warping the pointer is wrong - wait until it leaves the taskbar
 					if (ev.xmotion.y < BARHEIGHT()) {
 						in_taskbar = true;
@@ -260,7 +264,7 @@ Client::resize(int x, int y)
 						if (in_taskbar) { // first time outside taskbar
 							in_taskbar = false;
                             bounddims = { 0, BARHEIGHT(), static_cast<int>(dw), static_cast<int>(dh - BARHEIGHT()) };
-							XMoveResizeWindow(dm.getDisplay(), constraint_win, bounddims.getX(), bounddims.getY(), bounddims.getWidth(), bounddims.getHeight());
+                            dm.moveResizeWindow(constraint_win, bounddims);
 							in_taskbar = false;
 						}
 						// inside the window, dragging outwards
@@ -336,8 +340,8 @@ Client::resize(int x, int y)
                             recalceddims.addToHeight(BARHEIGHT());
 							limit_size(sharedReference(), &recalceddims);
 
-							XMoveResizeWindow(dm.getDisplay(), resize_win, recalceddims.getX(), recalceddims.getY(), recalceddims.getWidth(), recalceddims.getHeight());
-							XResizeWindow(dm.getDisplay(), resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+                            dm.moveResizeWindow(resize_win, recalceddims);
+                            dm.resizeWindow(resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
 						}
 					}
 				}
@@ -349,8 +353,8 @@ Client::resize(int x, int y)
 	dm.ungrab();
     setDimensions(recalceddims.getX(), recalceddims.getY() + BARHEIGHT(),
             recalceddims.getWidth(), recalceddims.getHeight() - BARHEIGHT());
-	XMoveResizeWindow(dm.getDisplay(), _frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());
-	XResizeWindow(dm.getDisplay(), _window, _width, _height);
+    dm.moveResizeWindow(_frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());
+    dm.resizeWindow(_window, _width, _height);
 
 	// unhide real window's frame
     dm.mapWindow(_frame);

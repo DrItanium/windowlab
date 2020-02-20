@@ -411,6 +411,9 @@ class DisplayManager final {
         auto moveResizeWindow(Window w, int x, int y, unsigned int width, unsigned int height) noexcept {
             return XMoveResizeWindow(_display, w, x, y, width, height);
         }
+        auto moveResizeWindow(Window w, const Rect& r) noexcept {
+            return moveResizeWindow(w, r.getX(), r.getY(), r.getWidth(), r.getHeight());
+        }
         auto getDefaultColormap() const noexcept {
             return DefaultColormap(_display, _screen);
         }
@@ -514,6 +517,11 @@ class DisplayManager final {
         constexpr auto getNumLockMask() const noexcept { return _numLockMask; }
         void setNumLockMask(unsigned int value) noexcept { _numLockMask = value; }
         std::tuple<int, int> getMousePosition() noexcept;
+
+        auto resizeWindow(Window w, unsigned int width, unsigned int height) noexcept {
+            return XResizeWindow(_display, w, width, height);
+        }
+
 
     private:
         DisplayManager() = default;
