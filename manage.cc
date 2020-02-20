@@ -358,8 +358,7 @@ Client::resize(int x, int y)
 
 	// unhide real window's frame
     dm.mapWindow(_frame);
-    
-	XSetInputFocus(dm.getDisplay(), _window, RevertToNone, CurrentTime);
+    dm.setInputFocus(_window); 
 
     sendConfig();
     dm.destroyWindow(constraint_win);

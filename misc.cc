@@ -372,7 +372,7 @@ void quitNicely() {
 	XFreeGC(dm.getDisplay(), text_gc);
 
 	XInstallColormap(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()));
-	XSetInputFocus(dm.getDisplay(), PointerRoot, RevertToNone, CurrentTime);
+    dm.setInputFocus(PointerRoot);
 
 	XCloseDisplay(dm.getDisplay());
 	exit(0);

@@ -247,8 +247,9 @@ Client::setShape() noexcept {
 void
 ClientTracker::checkFocus(ClientPointer c) {
 	if (c) {
-		XSetInputFocus(DisplayManager::instance().getDisplay(), c->getWindow(), RevertToNone, CurrentTime);
-		XInstallColormap(DisplayManager::instance().getDisplay(), c->getColormap());
+        auto& dm = DisplayManager::instance();
+        dm.setInputFocus(c->getWindow());
+		XInstallColormap(dm.getDisplay(), c->getColormap());
 	}
 	if (c != _focusedClient) {
 		ClientPointer old_focused = _focusedClient;

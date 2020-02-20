@@ -522,6 +522,10 @@ class DisplayManager final {
             return XResizeWindow(_display, w, width, height);
         }
 
+        auto setInputFocus(Window focus, int revertTo = RevertToNone, Time time = CurrentTime) noexcept {
+            return XSetInputFocus(_display, focus, revertTo, time);
+        }
+
 
     private:
         DisplayManager() = default;
