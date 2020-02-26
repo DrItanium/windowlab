@@ -478,7 +478,7 @@ static void handle_colormap_change(XColormapEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
         auto& dm = DisplayManager::instance();
         c->setColormap(e->colormap);
-		XInstallColormap(dm.getDisplay(), c->getColormap());
+        dm.installColormap(c->getColormap());
 	}
 }
 

@@ -570,6 +570,13 @@ class DisplayManager final {
             return XGetWindowAttributes(_display, w, &windowAttributesReturn);
         }
 
+        auto installColormap(Colormap map) noexcept {
+            return XInstallColormap(_display, map);
+        }
+        auto installColormap() noexcept {
+            return installColormap(getDefaultColormap());
+        }
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }

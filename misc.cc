@@ -371,7 +371,7 @@ void quitNicely() {
     dm.free(border_gc);
     dm.free(text_gc);
 
-	XInstallColormap(dm.getDisplay(), DefaultColormap(dm.getDisplay(), dm.getScreen()));
+    dm.installColormap();
     dm.setInputFocus(PointerRoot);
 
 	XCloseDisplay(dm.getDisplay());

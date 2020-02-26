@@ -249,7 +249,7 @@ ClientTracker::checkFocus(ClientPointer c) {
 	if (c) {
         auto& dm = DisplayManager::instance();
         dm.setInputFocus(c->getWindow());
-		XInstallColormap(dm.getDisplay(), c->getColormap());
+        dm.installColormap(c->getColormap());
 	}
 	if (c != _focusedClient) {
 		ClientPointer old_focused = _focusedClient;
