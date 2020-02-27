@@ -215,30 +215,31 @@ void
 Client::setShape() noexcept {
 	int n, order;
 	XRectangle temp;
+    auto& dm = DisplayManager::instance();
 
-	auto dummy = XShapeGetRectangles(DisplayManager::instance().getDisplay(), _window, ShapeBounding, &n, &order);
+	auto dummy = XShapeGetRectangles(dm.getDisplay(), _window, ShapeBounding, &n, &order);
 	if (n > 1) {
-		XShapeCombineShape(DisplayManager::instance().getDisplay(), _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
-		temp.x = -BORDERWIDTH(this);
-		temp.y = -BORDERWIDTH(this);
-		temp.width = _width + (2 * BORDERWIDTH(this));
-		temp.height = BARHEIGHT() + BORDERWIDTH(this);
-		XShapeCombineRectangles(DisplayManager::instance().getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
+		XShapeCombineShape(dm.getDisplay(), _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
+		temp.x = -BORDERWIDTH();
+		temp.y = -BORDERWIDTH();
+		temp.width = _width + (2 * BORDERWIDTH());
+		temp.height = BARHEIGHT() + BORDERWIDTH();
+		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
         XRectangle temp2;
 		temp2.x = 0;
 		temp2.y = 0;
 		temp2.width = _width;
-		temp2.height = BARHEIGHT() - BORDERWIDTH(this);
-		XShapeCombineRectangles(DisplayManager::instance().getDisplay(), _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
+		temp2.height = BARHEIGHT() - BORDERWIDTH();
+		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
 		_hasBeenShaped = 1;
 	} else {
 		if (_hasBeenShaped) {
 			// I can't find a 'remove all shaping' function...
-			temp.x = -BORDERWIDTH(this);
-			temp.y = -BORDERWIDTH(this);
-			temp.width = _width + (2 * BORDERWIDTH(this));
-			temp.height = _height + BARHEIGHT() + (2 * BORDERWIDTH(this));
-			XShapeCombineRectangles(DisplayManager::instance().getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
+			temp.x = -BORDERWIDTH();
+			temp.y = -BORDERWIDTH();
+			temp.width = _width + (2 * BORDERWIDTH());
+			temp.height = _height + BARHEIGHT() + (2 * BORDERWIDTH());
+			XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}
 	XFree(dummy);

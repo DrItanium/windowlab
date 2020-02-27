@@ -92,7 +92,7 @@ toggle_fullscreen(ClientPointer c) {
                 ctracker.getFullscreenClient()->sendConfig();
 			}
             fs_prevdims = c->getRect();
-            c->setDimensions(0 - BORDERWIDTH(c), (BARHEIGHT() - BORDERWIDTH(c)), (maxwinwidth), maxwinheight);
+            c->setDimensions(0 - BORDERWIDTH(), (BARHEIGHT() - BORDERWIDTH()), (maxwinwidth), maxwinheight);
 			if (c->getSize()->flags & PMaxSize || c->getSize()->flags & PResizeInc) {
 				if (c->getSize()->flags & PResizeInc) {
 					Rect maxwinsize { xoffset, yoffset, maxwinwidth, maxwinheight };
@@ -149,8 +149,8 @@ Client::move() noexcept {
     auto& ct = ClientTracker::instance();
     auto [dw, dh] = dm.getDimensions();
     auto [mousex, mousey] = dm.getMousePosition();
-    auto bdx = (mousex - _x) - BORDERWIDTH(this);
-    auto bdy = (mousey - _y) + ((BARHEIGHT() * 2) - BORDERWIDTH(this));
+    auto bdx = (mousex - _x) - BORDERWIDTH();
+    auto bdy = (mousey - _y) + ((BARHEIGHT() * 2) - BORDERWIDTH());
     auto bdw = (dw - bdx - (getWidth() - bdx)) + 1;
     auto bdh = ((dh - bdy - (getHeight() - bdy)) + 1) + (getHeight() - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
     Rect bounddims(bdx, bdy, bdw, bdh);
@@ -196,10 +196,10 @@ Client::resize(int x, int y) {
     auto& dm = DisplayManager::instance();
     // inside the window, dragging outwards : TRUE
     // outside the window, dragging inwards : FALSE
-    bool dragging_outwards = (x > _x + BORDERWIDTH(this)) && 
-                             (x < (_x + _width) - BORDERWIDTH(this)) && 
-                             (y > (_y - BARHEIGHT()) + BORDERWIDTH(this)) && 
-                             (y < (_y + _height) - BORDERWIDTH(this));
+    bool dragging_outwards = (x > _x + BORDERWIDTH()) && 
+                             (x < (_x + _width) - BORDERWIDTH()) && 
+                             (y > (_y - BARHEIGHT()) + BORDERWIDTH()) && 
+                             (y < (_y + _height) - BORDERWIDTH());
     auto [dw, dh] = dm.getDimensions();
 
     Rect bounddims { 0, 0, static_cast<int>(dw), static_cast<int>(dh) };
@@ -268,49 +268,49 @@ Client::resize(int x, int y) {
 						}
 						// inside the window, dragging outwards
 						if (dragging_outwards) {
-							if (ev.xmotion.x < newdims.getX() + BORDERWIDTH(this)) {
-								newdims.addToWidth(newdims.getX() + BORDERWIDTH(this) - ev.xmotion.x);
-								newdims.setX(ev.xmotion.x - BORDERWIDTH(this));
+							if (ev.xmotion.x < newdims.getX() + BORDERWIDTH()) {
+								newdims.addToWidth(newdims.getX() + BORDERWIDTH() - ev.xmotion.x);
+								newdims.setX(ev.xmotion.x - BORDERWIDTH());
 								leftedge_changed = 1;
-							} else if (ev.xmotion.x > newdims.getX() + newdims.getWidth() + BORDERWIDTH(this)) {
-								newdims.setWidth((ev.xmotion.x - newdims.getX() - BORDERWIDTH(this)) + 1); // add 1 to allow window to be flush with edge of screen
+							} else if (ev.xmotion.x > newdims.getX() + newdims.getWidth() + BORDERWIDTH()) {
+								newdims.setWidth((ev.xmotion.x - newdims.getX() - BORDERWIDTH()) + 1); // add 1 to allow window to be flush with edge of screen
 								rightedge_changed = 1;
 							}
-							if (ev.xmotion.y < newdims.getY() + BORDERWIDTH(this)) {
-								newdims.addToHeight(newdims.getY() + BORDERWIDTH(this) - ev.xmotion.y);
-								newdims.setY(ev.xmotion.y - BORDERWIDTH(this));
+							if (ev.xmotion.y < newdims.getY() + BORDERWIDTH()) {
+								newdims.addToHeight(newdims.getY() + BORDERWIDTH() - ev.xmotion.y);
+								newdims.setY(ev.xmotion.y - BORDERWIDTH());
 								topedge_changed = 1;
-							} else if (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(this))
+							} else if (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH())
 							{
-								newdims.setHeight((ev.xmotion.y - newdims.getY() - BORDERWIDTH(this)) + 1); // add 1 to allow window to be flush with edge of screen
+								newdims.setHeight((ev.xmotion.y - newdims.getY() - BORDERWIDTH()) + 1); // add 1 to allow window to be flush with edge of screen
 								bottomedge_changed = 1;
 							}
 						} else { // outside the window, dragging inwards
-							unsigned int above_win = (ev.xmotion.y < newdims.getY() + BORDERWIDTH(this));
-							unsigned int below_win = (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH(this));
-							unsigned int leftof_win = (ev.xmotion.x < newdims.getX() + BORDERWIDTH(this));
-							unsigned int rightof_win = (ev.xmotion.x > newdims.getX() + newdims.getWidth()+ BORDERWIDTH(this));
+							unsigned int above_win = (ev.xmotion.y < newdims.getY() + BORDERWIDTH());
+							unsigned int below_win = (ev.xmotion.y > newdims.getY() + newdims.getHeight()+ BORDERWIDTH());
+							unsigned int leftof_win = (ev.xmotion.x < newdims.getX() + BORDERWIDTH());
+							unsigned int rightof_win = (ev.xmotion.x > newdims.getX() + newdims.getWidth()+ BORDERWIDTH());
 
 							unsigned int in_win = ((!above_win) && (!below_win) && (!leftof_win) && (!rightof_win));
 
 							if (in_win) {
-								unsigned int from_left = ev.xmotion.x - newdims.getX() - BORDERWIDTH(this);
-								unsigned int from_right = newdims.getX() + newdims.getWidth() + BORDERWIDTH(this) - ev.xmotion.x;
-								unsigned int from_top = ev.xmotion.y - newdims.getY() - BORDERWIDTH(this);
-								unsigned int from_bottom = newdims.getY() + newdims.getHeight() + BORDERWIDTH(this) - ev.xmotion.y;
+								unsigned int from_left = ev.xmotion.x - newdims.getX() - BORDERWIDTH();
+								unsigned int from_right = newdims.getX() + newdims.getWidth() + BORDERWIDTH() - ev.xmotion.x;
+								unsigned int from_top = ev.xmotion.y - newdims.getY() - BORDERWIDTH();
+								unsigned int from_bottom = newdims.getY() + newdims.getHeight() + BORDERWIDTH() - ev.xmotion.y;
 								if (from_left < from_right && from_left < from_top && from_left < from_bottom) {
-                                    newdims.subtractFromWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(this));
-                                    newdims.setX(ev.xmotion.x - BORDERWIDTH(this));
+                                    newdims.subtractFromWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH());
+                                    newdims.setX(ev.xmotion.x - BORDERWIDTH());
 									leftedge_changed = 1;
 								} else if (from_right < from_top && from_right < from_bottom) {
-                                    newdims.setWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH(this));
+                                    newdims.setWidth(ev.xmotion.x - newdims.getX() - BORDERWIDTH());
 									rightedge_changed = 1;
 								} else if (from_top < from_bottom) {
-									newdims.subtractFromHeight(ev.xmotion.y - newdims.getY() - BORDERWIDTH(this));
-									newdims.setY(ev.xmotion.y - BORDERWIDTH(this));
+									newdims.subtractFromHeight(ev.xmotion.y - newdims.getY() - BORDERWIDTH());
+									newdims.setY(ev.xmotion.y - BORDERWIDTH());
 									topedge_changed = 1;
 								} else {
-                                    newdims.setHeight( ev.xmotion.y - newdims.getY() - BORDERWIDTH(this));
+                                    newdims.setHeight( ev.xmotion.y - newdims.getY() - BORDERWIDTH());
 									bottomedge_changed = 1;
 								}
 							}

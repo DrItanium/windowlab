@@ -86,8 +86,7 @@ template<typename...>
 inline constexpr bool false_v = false;
 
 
-template<typename T>
-constexpr auto BORDERWIDTH(T) noexcept {
+constexpr auto BORDERWIDTH() noexcept {
     return DEF_BORDERWIDTH;
 }
 
@@ -607,6 +606,11 @@ class DisplayManager final {
         auto getTransientForHint(Window w, Window& propWindowReturn) noexcept {
             return XGetTransientForHint(_display, w, &propWindowReturn);
         }
+
+        auto allocSizeHints() noexcept {
+            return XAllocSizeHints();
+        }
+
 
     private:
         DisplayManager() = default;

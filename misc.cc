@@ -190,7 +190,7 @@ Client::fixPosition() noexcept {
         _y = BARHEIGHT();
 	}
 
-	if (_x + _width + BORDERWIDTH(this) >= xmax) {
+	if (_x + _width + BORDERWIDTH() >= xmax) {
         _x = xmax - _width;
 	}
 	if (_y + _height + BARHEIGHT() >= ymax) {
@@ -201,14 +201,14 @@ Client::fixPosition() noexcept {
         printToStderr("fix_position(): client is (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
     }
 
-    _x -= BORDERWIDTH(this);
-    _y -= BORDERWIDTH(this);
+    _x -= BORDERWIDTH();
+    _y -= BORDERWIDTH();
 }
 
 void
 Client::refixPosition(XConfigureRequestEvent *e) {
-	Rect olddims { _x - BORDERWIDTH(this),
-                   _y - BORDERWIDTH(this),
+	Rect olddims { _x - BORDERWIDTH(),
+                   _y - BORDERWIDTH(),
                    _width,
                    _height };
 
