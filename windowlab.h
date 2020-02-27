@@ -619,7 +619,7 @@ class DisplayManager final {
         Display* _display = nullptr;
         Window _root = 0;
         int _screen = 0;
-        unsigned int _numLockMask;
+        unsigned int _numLockMask = 0;
 };
 using ClientPointer = typename Client::Ptr;
 class ClientTracker final {
