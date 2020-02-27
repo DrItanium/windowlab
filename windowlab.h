@@ -589,6 +589,10 @@ class DisplayManager final {
             return XSetWindowBorderWidth(_display, w, width);
         }
 
+        template<typename T>
+        auto selectInput(Window w, T mask) noexcept {
+            return XSelectInput(_display, w, mask);
+        }
 
     private:
         DisplayManager() = default;

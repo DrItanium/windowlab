@@ -165,7 +165,7 @@ Client::reparent() noexcept {
 	}
 
     dm.addToSaveSet(_window);
-	XSelectInput(dm.getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);
+	dm.selectInput(_window, ColormapChangeMask|PropertyChangeMask);
     dm.setWindowBorderWidth(_window, 0);
     dm.resizeWindow(_window, _width, _height);
     dm.reparentWindow(_window, _frame, 0, BARHEIGHT());
