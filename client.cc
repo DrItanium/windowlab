@@ -67,7 +67,7 @@ Client::getWMState() const noexcept
 	unsigned char *data;
 
     if (DisplayManager::instance().getWindowProperty(_window, wm_state, 0L, 2L, False, wm_state, &real_type, &real_format, &items_read, &items_left, &data) == Success && items_read) {
-		state = *(long *)data;
+		state = *((long *)data);
 		XFree(data);
 	}
 	return state;
@@ -103,8 +103,8 @@ Client::removeFromView() noexcept {
     auto& dm = DisplayManager::instance();
     gravitate(REMOVE_GRAVITY);
     dm.reparentWindow(_window, dm.getRoot(), _x, _y);
-	XSetWindowBorderWidth(dm.getDisplay(), _window, 1);
-    XRemoveFromSaveSet(dm.getDisplay(), _window);
+    dm.setWindowBorderWidth(_window, 1);
+    dm.removeFromSaveSet(_window);
     dm.destroyWindow(_frame);
 }
 
@@ -125,7 +125,7 @@ ClientTracker::remove(ClientPointer c, int mode) {
     dm.setErrorHandler(ignore_xerror);
 
     if constexpr (debugActive()) {
-        err("removing ", (c->getName() ? *c->getName(): ""), ", ", mode, ": ", XPending(DisplayManager::instance().getDisplay()), " left");
+        err("removing ", (c->getName() ? *c->getName(): ""), ", ", mode, ": ", DisplayManager::instance().getPending(), " left");
     }
 
 	if (mode == WITHDRAW) {

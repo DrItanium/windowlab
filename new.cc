@@ -164,9 +164,9 @@ Client::reparent() noexcept {
         setShape();
 	}
 
-	XAddToSaveSet(dm.getDisplay(), _window);
+    dm.addToSaveSet(_window);
 	XSelectInput(dm.getDisplay(), _window, ColormapChangeMask|PropertyChangeMask);
-	XSetWindowBorderWidth(dm.getDisplay(), _window, 0);
+    dm.setWindowBorderWidth(_window, 0);
     dm.resizeWindow(_window, _width, _height);
     dm.reparentWindow(_window, _frame, 0, BARHEIGHT());
 

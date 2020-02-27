@@ -576,6 +576,19 @@ class DisplayManager final {
         auto installColormap() noexcept {
             return installColormap(getDefaultColormap());
         }
+        auto getPending() noexcept {
+            return XPending(_display);
+        }
+        auto addToSaveSet(Window w) noexcept {
+            return XAddToSaveSet(_display, w);
+        }
+        auto removeFromSaveSet(Window w) noexcept {
+            return XRemoveFromSaveSet(_display, w);
+        }
+        auto setWindowBorderWidth(Window w, unsigned int width) noexcept {
+            return XSetWindowBorderWidth(_display, w, width);
+        }
+
 
     private:
         DisplayManager() = default;
