@@ -50,7 +50,6 @@ Client::setDimensions(XWindowAttributes& attr) noexcept {
 void
 Client::makeNew(Window w) noexcept {
 	XWindowAttributes attr;
-	long dummy = 0;
     auto& clients = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
     clients.add(ClientPointer(new Client(w)));
@@ -64,7 +63,7 @@ Client::makeNew(Window w) noexcept {
     c->setDimensions(attr);
 	c->_size = XAllocSizeHints();
     c->_selfReference = c;
-	XGetWMNormalHints(dm.getDisplay(), c->_window, c->_size, &dummy);
+    dm.getWMNormalHints(c->_window, c->_size);
 
 	// XReparentWindow seems to try an XUnmapWindow, regardless of whether the reparented window is mapped or not
 	++c->_ignoreUnmap;
@@ -157,7 +156,7 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-    _frame = dm.createWindow(_x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), DefaultDepth(dm.getDisplay(), dm.getScreen()), CopyFromParent, DefaultVisual(dm.getDisplay(), dm.getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
+    _frame = dm.createWindow(_x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), BORDERWIDTH(this), dm.getDefaultDepth(), CopyFromParent, dm.getDefaultVisual(), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
 
 	if (shape) {
 		XShapeSelectInput(dm.getDisplay(), _window, ShapeNotifyMask);

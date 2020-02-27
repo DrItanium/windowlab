@@ -594,6 +594,14 @@ class DisplayManager final {
             return XSelectInput(_display, w, mask);
         }
 
+        auto getWMNormalHints(Window w, XSizeHints* hintsReturn, long& suppliedReturn) noexcept {
+            return XGetWMNormalHints(_display, w, hintsReturn, &suppliedReturn);
+        }
+        auto getWMNormalHints(Window w, XSizeHints* hintsReturn) noexcept {
+            long dummy = 0;
+            return getWMNormalHints(w, hintsReturn, dummy);
+        }
+
     private:
         DisplayManager() = default;
         //DisplayManager(Display* disp, Window r, int s) : _display(disp), _root(r), _screen(s) { }
