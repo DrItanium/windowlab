@@ -604,6 +604,9 @@ class DisplayManager final {
         auto getWMHints(Window w) noexcept {
             return XGetWMHints(_display, w);
         }
+        auto getTransientForHint(Window w, Window& propWindowReturn) noexcept {
+            return XGetTransientForHint(_display, w, &propWindowReturn);
+        }
 
     private:
         DisplayManager() = default;

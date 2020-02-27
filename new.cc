@@ -56,7 +56,7 @@ Client::makeNew(Window w) noexcept {
     auto c = clients.back();
     dm.grabServer();
 
-	XGetTransientForHint(dm.getDisplay(), w, &c->_trans);
+    dm.getTransientForHint(w, c->_trans);
     auto [ status, opt ] = fetchName(dm.getDisplay(), w);
     c->setName(opt);
     dm.getWindowAttributes(w, attr);
