@@ -601,6 +601,9 @@ class DisplayManager final {
             long dummy = 0;
             return getWMNormalHints(w, hintsReturn, dummy);
         }
+        auto getWMHints(Window w) noexcept {
+            return XGetWMHints(_display, w);
+        }
 
     private:
         DisplayManager() = default;

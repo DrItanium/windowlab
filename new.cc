@@ -71,7 +71,7 @@ Client::makeNew(Window w) noexcept {
 	if (attr.map_state != IsViewable) {
         c->initPosition();
         c->setWMState(NormalState);
-		if (XWMHints* hints = XGetWMHints(dm.getDisplay(), w); hints) {
+		if (auto hints = dm.getWMHints(w); hints) {
 			if (hints->flags & StateHint) {
                 c->setWMState(hints->initial_state);
 			}
