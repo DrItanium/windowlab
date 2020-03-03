@@ -44,6 +44,7 @@
 #include <functional>
 #include <X11/extensions/shape.h>
 #include <X11/Xft/Xft.h>
+#include <X11/XKBlib.h>
 
 
 // here are the default settings - change to suit your taste
@@ -611,6 +612,10 @@ class DisplayManager final {
 
         auto allocSizeHints() noexcept {
             return XAllocSizeHints();
+        }
+
+        auto keycodeToKeysym(KeyCode keycode, unsigned int group = 0, unsigned int level = 0) noexcept {
+            return XkbKeycodeToKeysym(_display, keycode, group, level);
         }
 
 

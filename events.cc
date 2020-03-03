@@ -101,7 +101,7 @@ static void handle_key_press(XKeyEvent *e)
     auto& taskbar = Taskbar::instance();
     auto& clients = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
-	KeySym key = XKeycodeToKeysym(dm.getDisplay(), e->keycode, 0);
+    auto key = dm.keycodeToKeysym(e->keycode);
 	switch (key) {
 		case KEY_CYCLEPREV:
             taskbar.cyclePrevious();
