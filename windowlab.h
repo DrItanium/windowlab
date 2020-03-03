@@ -22,8 +22,8 @@
 #ifndef WINDOWLAB_H
 #define WINDOWLAB_H
 
-#define VERSION "1.40"
-#define RELEASEDATE "2010-04-04"
+#define VERSION "140.17"
+#define RELEASEDATE "2020-03-03"
 
 #include <cerrno>
 #include <climits>
