@@ -684,6 +684,7 @@ class ClientTracker final {
         ClientPointer _focusedClient;
         ClientPointer _topmostClient;
         ClientPointer _fullscreenClient;
+        unsigned int _focusCount = 0;
 
 };
 class Taskbar final {
@@ -714,7 +715,6 @@ class Taskbar final {
 };
 
 extern bool in_taskbar, showing_taskbar;
-extern unsigned int focus_count;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
 extern XftFont *xftfont;

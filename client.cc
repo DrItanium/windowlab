@@ -255,9 +255,9 @@ ClientTracker::checkFocus(ClientPointer c) {
 	if (c != _focusedClient) {
 		ClientPointer old_focused = _focusedClient;
 		_focusedClient = c;
-		focus_count++;
+        ++_focusCount;
 		if (c) {
-            c->setFocusOrder(focus_count);
+            c->setFocusOrder(_focusCount);
             c->redraw();
 		}
 		if (old_focused) {
