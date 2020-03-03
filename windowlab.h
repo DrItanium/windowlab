@@ -725,7 +725,7 @@ class Taskbar final {
         bool _inside = false;
 };
 
-extern Rect fs_prevdims;
+extern Rect fullscreenPreviousDimensions;
 extern XFontStruct *font;
 extern XftFont *xftfont;
 extern XftColor xft_detail;

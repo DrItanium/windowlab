@@ -31,7 +31,7 @@ GC string_gc, border_gc, text_gc, active_gc, depressed_gc, inactive_gc, menu_gc,
 XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, selected_col, empty_col;
 Cursor resize_curs;
 Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
-Rect fs_prevdims;
+Rect fullscreenPreviousDimensions;
 std::string opt_font = DEF_FONT;
 std::string opt_border = DEF_BORDER;
 std::string opt_text = DEF_TEXT;
