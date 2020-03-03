@@ -438,22 +438,22 @@ static void handle_property_change(XPropertyEvent *e) {
 
 static void handle_enter_event(XCrossingEvent *e) {
 	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
-		in_taskbar = true;
-		if (!showing_taskbar) {
-			showing_taskbar = true;
+        taskbar.setInsideTaskbar(true);
+		if (!taskbar.showingTaskbar()) {
+            taskbar.setShowingTaskbar(true);
             taskbar.redraw();
 		}
 	} else {
         auto& ctracker = ClientTracker::instance();
-		in_taskbar = false;
+        taskbar.setInsideTaskbar(false);
         if (ctracker.hasFullscreenClient()) {
-			if (showing_taskbar) {
-				showing_taskbar = false;
+            if (taskbar.showingTaskbar()) {
+                taskbar.setShowingTaskbar(false);
                 taskbar.redraw();
 			}
 		} else { // no fullscreen client
-			if (!showing_taskbar) {
-				showing_taskbar = true;
+			if (!taskbar.showingTaskbar()) {
+                taskbar.setShowingTaskbar(true);
                 taskbar.redraw();
 			}
 		}

@@ -32,7 +32,6 @@ XColor border_col, text_col, active_col, depressed_col, inactive_col, menu_col, 
 Cursor resize_curs;
 Atom wm_state, wm_change_state, wm_protos, wm_delete, wm_cmapwins;
 bool in_taskbar = false; // actually, we don't know yet
-bool showing_taskbar = true;
 Rect fs_prevdims;
 std::string opt_font = DEF_FONT;
 std::string opt_border = DEF_BORDER;

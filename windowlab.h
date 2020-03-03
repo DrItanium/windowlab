@@ -708,13 +708,19 @@ class Taskbar final {
 
     public:
         void make() noexcept;
+        constexpr bool showingTaskbar() const noexcept { return _showing; }
+        constexpr bool insideTaskbar() const noexcept { return _inside; }
+        void setShowingTaskbar(bool value) noexcept { _showing = value; }
+        void setInsideTaskbar(bool value) noexcept { _inside = value; }
     private:
         bool _made = false;
         Window _taskbar;
         XftDraw* _tbxftdraw = nullptr;
+        bool _showing = true;
+        bool _inside = false;
 };
 
-extern bool in_taskbar, showing_taskbar;
+extern bool in_taskbar;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
 extern XftFont *xftfont;

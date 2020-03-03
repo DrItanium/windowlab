@@ -234,7 +234,7 @@ Taskbar::redraw() {
     auto& dm = DisplayManager::instance();
     dm.clearWindow(_taskbar);
 
-	if (showing_taskbar == 0) {
+    if (!_showing) {
 		return;
 	}
 
