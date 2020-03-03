@@ -290,10 +290,11 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 	XWindowChanges wc;
 
 	if (ctracker.hasFullscreenClient() && c == ctracker.getFullscreenClient()) {
-        fullscreenPreviousDimensions.setX(e->x, [e](int) { return e->value_mask & CWX; });
-        fullscreenPreviousDimensions.setY(e->y, [e](int) { return e->value_mask & CWY; });
-        fullscreenPreviousDimensions.setWidth(e->width, [e](int) { return e->value_mask & CWWidth; });
-        fullscreenPreviousDimensions.setHeight(e->height, [e](int) { return e->value_mask & CWHeight; });
+        ctracker.setFullscreenPreviousDimensions(
+                e->x, [e](int) { return e->value_mask & CWX; },
+                e->y, [e](int) { return e->value_mask & CWY; },
+                e->width, [e](int) { return e->value_mask & CWWidth; },
+                e->height, [e](int) { return e->value_mask & CWHeight; });
 		return;
 	}
 

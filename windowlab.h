@@ -671,6 +671,21 @@ class ClientTracker final {
         void setTopmostClient(ClientPointer p) noexcept { _topmostClient = p; }
         bool hasTopmostClient() const noexcept { return static_cast<bool>(_topmostClient); }
         void dump();
+        constexpr const Rect& getFullscreenPreviousDimensions() const noexcept { return _fullscreenPreviousDimensions; }
+        void setFullscreenPreviousDimensions(
+                int x, std::function<bool(int)> xcond,
+                int y, std::function<bool(int)> ycond,
+                int width, std::function<bool(int)> wcond,
+                int height, std::function<bool(int)> hcond) {
+            _fullscreenPreviousDimensions.setX(x, xcond);
+            _fullscreenPreviousDimensions.setY(y, ycond);
+            _fullscreenPreviousDimensions.setWidth(width, wcond);
+            _fullscreenPreviousDimensions.setHeight(height, hcond);
+        }
+        void setFullscreenPreviousDimensions(const Rect& other) noexcept {
+            _fullscreenPreviousDimensions = other;
+        }
+
     public:
         ClientTracker(const ClientTracker&) = delete;
         ClientTracker(ClientTracker&&) = delete;
@@ -689,6 +704,7 @@ class ClientTracker final {
         ClientPointer _focusedClient;
         ClientPointer _topmostClient;
         ClientPointer _fullscreenClient;
+        Rect _fullscreenPreviousDimensions;
         unsigned int _focusCount = 0;
 
 };
@@ -725,7 +741,6 @@ class Taskbar final {
         bool _inside = false;
 };
 
-extern Rect fullscreenPreviousDimensions;
 extern XFontStruct *font;
 extern XftFont *xftfont;
 extern XftColor xft_detail;
