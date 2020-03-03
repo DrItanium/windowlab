@@ -284,11 +284,19 @@ void
 Client::drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept {
     DisplayManager::instance().drawLine(_frame, gc, x1, y1, x2, y2);
 }
+void 
+Client::drawRectangle(GC gc, int x, int y, unsigned int width, unsigned int height) noexcept {
+    DisplayManager::instance().drawRectangle(_frame, gc, x, y, width, height);
+}
+void 
+Client::fillRectangle(GC gc, int x, int y, unsigned int width, unsigned int height) noexcept {
+    DisplayManager::instance().fillRectangle(_frame, gc, x, y, width, height);
+}
 void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
 	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-    DisplayManager::instance().fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+    fillRectangle(*background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
 
 	drawLine(detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
@@ -304,30 +312,28 @@ Client::drawHideButton(GC* detail, GC* background) noexcept {
 
 void
 Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
-    auto& dm = DisplayManager::instance();
 	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
-	int topleft_offset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-    dm.fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	int topleftOffset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
+    fillRectangle(*background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	dm.drawRectangle(_frame, *detail, x + topleft_offset, topleft_offset, 7, 7);
-	dm.drawRectangle(_frame, *detail, x + topleft_offset + 3, topleft_offset + 3, 7, 7);
+	drawRectangle(*detail, x + topleftOffset, topleftOffset, 7, 7);
+	drawRectangle(*detail, x + topleftOffset + 3, topleftOffset + 3, 7, 7);
 }
 
 
 void
 Client::drawCloseButton(GC* detail, GC* background) noexcept {
-    auto& dm = DisplayManager::instance();
 	int x = _width - (BARHEIGHT() - DEF_BORDERWIDTH);
-	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	dm.fillRectangle(_frame, *background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	int topleftOffset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
+	fillRectangle(*background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
 
-	drawLine(detail, x + topleft_offset + 1, topleft_offset, x + topleft_offset + 8, topleft_offset + 7);
-	drawLine(detail, x + topleft_offset + 1, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 7);
-	drawLine(detail, x + topleft_offset, topleft_offset + 1, x + topleft_offset + 7, topleft_offset + 8);
+	drawLine(detail, x + topleftOffset + 1, topleftOffset,     x + topleftOffset + 8, topleftOffset + 7);
+	drawLine(detail, x + topleftOffset + 1, topleftOffset + 1, x + topleftOffset + 7, topleftOffset + 7);
+	drawLine(detail, x + topleftOffset,     topleftOffset + 1, x + topleftOffset + 7, topleftOffset + 8);
 
-	drawLine(detail, x + topleft_offset, topleft_offset + 7, x + topleft_offset + 7, topleft_offset);
-	drawLine(detail, x + topleft_offset + 1, topleft_offset + 7, x + topleft_offset + 7, topleft_offset + 1);
-	drawLine(detail, x + topleft_offset + 1, topleft_offset + 8, x + topleft_offset + 8, topleft_offset + 1);
+	drawLine(detail, x + topleftOffset,     topleftOffset + 7, x + topleftOffset + 7, topleftOffset);
+	drawLine(detail, x + topleftOffset + 1, topleftOffset + 7, x + topleftOffset + 7, topleftOffset + 1);
+	drawLine(detail, x + topleftOffset + 1, topleftOffset + 8, x + topleftOffset + 8, topleftOffset + 1);
 }
 
 void

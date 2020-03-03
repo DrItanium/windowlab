@@ -517,13 +517,13 @@ static void handle_shape_change(XShapeEvent *e) {
  * return zero. */
 
 static int interruptible_XNextEvent(XEvent *event) {
-	fd_set fds;
     auto& dm = DisplayManager::instance();
     for (int dsply_fd = dm.connectionNumber();;) {
         if (dm.pending()) {
             dm.nextEvent(event);
 			return 1;
 		}
+        fd_set fds;
 		FD_ZERO(&fds);
 		FD_SET(dsply_fd, &fds);
 		if (int rc = select(dsply_fd + 1, &fds, nullptr, nullptr, nullptr); rc < 0) {

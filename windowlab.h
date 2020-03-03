@@ -217,6 +217,8 @@ struct Client {
         Client(Window w) noexcept : _window(w) { };
         void initPosition() noexcept;
         void drawLine(GC gc, int x1, int y1, int x2, int y2) noexcept;
+        void drawRectangle(GC gc, int x, int y, unsigned int width, unsigned int height) noexcept;
+        void fillRectangle(GC gc, int x, int y, unsigned int width, unsigned int height) noexcept;
         inline void drawLine(GC* gc, int x1, int y1, int x2, int y2) noexcept { drawLine(*gc, x1, y1, x2, y2); }
     private:
         Window _window;
