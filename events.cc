@@ -437,7 +437,6 @@ static void handle_property_change(XPropertyEvent *e) {
  * the third hand, is *not* X's default. */
 
 static void handle_enter_event(XCrossingEvent *e) {
-    auto& ctracker = ClientTracker::instance();
 	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
 		in_taskbar = true;
 		if (!showing_taskbar) {
@@ -445,6 +444,7 @@ static void handle_enter_event(XCrossingEvent *e) {
             taskbar.redraw();
 		}
 	} else {
+        auto& ctracker = ClientTracker::instance();
 		in_taskbar = false;
         if (ctracker.hasFullscreenClient()) {
 			if (showing_taskbar) {
