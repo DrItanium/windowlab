@@ -51,34 +51,37 @@ static void scanWindows(void);
 static void setup_display(void);
 
 int main(int argc, char **argv) {
-	int i;
-	struct sigaction act;
-
-#define OPT_STR(name, variable)	 \
-	if (strcmp(argv[i], name) == 0 && i + 1 < argc) { \
+	for (int i = 1; i < argc; i++) {
+        std::string currArg(argv[i]);
+#define X(name, variable)	 \
+    if (currArg == name && (i + 1 < argc)) { \
 		variable = argv[++i]; \
 		continue; \
 	}
-
-	for (i = 1; i < argc; i++) {
-		OPT_STR("-font", opt_font)
-		OPT_STR("-border", opt_border)
-		OPT_STR("-text", opt_text)
-		OPT_STR("-active", opt_active)
-		OPT_STR("-inactive", opt_inactive)
-		OPT_STR("-menu", opt_menu)
-		OPT_STR("-selected", opt_selected)
-		OPT_STR("-empty", opt_empty)
-		OPT_STR("-display", opt_display)
-		if (strcmp(argv[i], "-about") == 0) {
-			printf("WindowLab " VERSION " (" RELEASEDATE "), Copyright (c) 2001-2009 Nick Gravgaard\nWindowLab comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; view the LICENCE file for details.\n");
+		X("-font", opt_font)
+		X("-border", opt_border)
+		X("-text", opt_text)
+		X("-active", opt_active)
+		X("-inactive", opt_inactive)
+		X("-menu", opt_menu)
+		X("-selected", opt_selected)
+		X("-empty", opt_empty)
+		X("-display", opt_display)
+#undef X
+        if (currArg == "-about") {
+            std::cout << "WindowLab17 " << VERSION << "(" << RELEASEDATE << ")" << std::endl;;
+            std::cout << "WindowLab Original Code, Copyright (c) 2001-2009 Nick Gravgaard" << std::endl;
+            std::cout << "WindowLab17, Copyright (c) 2020 Joshua Scoggins" << std::endl;
+            std::cout << "WindowLab17 comes with ABSOLUTELY NO WARRANTY." << std::endl;
+            std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;
+            std::cout << "under certain conditions; view the LICENCE file for details." << std::endl;
 			exit(0);
-		}
+        }
 		// shouldn't get here; must be a bad option
 		err("usage:\n  windowlab [options]\n\noptions are:\n  -font <font>\n  -border|-text|-active|-inactive|-menu|-selected|-empty <color>\n  -about\n  -display <display>");
 		return 2;
 	}
-
+    struct sigaction act;
 	act.sa_handler = sig_handler;
 	act.sa_flags = 0;
 	sigaction(SIGTERM, &act, nullptr);
@@ -92,7 +95,7 @@ int main(int argc, char **argv) {
     Taskbar::instance().make();
 	scanWindows();
 	doEventLoop();
-	return 1; // just another brick in the -Wall
+	return 0; // just another brick in the -Wall
 }
 
 static void
