@@ -720,7 +720,6 @@ class Taskbar final {
         bool _inside = false;
 };
 
-extern bool in_taskbar;
 extern Rect fs_prevdims;
 extern XFontStruct *font;
 extern XftFont *xftfont;
