@@ -72,7 +72,7 @@ void forkExec(const std::string& cmd) {
 	}
 }
 
-void sig_handler(int signal)
+void signalHandler(int signal)
 {
 	pid_t pid;
 	int status;
@@ -98,9 +98,9 @@ void sig_handler(int signal)
 	}
 }
 
-int handle_xerror(Display *dsply, XErrorEvent *e)
+int handleXError(Display *dsply, XErrorEvent *e)
 {
-	ClientPointer c = ClientTracker::instance().find(e->resourceid, WINDOW);
+	auto c = ClientTracker::instance().find(e->resourceid, WINDOW);
 
 	if (e->error_code == BadAccess && e->resourceid == DisplayManager::instance().getRoot()) {
 		err("root window unavailable (maybe another wm is running?)");
@@ -117,16 +117,10 @@ int handle_xerror(Display *dsply, XErrorEvent *e)
 	return 0;
 }
 
-/* Ick. Argh. You didn't see this function. */
-
-int ignore_xerror(Display * /*dsply*/, XErrorEvent* /*e*/)
-{
-	return 0;
-}
 
 /* Currently, only send_wm_delete uses this one... */
 
-int send_xmessage(Window w, Atom a, long x)
+int sendXMessage(Window w, Atom a, long x)
 {
 	XClientMessageEvent e;
 

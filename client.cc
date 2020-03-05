@@ -108,6 +108,7 @@ Client::removeFromView() noexcept {
     dm.destroyWindow(_frame);
 }
 
+
 /* After pulling my hair out trying to find some way to tell if a
  * window is still valid, I've decided to instead carefully ignore any
  * errors raised by this function. We know that the X calls are, and
@@ -122,7 +123,9 @@ void
 ClientTracker::remove(ClientPointer c, int mode) {
     auto& dm = DisplayManager::instance();
     dm.grabServer();
-    dm.setErrorHandler(ignore_xerror);
+
+    // temporarily disable error handling
+    dm.setErrorHandler([](Display*, XErrorEvent*) { return 0; });
 
     if constexpr (debugActive()) {
         err("removing ", (c->getName() ? *c->getName(): ""), ", ", mode, ": ", DisplayManager::instance().getPending(), " left");
@@ -144,7 +147,8 @@ ClientTracker::remove(ClientPointer c, int mode) {
 	}
 
     dm.sync(False);
-    dm.setErrorHandler(handle_xerror);
+    // okay phew, reactivate it
+    dm.setErrorHandler(handleXError);
     dm.ungrabServer();
 
     Taskbar::performRedraw();

@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 		return 2;
 	}
     struct sigaction act;
-	act.sa_handler = sig_handler;
+	act.sa_handler = signalHandler;
 	act.sa_flags = 0;
 	sigaction(SIGTERM, &act, nullptr);
 	sigaction(SIGINT, &act, nullptr);
@@ -135,7 +135,7 @@ static void setup_display() {
     // do the initial setup after this point
     auto& dm = DisplayManager::instance();
 
-    dm.setErrorHandler(handle_xerror);
+    dm.setErrorHandler(handleXError);
 	wm_state = dm.internAtom("WM_STATE", False);
 	wm_change_state = dm.internAtom("WM_CHANGE_STATE", False);
 	wm_protos = dm.internAtom("WM_PROTOCOLS", False);

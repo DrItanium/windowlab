@@ -771,10 +771,9 @@ void printToStderr(Args&& ... parts) noexcept {
 std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
 std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
 
-void sig_handler(int);
-int handle_xerror(Display *, XErrorEvent *);
-int ignore_xerror(Display *, XErrorEvent *);
-int send_xmessage(Window, Atom, long);
+void signalHandler(int);
+int handleXError(Display *, XErrorEvent *);
+int sendXMessage(Window, Atom, long);
 void showEvent(XEvent);
 void dumpClients();
 
