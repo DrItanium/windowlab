@@ -685,6 +685,7 @@ class ClientTracker final {
         void setFullscreenPreviousDimensions(const Rect& other) noexcept {
             _fullscreenPreviousDimensions = other;
         }
+        void toggleFullscreen() noexcept;
 
     public:
         ClientTracker(const ClientTracker&) = delete;
@@ -752,9 +753,6 @@ extern int shape, shape_event;
 
 // events.c
 void doEventLoop();
-
-// manage.c
-void toggle_fullscreen(ClientPointer);
 
 // misc.c
 template<typename ... Args>

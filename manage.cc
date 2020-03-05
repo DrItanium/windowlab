@@ -69,31 +69,31 @@ Client::unhide() noexcept {
 
 
 void 
-toggle_fullscreen(ClientPointer c) {
-    auto& ctracker = ClientTracker::instance();
+ClientTracker::toggleFullscreen() noexcept {
+    auto c = getFocusedClient();
     auto& dm = DisplayManager::instance();
     auto& tbar = Taskbar::instance();
 	if (c  && !c->getTrans()) {
-        if (c == ctracker.getFullscreenClient()) { // reset to original size
-            c->setDimensions(ctracker.getFullscreenPreviousDimensions());
+        if (c == getFullscreenClient()) { // reset to original size
+            c->setDimensions(getFullscreenPreviousDimensions());
             dm.moveResizeWindow(c->getFrame(), c->getX(), c->getY() - BARHEIGHT(), c->getWidth(), c->getHeight() + BARHEIGHT());
             dm.moveResizeWindow(c->getWidth(), 0, BARHEIGHT(), c->getWidth(), c->getHeight());
             c->sendConfig();
-            ctracker.setFullscreenClient(nullptr);
+            setFullscreenClient(nullptr);
             tbar.setShowingTaskbar(true);
 		} else { // make fullscreen
 			int xoffset = 0;
             int yoffset = 0;
             int maxwinwidth = dm.getWidth();
             int maxwinheight = dm.getHeight() - BARHEIGHT();
-			if (ctracker.hasFullscreenClient()) { // reset existing fullscreen window to original size
-                ctracker.getFullscreenClient()->setDimensions(ctracker.getFullscreenPreviousDimensions());
-				dm.moveResizeWindow(ctracker.getFullscreenClient()->getFrame(), ctracker.getFullscreenClient()->getX(), ctracker.getFullscreenClient()->getY() - BARHEIGHT(), ctracker.getFullscreenClient()->getWidth(), ctracker.getFullscreenClient()->getHeight()+ BARHEIGHT());
-				dm.moveResizeWindow(ctracker.getFullscreenClient()->getWindow(), 0, BARHEIGHT(), ctracker.getFullscreenClient()->getWidth(), ctracker.getFullscreenClient()->getHeight());
-                ctracker.getFullscreenClient()->sendConfig();
+			if (hasFullscreenClient()) { // reset existing fullscreen window to original size
+                getFullscreenClient()->setDimensions(getFullscreenPreviousDimensions());
+				dm.moveResizeWindow(getFullscreenClient()->getFrame(), getFullscreenClient()->getX(), getFullscreenClient()->getY() - BARHEIGHT(), getFullscreenClient()->getWidth(), getFullscreenClient()->getHeight()+ BARHEIGHT());
+				dm.moveResizeWindow(getFullscreenClient()->getWindow(), 0, BARHEIGHT(), getFullscreenClient()->getWidth(), getFullscreenClient()->getHeight());
+                getFullscreenClient()->sendConfig();
 			}
 
-            ctracker.setFullscreenPreviousDimensions(c->getRect());
+            setFullscreenPreviousDimensions(c->getRect());
             c->setDimensions(0 - BORDERWIDTH(), (BARHEIGHT() - BORDERWIDTH()), (maxwinwidth), maxwinheight);
 			if (c->getSize()->flags & PMaxSize || c->getSize()->flags & PResizeInc) {
 				if (c->getSize()->flags & PResizeInc) {
@@ -112,7 +112,7 @@ toggle_fullscreen(ClientPointer c) {
 			dm.moveResizeWindow(c->getFrame(), c->getX(), c->getY(), maxwinwidth, maxwinheight);
 			dm.moveResizeWindow(c->getWindow(), xoffset, yoffset, c->getWidth(), c->getHeight());
             c->sendConfig();
-            ctracker.setFullscreenClient(c);
+            setFullscreenClient(c);
             tbar.setShowingTaskbar(tbar.insideTaskbar());
 		}
         Taskbar::performRedraw();

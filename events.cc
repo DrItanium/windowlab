@@ -110,7 +110,7 @@ static void handle_key_press(XKeyEvent *e)
             taskbar.cycleNext();
 			break;
 		case KEY_FULLSCREEN:
-			toggle_fullscreen(clients.getFocusedClient());
+            clients.toggleFullscreen();
 			break;
 		case KEY_TOGGLEZ:
             clients.getFocusedClient()->raiseLower();
