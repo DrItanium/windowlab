@@ -100,19 +100,20 @@ void signalHandler(int signal)
 
 int handleXError(Display *dsply, XErrorEvent *e)
 {
-	auto c = ClientTracker::instance().find(e->resourceid, WINDOW);
+    auto& clients = ClientTracker::instance();
+	auto c = clients.find(e->resourceid, WINDOW);
 
 	if (e->error_code == BadAccess && e->resourceid == DisplayManager::instance().getRoot()) {
 		err("root window unavailable (maybe another wm is running?)");
 		exit(1);
 	} else {
-		char msg[255];
+		char msg[255] = { 0 };
 		XGetErrorText(dsply, e->error_code, msg, sizeof msg);
         err("X error (", e->resourceid, "): ", msg);
 	}
 
 	if (c) {
-        ClientTracker::instance().remove(c, WITHDRAW);
+        clients.remove(c, WITHDRAW);
 	}
 	return 0;
 }
