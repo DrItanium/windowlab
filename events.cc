@@ -44,15 +44,15 @@ static int interruptibleXNextEvent(XEvent *event);
 void doEventLoop()
 {
 	XEvent ev;
-
+    auto& menu = Menu::instance();
 	for (;;) {
 		interruptibleXNextEvent(&ev);
         if constexpr (debugActive()) {
             showEvent(ev);
         }
 		/* check to see if menu rebuild has been requested */
-        if (Menu::instance().shouldRepopulate()) {
-            Menu::instance().populate();
+        if (menu.shouldRepopulate()) {
+            menu.populate();
         }
 		switch (ev.type) {
 			case KeyPress:
