@@ -34,7 +34,7 @@ static void handle_property_change(XPropertyEvent *);
 static void handle_enter_event(XCrossingEvent *);
 static void handle_colormap_change(XColormapEvent *);
 static void handle_expose_event(XExposeEvent *);
-static void handleShapeChange(XShapeEvent *);
+static void handleShapeChange(XShapeEvent&);
 
 static int interruptibleXNextEvent(XEvent *event);
 
@@ -90,7 +90,7 @@ void doEventLoop()
 				break;
 			default:
 				if (shape && ev.type == shape_event) {
-					handleShapeChange((XShapeEvent *)&ev);
+					handleShapeChange((XShapeEvent&)ev);
 				}
 		}
 	}
@@ -499,8 +499,8 @@ static void handle_expose_event(XExposeEvent *e) {
 	}
 }
 
-static void handleShapeChange(XShapeEvent *e) {
-	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
+static void handleShapeChange(XShapeEvent& e) {
+	if (ClientPointer c = ClientTracker::instance().find(e.window, WINDOW); c) {
         c->setShape();
 	}
 }
