@@ -22,9 +22,9 @@
 #include <X11/Xatom.h>
 #include "windowlab.h"
 
-static void handle_key_press(XKeyEvent *);
-static void handle_button_press(XButtonEvent *);
-static void handle_windowbar_click(XButtonEvent *, ClientPointer );
+static void handleKeyPress(XKeyEvent&);
+static void handleButtonPress(XButtonEvent&);
+static void handleWindowbarClick(XButtonEvent&, ClientPointer );
 static void handle_configure_request(XConfigureRequestEvent *);
 static void handle_map_request(XMapRequestEvent *);
 static void handle_unmap_event(XUnmapEvent *);
@@ -34,9 +34,9 @@ static void handle_property_change(XPropertyEvent *);
 static void handle_enter_event(XCrossingEvent *);
 static void handle_colormap_change(XColormapEvent *);
 static void handle_expose_event(XExposeEvent *);
-static void handle_shape_change(XShapeEvent *);
+static void handleShapeChange(XShapeEvent *);
 
-static int interruptible_XNextEvent(XEvent *event);
+static int interruptibleXNextEvent(XEvent *event);
 
 /* We may want to put in some sort of check for unknown events at some
  * point. TWM has an interesting and different way of doing this... */
@@ -46,7 +46,7 @@ void doEventLoop()
 	XEvent ev;
 
 	for (;;) {
-		interruptible_XNextEvent(&ev);
+		interruptibleXNextEvent(&ev);
         if constexpr (debugActive()) {
             showEvent(ev);
         }
@@ -56,10 +56,10 @@ void doEventLoop()
         }
 		switch (ev.type) {
 			case KeyPress:
-				handle_key_press(&ev.xkey);
+				handleKeyPress(ev.xkey);
 				break;
 			case ButtonPress:
-				handle_button_press(&ev.xbutton);
+				handleButtonPress(ev.xbutton);
 				break;
 			case ConfigureRequest:
 				handle_configure_request(&ev.xconfigurerequest);
@@ -90,18 +90,18 @@ void doEventLoop()
 				break;
 			default:
 				if (shape && ev.type == shape_event) {
-					handle_shape_change((XShapeEvent *)&ev);
+					handleShapeChange((XShapeEvent *)&ev);
 				}
 		}
 	}
 }
 
-static void handle_key_press(XKeyEvent *e)
+static void handleKeyPress(XKeyEvent& e)
 {
     auto& taskbar = Taskbar::instance();
     auto& clients = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
-    auto key = dm.keycodeToKeysym(e->keycode);
+    auto key = dm.keycodeToKeysym(e.keycode);
 	switch (key) {
 		case KEY_CYCLEPREV:
             taskbar.cyclePrevious();
@@ -123,32 +123,32 @@ static void handle_key_press(XKeyEvent *e)
  * on a client window, it may still fall through to us if the client
  * doesn't select for mouse-click events. */
 
-static void handle_button_press(XButtonEvent *e)
+static void handleButtonPress(XButtonEvent& e)
 {
     auto& taskbar = Taskbar::instance();
     auto& clients = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
-	if (e->state & MODIFIER) {
+	if (e.state & MODIFIER) {
 		if (clients.hasFocusedClient() && clients.getFocusedClient() != clients.getFullscreenClient()) {
-            clients.getFocusedClient()->resize(e->x_root, e->y_root);
+            clients.getFocusedClient()->resize(e.x_root, e.y_root);
 		} else {
 			// pass event on
             dm.allowEvents(ReplayPointer, CurrentTime);
 		}
-	} else if (e->window == dm.getRoot()) {
+	} else if (e.window == dm.getRoot()) {
         if constexpr (debugActive()) {
             clients.dump();
         }
-		if (e->button == Button3) {
+		if (e.button == Button3) {
             taskbar.rightClickRoot();
 		}
-	} else if (e->window == taskbar.getWindow()) {
-		switch (e->button) {
+	} else if (e.window == taskbar.getWindow()) {
+		switch (e.button) {
 			case Button1: // left mouse button
-                taskbar.leftClick(e->x);
+                taskbar.leftClick(e.x);
 				break;
 			case Button3: // right mouse button
-                taskbar.rightClick(e->x);
+                taskbar.rightClick(e.x);
 				break;
 			case Button4: // mouse wheel up
                 taskbar.cyclePrevious();
@@ -160,29 +160,29 @@ static void handle_button_press(XButtonEvent *e)
 	} else {
 		// pass event on
         dm.allowEvents(ReplayPointer, CurrentTime);
-		if (e->button == Button1) {
-			ClientPointer c = clients.find(e->window, FRAME);
+		if (e.button == Button1) {
+			ClientPointer c = clients.find(e.window, FRAME);
 			if (c) {
 				// click-to-focus
                 clients.checkFocus(c);
-                if (e->y < BARHEIGHT() && c != clients.getFullscreenClient()) {
-                    handle_windowbar_click(e, c);
+                if (e.y < BARHEIGHT() && c != clients.getFullscreenClient()) {
+                    handleWindowbarClick(e, c);
                 }
 			}
-		} else if (e->button == Button3) {
+		} else if (e.button == Button3) {
             taskbar.rightClickRoot();
 		}
 	}
 }
 
-static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
+static void handleWindowbarClick(XButtonEvent& e, ClientPointer c)
 {
 	static ClientPointer  first_click_c;
 	static Time first_click_time;
 	XEvent ev;
     auto& dm = DisplayManager::instance();
 
-    if (unsigned int in_box_down = c->boxClicked(e->x); in_box_down <= 2) {
+    if (unsigned int in_box_down = c->boxClicked(e.x); in_box_down <= 2) {
 		if (!dm.grab(MouseMask, None)) {
 			return;
 		}
@@ -228,7 +228,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
             }
 		}
 	} else if (in_box_down != UINT_MAX) {
-		if (first_click_c == c && (e->time - first_click_time) < DEF_DBLCLKTIME) {
+		if (first_click_c == c && (e.time - first_click_time) < DEF_DBLCLKTIME) {
             if (c) {
                 c->raiseLower();
             }
@@ -236,7 +236,7 @@ static void handle_windowbar_click(XButtonEvent *e, ClientPointer c)
 		} else {
 			first_click_c = c;
 		}
-		first_click_time = e->time;
+		first_click_time = e.time;
         c->move();
 	}
 }
@@ -499,7 +499,7 @@ static void handle_expose_event(XExposeEvent *e) {
 	}
 }
 
-static void handle_shape_change(XShapeEvent *e) {
+static void handleShapeChange(XShapeEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
         c->setShape();
 	}
@@ -517,7 +517,7 @@ static void handle_shape_change(XShapeEvent *e) {
 /* Unlike XNextEvent, if a signal arrives, interruptibleXNextEvent will
  * return zero. */
 
-static int interruptible_XNextEvent(XEvent *event) {
+static int interruptibleXNextEvent(XEvent *event) {
     auto& dm = DisplayManager::instance();
     for (int dsply_fd = dm.connectionNumber();;) {
         if (dm.pending()) {
