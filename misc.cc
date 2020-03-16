@@ -113,7 +113,7 @@ int handleXError(Display *dsply, XErrorEvent *e)
 	}
 
 	if (c) {
-        clients.remove(c, WITHDRAW);
+        clients.withdraw(c);
 	}
 	return 0;
 }
@@ -185,7 +185,7 @@ Client::fixPosition() noexcept {
         _y = BARHEIGHT();
 	}
 
-	if (_x + _width + BORDERWIDTH() >= xmax) {
+	if (_x + _width + getBorderWidth() >= xmax) {
         _x = xmax - _width;
 	}
 	if (_y + _height + BARHEIGHT() >= ymax) {
@@ -196,14 +196,14 @@ Client::fixPosition() noexcept {
         printToStderr("fix_position(): client is (", _x, ", ", _y, ")-(", _x + _width, ", ", _y + _height, ")");
     }
 
-    _x -= BORDERWIDTH();
-    _y -= BORDERWIDTH();
+    _x -= getBorderWidth();
+    _y -= getBorderWidth();
 }
 
 void
 Client::refixPosition(XConfigureRequestEvent *e) {
-	Rect olddims { _x - BORDERWIDTH(),
-                   _y - BORDERWIDTH(),
+	Rect olddims { _x - getBorderWidth(),
+                   _y - getBorderWidth(),
                    _width,
                    _height };
 

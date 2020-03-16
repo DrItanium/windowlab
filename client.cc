@@ -224,25 +224,25 @@ Client::setShape() noexcept {
 	auto dummy = XShapeGetRectangles(dm.getDisplay(), _window, ShapeBounding, &n, &order);
 	if (n > 1) {
 		XShapeCombineShape(dm.getDisplay(), _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
-		temp.x = -BORDERWIDTH();
-		temp.y = -BORDERWIDTH();
-		temp.width = _width + (2 * BORDERWIDTH());
-		temp.height = BARHEIGHT() + BORDERWIDTH();
+		temp.x = -getBorderWidth();
+		temp.y = -getBorderWidth();
+		temp.width = _width + (2 * getBorderWidth());
+		temp.height = BARHEIGHT() + getBorderWidth();
 		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
         XRectangle temp2;
 		temp2.x = 0;
 		temp2.y = 0;
 		temp2.width = _width;
-		temp2.height = BARHEIGHT() - BORDERWIDTH();
+		temp2.height = BARHEIGHT() - getBorderWidth();
 		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
 		_hasBeenShaped = 1;
 	} else {
 		if (_hasBeenShaped) {
 			// I can't find a 'remove all shaping' function...
-			temp.x = -BORDERWIDTH();
-			temp.y = -BORDERWIDTH();
-			temp.width = _width + (2 * BORDERWIDTH());
-			temp.height = _height + BARHEIGHT() + (2 * BORDERWIDTH());
+			temp.x = -getBorderWidth();
+			temp.y = -getBorderWidth();
+			temp.width = _width + (2 * getBorderWidth());
+			temp.height = _height + BARHEIGHT() + (2 * getBorderWidth());
 			XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}

@@ -87,7 +87,7 @@ template<typename...>
 inline constexpr bool false_v = false;
 
 
-constexpr auto BORDERWIDTH() noexcept {
+constexpr auto getBorderWidth() noexcept {
     return DEF_BORDERWIDTH;
 }
 
@@ -116,6 +116,7 @@ constexpr auto WINDOW = 0;
 constexpr auto FRAME = 1;
 
 // modes for remove_client
+/// @todo redo this with tag dispatching
 constexpr auto WITHDRAW = 0;
 constexpr auto REMAP = 1;
 
@@ -660,6 +661,8 @@ class ClientTracker final {
          */
         bool accept(std::function<bool(ClientPointer)> fn);
         void remove(ClientPointer, int);
+        inline void withdraw(ClientPointer c) { remove(c, WITHDRAW); }
+        inline void remap(ClientPointer c) { remove(c, REMAP); }
         void checkFocus(ClientPointer c);
         auto getFocusedClient() const noexcept { return _focusedClient; }
         void setFocusedClient(ClientPointer p) noexcept { _focusedClient = p; }

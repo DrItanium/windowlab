@@ -375,7 +375,7 @@ static void handle_unmap_event(XUnmapEvent *e) {
         if (c->getIgnoreUnmap()) {
             c->decrementIgnoreUnmap();
 		} else {
-            ClientTracker::instance().remove(c, WITHDRAW);
+            ClientTracker::instance().withdraw(c);
 		}
 	}
 }
