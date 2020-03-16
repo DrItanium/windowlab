@@ -74,7 +74,7 @@ Client::forgetHidden() noexcept {
 }
 
 void 
-lclick_taskbutton(ClientPointer old_c, ClientPointer c) {
+leftClickTaskButton(ClientPointer old_c, ClientPointer c) {
 	if (old_c) {
 		if (old_c->wasHidden()) {
             old_c->hide();
@@ -120,7 +120,7 @@ Taskbar::leftClick(int x) {
 		auto button_clicked = (unsigned int)(x / buttonWidth);
         auto c = ctracker.at(button_clicked);
 
-		lclick_taskbutton(nullptr, c);
+		leftClickTaskButton(nullptr, c);
         XEvent ev;
 		do {
             dm.maskEvent(ExposureMask|MouseMask|KeyMask, ev);
@@ -137,7 +137,7 @@ Taskbar::leftClick(int x) {
                                        if (button_clicked != old_button_clicked) {
                                            auto old_c = c;
                                            c = ctracker.at(button_clicked);
-                                           lclick_taskbutton(old_c, c);
+                                           leftClickTaskButton(old_c, c);
                                        }
                                        break;
                                    }
@@ -340,7 +340,7 @@ Taskbar::cyclePrevious() {
             // otherwise we must go to the previous element
             c = *(--pos);
         }
-        lclick_taskbutton(nullptr, c);
+        leftClickTaskButton(nullptr, c);
     }
 }
 
@@ -359,6 +359,6 @@ Taskbar::cycleNext() {
             // we are looking at the end of the list so just default to the front as the "next"
             c = ctracker.front();
         }
-        lclick_taskbutton(nullptr, c);
+        leftClickTaskButton(nullptr, c);
 	}
 }
