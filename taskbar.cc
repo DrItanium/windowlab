@@ -117,7 +117,7 @@ Taskbar::leftClick(int x) {
 
         auto buttonWidth = getButtonWidth();
 
-		auto button_clicked = (unsigned int)(x / buttonWidth);
+		auto button_clicked = static_cast<unsigned int>(x / buttonWidth);
         auto c = ctracker.at(button_clicked);
 
 		leftClickTaskButton(nullptr, c);
@@ -133,7 +133,7 @@ Taskbar::leftClick(int x) {
                              }
 				case MotionNotify: {
                                        auto old_button_clicked = button_clicked;
-                                       button_clicked = (unsigned int)(ev.xmotion.x / buttonWidth);
+                                       button_clicked = static_cast<unsigned int>(ev.xmotion.x / buttonWidth);
                                        if (button_clicked != old_button_clicked) {
                                            auto old_c = c;
                                            c = ctracker.at(button_clicked);
@@ -324,12 +324,12 @@ Taskbar::drawMenuItem(unsigned int index, bool active) {
 float
 Taskbar::getButtonWidth() {
     auto& dm = DisplayManager::instance();
-    return ((float)(dm.getWidth() + DEF_BORDERWIDTH)) / ClientTracker::instance().size();
+    auto& clients = ClientTracker::instance();
+    return ((float)(dm.getWidth() + DEF_BORDERWIDTH)) / clients.size();
 }
 void 
 Taskbar::cyclePrevious() {
-    auto& ctracker = ClientTracker::instance();
-    if (ctracker.size() >= 2) { // at least 2 windows exist
+    if (auto& ctracker = ClientTracker::instance(); ctracker.size() >= 2) { // at least 2 windows exist
         ClientPointer c = ctracker.getFocusedClient();
         if (auto pos = ctracker.find(c); pos == ctracker.end() || pos == ctracker.begin()) {
             // we default to the front of the list and then go back one so it really is just list.back() if

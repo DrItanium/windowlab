@@ -40,7 +40,7 @@ std::string opt_menu = DEF_MENU;
 std::string opt_selected = DEF_SELECTED;
 std::string opt_empty = DEF_EMPTY;
 std::string opt_display;
-Bool shape;
+bool shape = false;
 int shape_event = 0;
 
 static void scanWindows(void);
