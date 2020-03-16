@@ -21,8 +21,46 @@
 
 #include "windowlab.h"
 
-static void limit_size(ClientPointer , Rect *);
-static bool get_incsize(ClientPointer , unsigned int *, unsigned int *, Rect *, int);
+static void limitSize(ClientPointer , Rect *);
+// modes to call get_incsize with
+//constexpr auto PIXELS = 0;
+//constexpr auto INCREMENTS = 1;
+class SizeByIncrements { };
+class SizeByPixels { };
+
+/* If the window in question has a ResizeInc int, then it wants to be
+ * resized in multiples of some (x,y). Here we set x_ret and y_ret to
+ * the number of multiples (if mode == INCREMENTS) or the correct size
+ * in pixels for said multiples (if mode == PIXELS). */
+template<typename T>
+static bool getIncSize(ClientPointer c, unsigned int *x_ret, unsigned int *y_ret, Rect *newdims, T) {
+	if (c->getSize()->flags & PResizeInc) {
+		auto basex = (c->getSize()->flags & PBaseSize) ? c->getSize()->base_width : (c->getSize()->flags & PMinSize) ? c->getSize()->min_width : 0;
+		auto basey = (c->getSize()->flags & PBaseSize) ? c->getSize()->base_height : (c->getSize()->flags & PMinSize) ? c->getSize()->min_height : 0;
+        using K = std::decay_t<T>;
+		// work around broken apps that set their resize increments to 0
+		if constexpr (auto nWidth= newdims->getWidth(), nHeight = newdims->getHeight(); std::is_same_v<K, SizeByPixels>) {
+			if (c->getSize()->width_inc != 0) {
+				*x_ret = nWidth - ((nWidth - basex) % c->getSize()->width_inc);
+			}
+			if (c->getSize()->height_inc != 0) {
+				*y_ret = nHeight - ((nHeight - basey) % c->getSize()->height_inc);
+			}
+		} else if constexpr (std::is_same_v<K, SizeByIncrements>) { 
+			if (c->getSize()->width_inc != 0) {
+				*x_ret = (nWidth - basex) / c->getSize()->width_inc;
+			}
+			if (c->getSize()->height_inc != 0) {
+				*y_ret = (nHeight - basey) / c->getSize()->height_inc;
+			}
+		} else {
+            static_assert(false_v<K>, "Illegal tag passed to getIncSize");
+        }
+		return true;
+	}
+	return false;
+
+}
 
 void 
 Client::raiseLower() noexcept {
@@ -98,7 +136,7 @@ ClientTracker::toggleFullscreen() noexcept {
 			if (c->getSize()->flags & PMaxSize || c->getSize()->flags & PResizeInc) {
 				if (c->getSize()->flags & PResizeInc) {
 					Rect maxwinsize { xoffset, yoffset, maxwinwidth, maxwinheight };
-					get_incsize(c, (unsigned int *)&c->getSize()->max_width, (unsigned int *)&c->getSize()->max_height, &maxwinsize, PIXELS);
+					getIncSize(c, (unsigned int *)&c->getSize()->max_width, (unsigned int *)&c->getSize()->max_height, &maxwinsize, SizeByPixels { });
 				}
 				if (c->getSize()->max_width < maxwinwidth) {
 					c->setWidth( c->getSize()->max_width);
@@ -322,7 +360,7 @@ Client::resize(int x, int y) {
                             recalceddims = newdims;
 							recalceddims.subtractFromHeight(getBarHeight());
 
-							if (get_incsize(sharedReference(), (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, PIXELS)) {
+							if (getIncSize(sharedReference(), (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, SizeByPixels { })) {
 								if (leftedge_changed) {
 									recalceddims.setX((recalceddims.getX() + recalceddims.getWidth()) - newwidth);
 									recalceddims.setWidth(newwidth);
@@ -339,7 +377,7 @@ Client::resize(int x, int y) {
 							}
 
                             recalceddims.addToHeight(getBarHeight());
-							limit_size(sharedReference(), &recalceddims);
+							limitSize(sharedReference(), &recalceddims);
 
                             dm.moveResizeWindow(resize_win, recalceddims);
                             dm.resizeWindow(resizebar_win, recalceddims.getWidth(), getBarHeight() - DEF_BORDERWIDTH);
@@ -371,7 +409,7 @@ Client::resize(int x, int y) {
     dm.destroyWindow(resize_win);
 }
 
-static void limit_size(ClientPointer c, Rect *newdims)
+static void limitSize(ClientPointer c, Rect *newdims)
 {
     auto [dw, dh] = DisplayManager::instance().getDimensions();
 
@@ -390,36 +428,6 @@ static void limit_size(ClientPointer c, Rect *newdims)
     newdims->setHeight((dh - getBarHeight()), [compare = (dh - getBarHeight())](int height) { return height > compare; });
 }
 
-/* If the window in question has a ResizeInc int, then it wants to be
- * resized in multiples of some (x,y). Here we set x_ret and y_ret to
- * the number of multiples (if mode == INCREMENTS) or the correct size
- * in pixels for said multiples (if mode == PIXELS). */
-
-static bool get_incsize(ClientPointer c, unsigned int *x_ret, unsigned int *y_ret, Rect *newdims, int mode)
-{
-	if (c->getSize()->flags & PResizeInc) {
-		auto basex = (c->getSize()->flags & PBaseSize) ? c->getSize()->base_width : (c->getSize()->flags & PMinSize) ? c->getSize()->min_width : 0;
-		auto basey = (c->getSize()->flags & PBaseSize) ? c->getSize()->base_height : (c->getSize()->flags & PMinSize) ? c->getSize()->min_height : 0;
-		// work around broken apps that set their resize increments to 0
-		if (auto nWidth= newdims->getWidth(), nHeight = newdims->getHeight(); mode == PIXELS) {
-			if (c->getSize()->width_inc != 0) {
-				*x_ret = nWidth - ((nWidth - basex) % c->getSize()->width_inc);
-			}
-			if (c->getSize()->height_inc != 0) {
-				*y_ret = nHeight - ((nHeight - basey) % c->getSize()->height_inc);
-			}
-		} else { // INCREMENTS
-			if (c->getSize()->width_inc != 0) {
-				*x_ret = (nWidth - basex) / c->getSize()->width_inc;
-			}
-			if (c->getSize()->height_inc != 0) {
-				*y_ret = (nHeight - basey) / c->getSize()->height_inc;
-			}
-		}
-		return true;
-	}
-	return false;
-}
 
 void 
 Client::writeTitleText(Window /* barWin */) noexcept {

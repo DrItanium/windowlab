@@ -107,9 +107,6 @@ inline auto getMinWinHeight() noexcept {
 constexpr auto APPLY_GRAVITY = 1;
 constexpr auto REMOVE_GRAVITY = -1;
 
-// modes to call get_incsize with
-constexpr auto PIXELS = 0;
-constexpr auto INCREMENTS = 1;
 
 // modes for find_client
 constexpr auto WINDOW = 0;
