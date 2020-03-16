@@ -43,8 +43,8 @@ std::string opt_display;
 bool shape = false;
 int shape_event = 0;
 
-static void scanWindows(void);
-static void setup_display(void);
+static void scanWindows();
+static void setupDisplay();
 
 int main(int argc, char **argv) {
 	for (int i = 1; i < argc; i++) {
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 	sigaction(SIGHUP, &act, nullptr);
 	sigaction(SIGCHLD, &act, nullptr);
 
-	setup_display();
+	setupDisplay();
     Menu::instance().populate();
     // exploit the side effects
     Taskbar::instance().make();
@@ -129,9 +129,8 @@ DisplayManager::instance() noexcept {
 
 
 
-static void setup_display() {
+static void setupDisplay() {
 	XSetWindowAttributes sattr;
-	int dummy;
     // do the initial setup after this point
     auto& dm = DisplayManager::instance();
 
@@ -169,7 +168,7 @@ static void setup_display() {
         err("font '", opt_font, "' not found");
 		exit(1);
 	}
-
+    int dummy;
 	shape = XShapeQueryExtension(dm.getDisplay(), &shape_event, &dummy);
 
 	resize_curs = XCreateFontCursor(dm.getDisplay(), XC_fleur);
@@ -181,7 +180,7 @@ static void setup_display() {
 			if (modmap->modifiermap[i * modmap->max_keypermod + j] == XKeysymToKeycode(dm.getDisplay(), XK_Num_Lock)) {
                 dm.setNumLockMask((1 << i));
                 if constexpr (debugActive()) {
-                    std::cerr << "setup_display() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
+                    std::cerr << "setupDisplay() : XK_Num_lock is (1<<0x" << i << ")" << std::endl;
                 }
 			}
 		}

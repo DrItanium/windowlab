@@ -25,15 +25,15 @@
 static void handleKeyPress(XKeyEvent&);
 static void handleButtonPress(XButtonEvent&);
 static void handleWindowbarClick(XButtonEvent&, ClientPointer );
-static void handle_configure_request(XConfigureRequestEvent *);
-static void handle_map_request(XMapRequestEvent *);
-static void handle_unmap_event(XUnmapEvent *);
-static void handle_destroy_event(XDestroyWindowEvent *);
-static void handle_client_message(XClientMessageEvent *);
-static void handle_property_change(XPropertyEvent *);
-static void handle_enter_event(XCrossingEvent *);
-static void handle_colormap_change(XColormapEvent *);
-static void handle_expose_event(XExposeEvent *);
+static void handleConfigureRequest(XConfigureRequestEvent *);
+static void handleMapRequest(XMapRequestEvent *);
+static void handleUnmapEvent(XUnmapEvent *);
+static void handleDestroyEvent(XDestroyWindowEvent *);
+static void handleClientMessage(XClientMessageEvent *);
+static void handlePropertyChange(XPropertyEvent *);
+static void handleEnterEvent(XCrossingEvent *);
+static void handleColormapChange(XColormapEvent *);
+static void handleExposeEvent(XExposeEvent *);
 static void handleShapeChange(XShapeEvent&);
 
 static int interruptibleXNextEvent(XEvent *event);
@@ -62,31 +62,31 @@ void doEventLoop()
 				handleButtonPress(ev.xbutton);
 				break;
 			case ConfigureRequest:
-				handle_configure_request(&ev.xconfigurerequest);
+				handleConfigureRequest(&ev.xconfigurerequest);
 				break;
 			case MapRequest:
-				handle_map_request(&ev.xmaprequest);
+				handleMapRequest(&ev.xmaprequest);
 				break;
 			case UnmapNotify:
-				handle_unmap_event(&ev.xunmap);
+				handleUnmapEvent(&ev.xunmap);
 				break;
 			case DestroyNotify:
-				handle_destroy_event(&ev.xdestroywindow);
+				handleDestroyEvent(&ev.xdestroywindow);
 				break;
 			case ClientMessage:
-				handle_client_message(&ev.xclient);
+				handleClientMessage(&ev.xclient);
 				break;
 			case ColormapNotify:
-				handle_colormap_change(&ev.xcolormap);
+				handleColormapChange(&ev.xcolormap);
 				break;
 			case PropertyNotify:
-				handle_property_change(&ev.xproperty);
+				handlePropertyChange(&ev.xproperty);
 				break;
 			case EnterNotify:
-				handle_enter_event(&ev.xcrossing);
+				handleEnterEvent(&ev.xcrossing);
 				break;
 			case Expose:
-				handle_expose_event(&ev.xexpose);
+				handleExposeEvent(&ev.xexpose);
 				break;
 			default:
 				if (shape && ev.type == shape_event) {
@@ -283,7 +283,7 @@ Client::drawButton(GC *detail_gc, GC *background_gc, unsigned int which_box) noe
  * are supposed to have been written so that they are aware that their
  * requirements may not be met by the window manager. */
 
-static void handle_configure_request(XConfigureRequestEvent *e) {
+static void handleConfigureRequest(XConfigureRequestEvent *e) {
     auto& ctracker = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
 	ClientPointer c = ctracker.find(e->window, WINDOW);
@@ -347,7 +347,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
  * list anywhere. The other is that it already exists and wants to
  * de-iconify, which is simple to take care of. */
 
-static void handle_map_request(XMapRequestEvent *e) {
+static void handleMapRequest(XMapRequestEvent *e) {
 	ClientPointer c = ClientTracker::instance().find(e->window, WINDOW);
 	if (c) {
         c->unhide();
@@ -370,7 +370,7 @@ static void handle_map_request(XMapRequestEvent *e) {
  * events should be intercepted too. No use arguing with a standard
  * that's almost as old as I am though. :-( */
 
-static void handle_unmap_event(XUnmapEvent *e) {
+static void handleUnmapEvent(XUnmapEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
         if (c->getIgnoreUnmap()) {
             c->decrementIgnoreUnmap();
@@ -384,7 +384,7 @@ static void handle_unmap_event(XUnmapEvent *e) {
  * Unmap event wouldn't happen in that case because the window is
  * already unmapped. */
 
-static void handle_destroy_event(XDestroyWindowEvent *e) {
+static void handleDestroyEvent(XDestroyWindowEvent *e) {
     auto& ct = ClientTracker::instance();
 	if (auto c = ct.find(e->window, WINDOW); c) {
         ct.remove(c, WITHDRAW);
@@ -395,7 +395,7 @@ static void handle_destroy_event(XDestroyWindowEvent *e) {
  * special kind of ClientMessage. We might set up other handlers here
  * but there's nothing else required by the ICCCM. */
 
-static void handle_client_message(XClientMessageEvent *e) {
+static void handleClientMessage(XClientMessageEvent *e) {
 	if (auto c = ClientTracker::instance().find(e->window, WINDOW); c && e->message_type == wm_change_state && e->format == 32 && e->data.l[0] == IconicState) {
         c->hide();
 	}
@@ -406,7 +406,7 @@ static void handle_client_message(XClientMessageEvent *e) {
  * immediately wipe out the old name and redraw; size hints only get
  * used when we need them. */
 
-static void handle_property_change(XPropertyEvent *e) {
+static void handlePropertyChange(XPropertyEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
         auto& dm = DisplayManager::instance();
 		switch (e->atom) {
@@ -437,7 +437,7 @@ static void handle_property_change(XPropertyEvent *e) {
  * We also implement a colormap-follows-mouse policy here. That, on
  * the third hand, is *not* X's default. */
 
-static void handle_enter_event(XCrossingEvent *e) {
+static void handleEnterEvent(XCrossingEvent *e) {
 	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
         taskbar.setInsideTaskbar(true);
 		if (!taskbar.showingTaskbar()) {
@@ -475,7 +475,7 @@ static void handle_enter_event(XCrossingEvent *e) {
  * by all means yell at me, but very few people have 8-bit displays
  * these days. */
 
-static void handle_colormap_change(XColormapEvent *e) {
+static void handleColormapChange(XColormapEvent *e) {
 	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c  && e->c_new) { // use c_new for c++
         auto& dm = DisplayManager::instance();
         c->setColormap(e->colormap);
@@ -487,7 +487,7 @@ static void handle_colormap_change(XColormapEvent *e) {
  * multiple expose events, so ignore them unless e->count (the number
  * of outstanding exposes) is zero. */
 
-static void handle_expose_event(XExposeEvent *e) {
+static void handleExposeEvent(XExposeEvent *e) {
 	if (auto& taskbar = Taskbar::instance(); e->window == taskbar.getWindow()) {
 		if (e->count == 0) {
             taskbar.redraw();
