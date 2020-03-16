@@ -25,6 +25,14 @@
 #define VERSION "140.17"
 #define RELEASEDATE "2020-03-03"
 
+constexpr auto debugActive() noexcept {
+#ifdef DEBUG
+    return true;
+#else
+    return false;
+#endif
+}
+
 #include <cerrno>
 #include <climits>
 #include <pwd.h>
@@ -103,6 +111,25 @@ inline auto getMinWinHeight() noexcept {
     return getBarHeight() * 4;
 }
 
+template<typename ... Args>
+void err(Args&& ... parts) noexcept {
+    std::cerr << "windowlab: ";
+    (std::cerr << ... << parts);
+    std::cerr << std::endl;
+}
+
+template<typename ... Args>
+void printToStderr(Args&& ... parts) noexcept {
+    (std::cerr << ... << parts);
+    std::cerr << std::endl;
+}
+
+void signalHandler(int);
+int handleXError(Display *, XErrorEvent *);
+int sendXMessage(Window, Atom, long);
+void showEvent(XEvent);
+void dumpClients();
+
 // multipliers for calling gravitate
 constexpr auto APPLY_GRAVITY = 1;
 constexpr auto REMOVE_GRAVITY = -1;
@@ -112,10 +139,6 @@ constexpr auto REMOVE_GRAVITY = -1;
 constexpr auto WINDOW = 0;
 constexpr auto FRAME = 1;
 
-// modes for remove_client
-/// @todo redo this with tag dispatching
-constexpr auto WITHDRAW = 0;
-constexpr auto REMAP = 1;
 
 // stuff for the menu file
 #define NO_MENU_LABEL "xterm"
@@ -626,6 +649,42 @@ class DisplayManager final {
         int _screen = 0;
         unsigned int _numLockMask = 0;
 };
+
+class Taskbar final {
+    public:
+        static Taskbar& instance() noexcept;
+        static inline void performRedraw() noexcept { instance().redraw(); }
+        void cyclePrevious();
+        void cycleNext();
+        void leftClick(int);
+        void rightClick(int);
+        void rightClickRoot();
+        void redraw();
+        float getButtonWidth();
+        Window& getWindow() noexcept { return _taskbar; }
+    private:
+        Taskbar() = default;
+    private:
+        void drawMenubar();
+        unsigned int updateMenuItem(int mousex);
+        void drawMenuItem(unsigned int index, bool active);
+
+    public:
+        void make() noexcept;
+        constexpr bool showingTaskbar() const noexcept { return _showing; }
+        constexpr bool insideTaskbar() const noexcept { return _inside; }
+        void setShowingTaskbar(bool value) noexcept { _showing = value; }
+        void setInsideTaskbar(bool value) noexcept { _inside = value; }
+    private:
+        bool _made = false;
+        Window _taskbar;
+        XftDraw* _tbxftdraw = nullptr;
+        bool _showing = true;
+        bool _inside = false;
+};
+
+class PerformWithdrawActionOnClientRemoval { };
+class PerformRemapActionOnClientRemoval { };
 using ClientPointer = typename Client::Ptr;
 class ClientTracker final {
     public:
@@ -657,9 +716,60 @@ class ClientTracker final {
          * @return boolean value to signify if execution should terminate early (return true for it)
          */
         bool accept(std::function<bool(ClientPointer)> fn);
-        void remove(ClientPointer, int);
-        inline void withdraw(ClientPointer c) { remove(c, WITHDRAW); }
-        inline void remap(ClientPointer c) { remove(c, REMAP); }
+        template<typename T>
+        void remove(ClientPointer c, T) {
+            /* After pulling my hair out trying to find some way to tell if a
+             * window is still valid, I've decided to instead carefully ignore any
+             * errors raised by this function. We know that the X calls are, and
+             * we know the only reason why they could fail -- a window has removed
+             * itself completely before the Unmap and Destroy events get through
+             * the queue to us. It's not absolutely perfect, but it works.
+             *
+             * The 'withdrawing' argument specifies if the client is actually
+             * (destroying itself||being destroyed by us) or if we are merely
+             * cleaning up its data structures when we exit mid-session. */
+            auto& dm = DisplayManager::instance();
+            dm.grabServer();
+
+            // temporarily disable error handling
+            dm.setErrorHandler([](Display*, XErrorEvent*) { return 0; });
+
+            using K = std::decay_t<T>;
+            if constexpr (debugActive()) {
+                std::string mode;
+                if constexpr (std::is_same_v<K, PerformWithdrawActionOnClientRemoval>) {
+                    mode = "withdraw";
+                } else if constexpr (std::is_same_v<K, PerformRemapActionOnClientRemoval>) {
+                    mode = "remap";
+                } else {
+                    static_assert(false_v<K>, "Illegal mode type for client removal!");
+                }
+                err("removing ", (c->getName() ? *c->getName(): ""), ", ", mode, ": ", dm.getPending(), " left");
+            }
+            if constexpr (std::is_same_v<K, PerformWithdrawActionOnClientRemoval>) {
+                c->setWMState(WithdrawnState);
+            } else if constexpr (std::is_same_v<K, PerformRemapActionOnClientRemoval>) {
+                dm.mapWindow(c->getWindow());
+            } else {
+                static_assert(false_v<K>, "Illegal mode type for client removal!");
+            }
+            c->removeFromView();
+            remove(c);
+            if (c == _fullscreenClient) {
+                _fullscreenClient.reset();
+            }
+            if (c == _focusedClient) {
+                _focusedClient.reset();
+                checkFocus(getPreviousFocused());
+            }
+
+            dm.sync(False);
+            // okay phew, reactivate it
+            dm.setErrorHandler(handleXError);
+            dm.ungrabServer();
+
+            Taskbar::performRedraw();
+        }
         void checkFocus(ClientPointer c);
         auto getFocusedClient() const noexcept { return _focusedClient; }
         void setFocusedClient(ClientPointer p) noexcept { _focusedClient = p; }
@@ -709,38 +819,6 @@ class ClientTracker final {
         unsigned int _focusCount = 0;
 
 };
-class Taskbar final {
-    public:
-        static Taskbar& instance() noexcept;
-        static inline void performRedraw() noexcept { instance().redraw(); }
-        void cyclePrevious();
-        void cycleNext();
-        void leftClick(int);
-        void rightClick(int);
-        void rightClickRoot();
-        void redraw();
-        float getButtonWidth();
-        Window& getWindow() noexcept { return _taskbar; }
-    private:
-        Taskbar() = default;
-    private:
-        void drawMenubar();
-        unsigned int updateMenuItem(int mousex);
-        void drawMenuItem(unsigned int index, bool active);
-
-    public:
-        void make() noexcept;
-        constexpr bool showingTaskbar() const noexcept { return _showing; }
-        constexpr bool insideTaskbar() const noexcept { return _inside; }
-        void setShowingTaskbar(bool value) noexcept { _showing = value; }
-        void setInsideTaskbar(bool value) noexcept { _inside = value; }
-    private:
-        bool _made = false;
-        Window _taskbar;
-        XftDraw* _tbxftdraw = nullptr;
-        bool _showing = true;
-        bool _inside = false;
-};
 
 extern XFontStruct *font;
 extern XftFont *xftfont;
@@ -757,27 +835,10 @@ extern int shape_event;
 void doEventLoop();
 
 // misc.c
-template<typename ... Args>
-void err(Args&& ... parts) noexcept {
-    std::cerr << "windowlab: ";
-    (std::cerr << ... << parts);
-    std::cerr << std::endl;
-}
-
-template<typename ... Args>
-void printToStderr(Args&& ... parts) noexcept {
-    (std::cerr << ... << parts);
-    std::cerr << std::endl;
-}
 
 std::optional<std::string> getEnvironmentVariable(const std::string& name) noexcept;
 std::string getEnvironmentVariable(const std::string& name, const std::string& defaultValue) noexcept;
 
-void signalHandler(int);
-int handleXError(Display *, XErrorEvent *);
-int sendXMessage(Window, Atom, long);
-void showEvent(XEvent);
-void dumpClients();
 
 void drawString(XftDraw* d, XftColor* color, XftFont* font, int x, int y, const std::string& string);
 std::tuple<Status, std::optional<std::string>> fetchName(Display* disp, Window w);
@@ -808,12 +869,5 @@ class Menu final {
         bool _updateMenuItems = true;
 };
 const std::filesystem::path& getDefMenuRc() noexcept;
-constexpr auto debugActive() noexcept {
-#ifdef DEBUG
-    return true;
-#else
-    return false;
-#endif
-}
 
 #endif /* WINDOWLAB_H */

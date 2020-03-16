@@ -371,11 +371,12 @@ static void handleMapRequest(XMapRequestEvent *e) {
  * that's almost as old as I am though. :-( */
 
 static void handleUnmapEvent(XUnmapEvent *e) {
-	if (ClientPointer c = ClientTracker::instance().find(e->window, WINDOW); c) {
+    auto& clients = ClientTracker::instance();
+	if (ClientPointer c = clients.find(e->window, WINDOW); c) {
         if (c->getIgnoreUnmap()) {
             c->decrementIgnoreUnmap();
 		} else {
-            ClientTracker::instance().withdraw(c);
+            clients.remove(c, PerformWithdrawActionOnClientRemoval{ });
 		}
 	}
 }
@@ -387,7 +388,7 @@ static void handleUnmapEvent(XUnmapEvent *e) {
 static void handleDestroyEvent(XDestroyWindowEvent *e) {
     auto& ct = ClientTracker::instance();
 	if (auto c = ct.find(e->window, WINDOW); c) {
-        ct.remove(c, WITHDRAW);
+        ct.remove(c, PerformWithdrawActionOnClientRemoval{ });
 	}
 }
 

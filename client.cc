@@ -109,51 +109,6 @@ Client::removeFromView() noexcept {
 }
 
 
-/* After pulling my hair out trying to find some way to tell if a
- * window is still valid, I've decided to instead carefully ignore any
- * errors raised by this function. We know that the X calls are, and
- * we know the only reason why they could fail -- a window has removed
- * itself completely before the Unmap and Destroy events get through
- * the queue to us. It's not absolutely perfect, but it works.
- *
- * The 'withdrawing' argument specifies if the client is actually
- * (destroying itself||being destroyed by us) or if we are merely
- * cleaning up its data structures when we exit mid-session. */
-void
-ClientTracker::remove(ClientPointer c, int mode) {
-    auto& dm = DisplayManager::instance();
-    dm.grabServer();
-
-    // temporarily disable error handling
-    dm.setErrorHandler([](Display*, XErrorEvent*) { return 0; });
-
-    if constexpr (debugActive()) {
-        err("removing ", (c->getName() ? *c->getName(): ""), ", ", mode, ": ", DisplayManager::instance().getPending(), " left");
-    }
-
-	if (mode == WITHDRAW) {
-        c->setWMState(WithdrawnState);
-	} else { //REMAP
-        dm.mapWindow(c->getWindow());
-	}
-    c->removeFromView();
-    remove(c);
-    if (c == _fullscreenClient) {
-        _fullscreenClient.reset();
-	}
-	if (c == _focusedClient) {
-        _focusedClient.reset();
-        checkFocus(getPreviousFocused());
-	}
-
-    dm.sync(False);
-    // okay phew, reactivate it
-    dm.setErrorHandler(handleXError);
-    dm.ungrabServer();
-
-    Taskbar::performRedraw();
-}
-
 void
 Client::redraw() noexcept {
     auto self = sharedReference();

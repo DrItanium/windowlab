@@ -113,7 +113,7 @@ int handleXError(Display *dsply, XErrorEvent *e)
 	}
 
 	if (c) {
-        clients.withdraw(c);
+        clients.remove(c, PerformWithdrawActionOnClientRemoval { });
 	}
 	return 0;
 }
@@ -353,7 +353,7 @@ void quitNicely() {
     dm.queryTree(&dummyw1, &dummyw2, &wins, &nwins);
 	for (unsigned int i = 0; i < nwins; i++) {
 		if (auto c = ct.find(wins[i], FRAME); c) {
-            ct.remove(c, REMAP);
+            ct.remove(c, PerformRemapActionOnClientRemoval{ });
         }
 	}
 	XFree(wins);
