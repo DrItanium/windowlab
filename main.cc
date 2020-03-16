@@ -226,6 +226,6 @@ static void setup_display() {
 	dm.grabKeysym(MODIFIER, KEY_FULLSCREEN);
 	dm.grabKeysym(MODIFIER, KEY_TOGGLEZ);
 }
-int BARHEIGHT() noexcept {
+int getBarHeight() noexcept {
     return (xftfont->ascent + xftfont->descent + 2 * SPACE + 2);
 }

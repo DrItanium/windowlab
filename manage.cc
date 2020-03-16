@@ -76,8 +76,8 @@ ClientTracker::toggleFullscreen() noexcept {
 	if (c  && !c->getTrans()) {
         if (c == getFullscreenClient()) { // reset to original size
             c->setDimensions(getFullscreenPreviousDimensions());
-            dm.moveResizeWindow(c->getFrame(), c->getX(), c->getY() - BARHEIGHT(), c->getWidth(), c->getHeight() + BARHEIGHT());
-            dm.moveResizeWindow(c->getWidth(), 0, BARHEIGHT(), c->getWidth(), c->getHeight());
+            dm.moveResizeWindow(c->getFrame(), c->getX(), c->getY() - getBarHeight(), c->getWidth(), c->getHeight() + getBarHeight());
+            dm.moveResizeWindow(c->getWidth(), 0, getBarHeight(), c->getWidth(), c->getHeight());
             c->sendConfig();
             setFullscreenClient(nullptr);
             tbar.setShowingTaskbar(true);
@@ -85,16 +85,16 @@ ClientTracker::toggleFullscreen() noexcept {
 			int xoffset = 0;
             int yoffset = 0;
             int maxwinwidth = dm.getWidth();
-            int maxwinheight = dm.getHeight() - BARHEIGHT();
+            int maxwinheight = dm.getHeight() - getBarHeight();
 			if (hasFullscreenClient()) { // reset existing fullscreen window to original size
                 getFullscreenClient()->setDimensions(getFullscreenPreviousDimensions());
-				dm.moveResizeWindow(getFullscreenClient()->getFrame(), getFullscreenClient()->getX(), getFullscreenClient()->getY() - BARHEIGHT(), getFullscreenClient()->getWidth(), getFullscreenClient()->getHeight()+ BARHEIGHT());
-				dm.moveResizeWindow(getFullscreenClient()->getWindow(), 0, BARHEIGHT(), getFullscreenClient()->getWidth(), getFullscreenClient()->getHeight());
+				dm.moveResizeWindow(getFullscreenClient()->getFrame(), getFullscreenClient()->getX(), getFullscreenClient()->getY() - getBarHeight(), getFullscreenClient()->getWidth(), getFullscreenClient()->getHeight()+ getBarHeight());
+				dm.moveResizeWindow(getFullscreenClient()->getWindow(), 0, getBarHeight(), getFullscreenClient()->getWidth(), getFullscreenClient()->getHeight());
                 getFullscreenClient()->sendConfig();
 			}
 
             setFullscreenPreviousDimensions(c->getRect());
-            c->setDimensions(0 - getBorderWidth(), (BARHEIGHT() - getBorderWidth()), (maxwinwidth), maxwinheight);
+            c->setDimensions(0 - getBorderWidth(), (getBarHeight() - getBorderWidth()), (maxwinwidth), maxwinheight);
 			if (c->getSize()->flags & PMaxSize || c->getSize()->flags & PResizeInc) {
 				if (c->getSize()->flags & PResizeInc) {
 					Rect maxwinsize { xoffset, yoffset, maxwinwidth, maxwinheight };
@@ -152,9 +152,9 @@ Client::move() noexcept {
     auto [dw, dh] = dm.getDimensions();
     auto [mousex, mousey] = dm.getMousePosition();
     auto bdx = (mousex - _x) - getBorderWidth();
-    auto bdy = (mousey - _y) + ((BARHEIGHT() * 2) - getBorderWidth());
+    auto bdy = (mousey - _y) + ((getBarHeight() * 2) - getBorderWidth());
     auto bdw = (dw - bdx - (getWidth() - bdx)) + 1;
-    auto bdh = ((dh - bdy - (getHeight() - bdy)) + 1) + (getHeight() - ((BARHEIGHT() * 2) - DEF_BORDERWIDTH));
+    auto bdh = ((dh - bdy - (getHeight() - bdy)) + 1) + (getHeight() - ((getBarHeight() * 2) - DEF_BORDERWIDTH));
     Rect bounddims(bdx, bdy, bdw, bdh);
     auto constraint_win = dm.createWindow(bounddims, 0, CopyFromParent, InputOnly, CopyFromParent, 0, pattr);
     if constexpr (debugActive()) {
@@ -178,7 +178,7 @@ Client::move() noexcept {
 			case MotionNotify:
 				_x = old_cx + (ev.xmotion.x - mousex);
 				_y = old_cy + (ev.xmotion.y - mousey);
-                dm.moveWindow(_frame, _x, _y - BARHEIGHT());
+                dm.moveWindow(_frame, _x, _y - getBarHeight());
                 sendConfig();
 				break;
 		}
@@ -200,7 +200,7 @@ Client::resize(int x, int y) {
     // outside the window, dragging inwards : FALSE
     bool dragging_outwards = (x > _x + getBorderWidth()) && 
                              (x < (_x + _width) - getBorderWidth()) && 
-                             (y > (_y - BARHEIGHT()) + getBorderWidth()) && 
+                             (y > (_y - getBarHeight()) + getBorderWidth()) && 
                              (y < (_y + _height) - getBorderWidth());
     auto [dw, dh] = dm.getDimensions();
 
@@ -213,7 +213,7 @@ Client::resize(int x, int y) {
         dm.destroyWindow(constraint_win);
 		return;
 	}
-    Rect newdims { _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT() };
+    Rect newdims { _x, _y - getBarHeight(), _width, _height + getBarHeight() };
     Rect recalceddims(newdims);
 
 	// create and map resize window
@@ -228,7 +228,7 @@ Client::resize(int x, int y) {
 	resizebar_pattr.background_pixel = active_col.pixel;
 	resizebar_pattr.border_pixel = border_col.pixel;
 	resizebar_pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-    resizebar_win = dm.createWindow(resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, resizebar_pattr);
+    resizebar_win = dm.createWindow(resize_win, -DEF_BORDERWIDTH, -DEF_BORDERWIDTH, newdims.getWidth(), getBarHeight() - DEF_BORDERWIDTH, DEF_BORDERWIDTH, DefaultDepth(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CopyFromParent, DefaultVisual(DisplayManager::instance().getDisplay(), DisplayManager::instance().getScreen()), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, resizebar_pattr);
     dm.mapRaised(resizebar_win);
 
 	// temporarily swap drawables in order to draw on the resize window's XFT context
@@ -259,12 +259,12 @@ Client::resize(int x, int y) {
 					int newwidth = 0;
                     int newheight = 0;
 					// warping the pointer is wrong - wait until it leaves the taskbar
-					if (ev.xmotion.y < BARHEIGHT()) {
+					if (ev.xmotion.y < getBarHeight()) {
 						in_taskbar = true;
 					} else {
 						if (in_taskbar) { // first time outside taskbar
 							in_taskbar = false;
-                            bounddims = { 0, BARHEIGHT(), static_cast<int>(dw), static_cast<int>(dh - BARHEIGHT()) };
+                            bounddims = { 0, getBarHeight(), static_cast<int>(dw), static_cast<int>(dh - getBarHeight()) };
                             dm.moveResizeWindow(constraint_win, bounddims);
 							in_taskbar = false;
 						}
@@ -320,7 +320,7 @@ Client::resize(int x, int y) {
 						// coords have changed
 						if (leftedge_changed || rightedge_changed || topedge_changed || bottomedge_changed) {
                             recalceddims = newdims;
-							recalceddims.subtractFromHeight(BARHEIGHT());
+							recalceddims.subtractFromHeight(getBarHeight());
 
 							if (get_incsize(sharedReference(), (unsigned int *)&newwidth, (unsigned int *)&newheight, &recalceddims, PIXELS)) {
 								if (leftedge_changed) {
@@ -338,11 +338,11 @@ Client::resize(int x, int y) {
 								}
 							}
 
-                            recalceddims.addToHeight(BARHEIGHT());
+                            recalceddims.addToHeight(getBarHeight());
 							limit_size(sharedReference(), &recalceddims);
 
                             dm.moveResizeWindow(resize_win, recalceddims);
-                            dm.resizeWindow(resizebar_win, recalceddims.getWidth(), BARHEIGHT() - DEF_BORDERWIDTH);
+                            dm.resizeWindow(resizebar_win, recalceddims.getWidth(), getBarHeight() - DEF_BORDERWIDTH);
 						}
 					}
 				}
@@ -352,9 +352,9 @@ Client::resize(int x, int y) {
 
     dm.ungrabServer();
 	dm.ungrab();
-    setDimensions(recalceddims.getX(), recalceddims.getY() + BARHEIGHT(),
-            recalceddims.getWidth(), recalceddims.getHeight() - BARHEIGHT());
-    dm.moveResizeWindow(_frame, _x, _y - BARHEIGHT(), _width, _height + BARHEIGHT());
+    setDimensions(recalceddims.getX(), recalceddims.getY() + getBarHeight(),
+            recalceddims.getWidth(), recalceddims.getHeight() - getBarHeight());
+    dm.moveResizeWindow(_frame, _x, _y - getBarHeight(), _width, _height + getBarHeight());
     dm.resizeWindow(_window, _width, _height);
 
 	// unhide real window's frame
@@ -384,10 +384,10 @@ static void limit_size(ClientPointer c, Rect *newdims)
         newdims->setWidth(c->getSize()->max_width, [compare = c->getSize()->max_width](int width) { return width > compare; });
         newdims->setHeight(c->getSize()->max_height, [compare = c->getSize()->max_height](int height) { return height > compare; });
 	}
-    newdims->setWidth(MINWINWIDTH(), [](int width) { return width < MINWINWIDTH(); });
-    newdims->setHeight(MINWINHEIGHT(), [](int height) { return height < MINWINHEIGHT(); });
+    newdims->setWidth(getMinWinWidth(), [](int width) { return width < getMinWinWidth(); });
+    newdims->setHeight(getMinWinHeight(), [](int height) { return height < getMinWinHeight(); });
     newdims->setWidth(dw, [dw](int width) { return width > dw; });
-    newdims->setHeight((dh - BARHEIGHT()), [compare = (dh - BARHEIGHT())](int height) { return height > compare; });
+    newdims->setHeight((dh - getBarHeight()), [compare = (dh - getBarHeight())](int height) { return height > compare; });
 }
 
 /* If the window in question has a ResizeInc int, then it wants to be

@@ -148,7 +148,7 @@ DisplayManager::getMousePosition() noexcept {
     return std::make_tuple(tmpX, tmpY);
 }
 
-/* If this is the fullscreen client we don't take BARHEIGHT() into account
+/* If this is the fullscreen client we don't take getBarHeight() into account
  * because the titlebar isn't being drawn on the window. */
 
 void
@@ -160,36 +160,36 @@ Client::fixPosition() noexcept {
 	
     auto& ct = ClientTracker::instance();
     auto& dm = DisplayManager::instance();
-	int titlebarheight = (ct.getFullscreenClient().get() == this) ? 0 : BARHEIGHT();
+	int titlebarheight = (ct.getFullscreenClient().get() == this) ? 0 : getBarHeight();
     int xmax = dm.getWidth();
     int ymax = dm.getHeight();
 
-    if (_width < MINWINWIDTH()) {
-        _width = MINWINWIDTH();
+    if (_width < getMinWinWidth()) {
+        _width = getMinWinWidth();
 	}
-    if (_height < MINWINHEIGHT()) {
-        _height = MINWINHEIGHT();
+    if (_height < getMinWinHeight()) {
+        _height = getMinWinHeight();
     }
 	
 	if (_width > xmax) {
         _width = xmax;
 	}
-	if (_height + (BARHEIGHT() + titlebarheight) > ymax) {
-		_height = ymax - (BARHEIGHT() + titlebarheight);
+	if (_height + (getBarHeight() + titlebarheight) > ymax) {
+		_height = ymax - (getBarHeight() + titlebarheight);
 	}
 
 	if (_x < 0) {
         _x = 0;
 	}
-	if (_y < BARHEIGHT()) {
-        _y = BARHEIGHT();
+	if (_y < getBarHeight()) {
+        _y = getBarHeight();
 	}
 
 	if (_x + _width + getBorderWidth() >= xmax) {
         _x = xmax - _width;
 	}
-	if (_y + _height + BARHEIGHT() >= ymax) {
-        _y = (ymax - _height) - BARHEIGHT();
+	if (_y + _height + getBarHeight() >= ymax) {
+        _y = (ymax - _height) - getBarHeight();
 	}
 
     if constexpr (debugActive()) {

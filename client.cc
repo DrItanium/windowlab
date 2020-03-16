@@ -162,12 +162,12 @@ Client::redraw() noexcept {
     if (self == tracker.getFullscreenClient()) {
         return;
     }
-    drawLine(border_gc, 0, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, BARHEIGHT() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
+    drawLine(border_gc, 0, getBarHeight() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2, _width, getBarHeight() - DEF_BORDERWIDTH + DEF_BORDERWIDTH / 2);
 	// clear text part of bar
 	if (self == tracker.getFocusedClient()) {
-        dm.fillRectangle(_frame, active_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+        dm.fillRectangle(_frame, active_gc, 0, 0, _width - ((getBarHeight() - DEF_BORDERWIDTH) * 3), getBarHeight() - DEF_BORDERWIDTH);
 	} else {
-        dm.fillRectangle(_frame, inactive_gc, 0, 0, _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3), BARHEIGHT() - DEF_BORDERWIDTH);
+        dm.fillRectangle(_frame, inactive_gc, 0, 0, _width - ((getBarHeight() - DEF_BORDERWIDTH) * 3), getBarHeight() - DEF_BORDERWIDTH);
 	}
 	if (!_trans && _name) {
         drawString(_xftdraw, &xft_detail, xftfont, SPACE, SPACE + xftfont->ascent, *(_name));
@@ -195,10 +195,10 @@ Client::gravitate(int multiplier) noexcept {
 		case NorthWestGravity:
 		case NorthEastGravity:
 		case NorthGravity:
-			dy = BARHEIGHT();
+			dy = getBarHeight();
 			break;
 		case CenterGravity:
-			dy = BARHEIGHT()/2;
+			dy = getBarHeight()/2;
 			break;
 	}
 
@@ -223,18 +223,18 @@ Client::setShape() noexcept {
 
 	auto dummy = XShapeGetRectangles(dm.getDisplay(), _window, ShapeBounding, &n, &order);
 	if (n > 1) {
-		XShapeCombineShape(dm.getDisplay(), _frame, ShapeBounding, 0, BARHEIGHT(), _window, ShapeBounding, ShapeSet);
+		XShapeCombineShape(dm.getDisplay(), _frame, ShapeBounding, 0, getBarHeight(), _window, ShapeBounding, ShapeSet);
 		temp.x = -getBorderWidth();
 		temp.y = -getBorderWidth();
 		temp.width = _width + (2 * getBorderWidth());
-		temp.height = BARHEIGHT() + getBorderWidth();
+		temp.height = getBarHeight() + getBorderWidth();
 		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeUnion, YXBanded);
         XRectangle temp2;
 		temp2.x = 0;
 		temp2.y = 0;
 		temp2.width = _width;
-		temp2.height = BARHEIGHT() - getBorderWidth();
-		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeClip, 0, BARHEIGHT(), &temp2, 1, ShapeUnion, YXBanded);
+		temp2.height = getBarHeight() - getBorderWidth();
+		XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeClip, 0, getBarHeight(), &temp2, 1, ShapeUnion, YXBanded);
 		_hasBeenShaped = 1;
 	} else {
 		if (_hasBeenShaped) {
@@ -242,7 +242,7 @@ Client::setShape() noexcept {
 			temp.x = -getBorderWidth();
 			temp.y = -getBorderWidth();
 			temp.width = _width + (2 * getBorderWidth());
-			temp.height = _height + BARHEIGHT() + (2 * getBorderWidth());
+			temp.height = _height + getBarHeight() + (2 * getBorderWidth());
 			XShapeCombineRectangles(dm.getDisplay(), _frame, ShapeBounding, 0, 0, &temp, 1, ShapeSet, YXBanded);
 		}
 	}
@@ -298,9 +298,9 @@ Client::fillRectangle(GC gc, int x, int y, unsigned int width, unsigned int heig
 }
 void
 Client::drawHideButton(GC* detail, GC* background) noexcept {
-	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 3);
-	int topleft_offset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-    fillRectangle(*background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	int x = _width - ((getBarHeight() - DEF_BORDERWIDTH) * 3);
+	int topleft_offset = (getBarHeight() / 2) - 5; // 5 being ~half of 9
+    fillRectangle(*background, x, 0, getBarHeight() - DEF_BORDERWIDTH, getBarHeight() - DEF_BORDERWIDTH);
 
 
 	drawLine(detail, x + topleft_offset + 4, topleft_offset + 2, x + topleft_offset + 4, topleft_offset + 0);
@@ -316,9 +316,9 @@ Client::drawHideButton(GC* detail, GC* background) noexcept {
 
 void
 Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
-	int x = _width - ((BARHEIGHT() - DEF_BORDERWIDTH) * 2);
-	int topleftOffset = (BARHEIGHT() / 2) - 6; // 6 being ~half of 11
-    fillRectangle(*background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	int x = _width - ((getBarHeight() - DEF_BORDERWIDTH) * 2);
+	int topleftOffset = (getBarHeight() / 2) - 6; // 6 being ~half of 11
+    fillRectangle(*background, x, 0, getBarHeight() - DEF_BORDERWIDTH, getBarHeight() - DEF_BORDERWIDTH);
 
 	drawRectangle(*detail, x + topleftOffset, topleftOffset, 7, 7);
 	drawRectangle(*detail, x + topleftOffset + 3, topleftOffset + 3, 7, 7);
@@ -327,9 +327,9 @@ Client::drawToggleDepthButton(GC* detail, GC* background) noexcept {
 
 void
 Client::drawCloseButton(GC* detail, GC* background) noexcept {
-	int x = _width - (BARHEIGHT() - DEF_BORDERWIDTH);
-	int topleftOffset = (BARHEIGHT() / 2) - 5; // 5 being ~half of 9
-	fillRectangle(*background, x, 0, BARHEIGHT() - DEF_BORDERWIDTH, BARHEIGHT() - DEF_BORDERWIDTH);
+	int x = _width - (getBarHeight() - DEF_BORDERWIDTH);
+	int topleftOffset = (getBarHeight() / 2) - 5; // 5 being ~half of 9
+	fillRectangle(*background, x, 0, getBarHeight() - DEF_BORDERWIDTH, getBarHeight() - DEF_BORDERWIDTH);
 
 	drawLine(detail, x + topleftOffset + 1, topleftOffset,     x + topleftOffset + 8, topleftOffset + 7);
 	drawLine(detail, x + topleftOffset + 1, topleftOffset + 1, x + topleftOffset + 7, topleftOffset + 7);

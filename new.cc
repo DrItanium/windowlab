@@ -125,24 +125,24 @@ Client::makeNew(Window w) noexcept {
  *
  * If we can't find a reasonable position hint, we make up a position
  * using the relative mouse co-ordinates and window size. To account
- * for window gravity while doing this, we add BARHEIGHT() into the
+ * for window gravity while doing this, we add getBarHeight() into the
  * calculation and then degravitate. Don't think about it too hard, or
  * your head will explode. */
 
 void
 Client::initPosition() noexcept {
 	// make sure it's big enough for the 3 buttons and a bit of bar
-	if (_width < 4 * BARHEIGHT()) {
-		_width = 4 * BARHEIGHT();
+	if (_width < 4 * getBarHeight()) {
+		_width = 4 * getBarHeight();
 	}
-	if (_height < BARHEIGHT()) {
-		_height = BARHEIGHT();
+	if (_height < getBarHeight()) {
+		_height = getBarHeight();
 	}
 
 	if (_x == 0 && _y == 0) {
         auto [mousex, mousey] = DisplayManager::instance().getMousePosition();
 		_x = mousex;
-		_y = mousey + BARHEIGHT();
+		_y = mousey + getBarHeight();
         gravitate(REMOVE_GRAVITY);
 	}
 }
@@ -156,7 +156,7 @@ Client::reparent() noexcept {
 	pattr.background_pixel = empty_col.pixel;
 	pattr.border_pixel = border_col.pixel;
 	pattr.event_mask = ChildMask|ButtonPressMask|ExposureMask|EnterWindowMask;
-    _frame = dm.createWindow(_x, _y - BARHEIGHT(), _width, _height + BARHEIGHT(), getBorderWidth(), dm.getDefaultDepth(), CopyFromParent, dm.getDefaultVisual(), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
+    _frame = dm.createWindow(_x, _y - getBarHeight(), _width, _height + getBarHeight(), getBorderWidth(), dm.getDefaultDepth(), CopyFromParent, dm.getDefaultVisual(), CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWEventMask, pattr);
 
 	if (shape) {
 		XShapeSelectInput(dm.getDisplay(), _window, ShapeNotifyMask);
@@ -167,7 +167,7 @@ Client::reparent() noexcept {
 	dm.selectInput(_window, ColormapChangeMask|PropertyChangeMask);
     dm.setWindowBorderWidth(_window, 0);
     dm.resizeWindow(_window, _width, _height);
-    dm.reparentWindow(_window, _frame, 0, BARHEIGHT());
+    dm.reparentWindow(_window, _frame, 0, getBarHeight());
 
     sendConfig();
 }

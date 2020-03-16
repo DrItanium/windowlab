@@ -91,16 +91,16 @@ constexpr auto getBorderWidth() noexcept {
     return DEF_BORDERWIDTH;
 }
 
-int BARHEIGHT() noexcept;
+int getBarHeight() noexcept;
 // bar height
 
 // minimum window width and height, enough for 3 buttons and a bit of titlebar
-inline auto MINWINWIDTH() noexcept {
-    return BARHEIGHT() * 4;
+inline auto getMinWinWidth() noexcept {
+    return getBarHeight() * 4;
 }
 
-inline auto MINWINHEIGHT() noexcept {
-    return BARHEIGHT() * 4;
+inline auto getMinWinHeight() noexcept {
+    return getBarHeight() * 4;
 }
 
 // multipliers for calling gravitate
@@ -149,7 +149,7 @@ struct Client {
         long getWMState() const noexcept;
         void setWMState(int) noexcept; 
         /**
-         * Return which button was clicked - this is a multiple of BARHEIGHT()
+         * Return which button was clicked - this is a multiple of getBarHeight()
          * from the right hand side; We only care about 0, 1 and 2. 
          */
         unsigned int boxClicked(int x) const noexcept;

@@ -165,7 +165,7 @@ static void handleButtonPress(XButtonEvent& e)
 			if (c) {
 				// click-to-focus
                 clients.checkFocus(c);
-                if (e.y < BARHEIGHT() && c != clients.getFullscreenClient()) {
+                if (e.y < getBarHeight() && c != clients.getFullscreenClient()) {
                     handleWindowbarClick(e, c);
                 }
 			}
@@ -197,9 +197,9 @@ static void handleWindowbarClick(XButtonEvent& e, ClientPointer c)
 		{
             dm.maskEvent(MouseMask, ev);
             in_box_up = c->boxClicked(ev.xbutton.x - (c->getX() + DEF_BORDERWIDTH));
-			int win_ypos = (ev.xbutton.y - c->getY()) + BARHEIGHT();
+			int win_ypos = (ev.xbutton.y - c->getY()) + getBarHeight();
 			if (ev.type == MotionNotify) {
-				if ((win_ypos <= BARHEIGHT()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
+				if ((win_ypos <= getBarHeight()) && (win_ypos >= DEF_BORDERWIDTH) && (in_box_up == in_box_down)) {
 					in_box = 1;
 					c->drawButton(&text_gc, &depressed_gc, in_box_down);
 				} else {
@@ -246,7 +246,7 @@ Client::boxClicked(int x) const noexcept {
     if (int pixFromRight = _width - x; pixFromRight < 0) {
         return std::numeric_limits<unsigned int>::max(); // outside window
     } else {
-        return (pixFromRight / (BARHEIGHT() - DEF_BORDERWIDTH));
+        return (pixFromRight / (getBarHeight() - DEF_BORDERWIDTH));
     }
 }
 void
@@ -316,9 +316,9 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
         c->gravitate(APPLY_GRAVITY);
 		// configure the frame
 		wc.x = c->getX();
-		wc.y = c->getY() - BARHEIGHT();
+		wc.y = c->getY() - getBarHeight();
 		wc.width = c->getWidth();
-		wc.height = c->getHeight()+ BARHEIGHT();
+		wc.height = c->getHeight()+ getBarHeight();
 		wc.border_width = DEF_BORDERWIDTH;
 		//wc.sibling = e->above;
 		//wc.stack_mode = e->detail;
@@ -329,7 +329,7 @@ static void handle_configure_request(XConfigureRequestEvent *e) {
 		c->sendConfig();
 		// start setting up the next call
 		wc.x = 0;
-		wc.y = BARHEIGHT();
+		wc.y = getBarHeight();
 	} else {
 		wc.x = e->x;
 		wc.y = e->y;
